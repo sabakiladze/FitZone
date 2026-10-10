@@ -1,0 +1,6 @@
+@FitZone.WebApi_HostAddress = http://localhost:5023
+
+GET {{FitZone.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
