@@ -6,19 +6,18 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.Entities.Models
 {
-    public class UserMemberShipPlan
+    public class UserMembershipPlan
     {
         // მომხარებლების და წევრობის გეგმების ურთიერთობის მოდელი
 
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public Guid UserId { get; set; }
+        public User? User{ get; set; }
 
 
-        public Guid? MemberId { get; set; }
-        public Member? Member{ get; set; }
-
-
-        public Guid? MemberShipPlanId { get; set; }
-        public MemberShipPlan? MemberShipPlan { get; set; }
+        public Guid MembershipPlanId { get; set; }
+        public MembershipPlan? MembershipPlan { get; set; }
 
 
         public DateTime StartDate { get; set; }

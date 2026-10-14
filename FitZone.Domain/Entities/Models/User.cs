@@ -6,15 +6,21 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.Entities.Models
 {
-    public abstract class User
+    public  class User
     {
 
 
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string? UserName { get; set; }= null!;
+        public string? FirstName { get; set; }= null!;
+        public string? LastName { get; set; }= null!;
+        public string? Email { get; set; }= null!;
+        public string? PasswordHash { get; set; } = null!;
 
-        public string? UserName { get; set; }
-        public string? Email { get; set; }
-        public string? PasswordHash { get; set; }
+
+        public Guid? RoleId { get; set; } = null!;
+        public Role? Role { get; set; }= null!;
+
 
         public bool IsEmailVerified { get; set; }
 

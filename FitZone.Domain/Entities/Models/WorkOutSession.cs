@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.Entities.Models
 {
-    public  class WorkOutSession
-    {
+   
         public class WorkoutSession
         {
-            public Guid Id { get;  set; }
+            public Guid Id { get;  set; }= Guid.NewGuid();
 
-            public DateTime StartsAt { get; set; }
+        public DateTime StartsAt { get; set; }
             public DateTime EndsAt { get;  set; }
 
             public int Capacity { get;  set; }
@@ -24,5 +23,4 @@ namespace FitZone.Domain.Entities.Models
             public ICollection<Booking> Bookings { get;  set; }
                 = new List<Booking>();
         }
-    }
-}
+   }

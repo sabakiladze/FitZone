@@ -8,13 +8,13 @@ namespace FitZone.Domain.Entities.Models
 {
     public class Visit
     {
-        public Guid Id { get; set; }
-        
-        public Guid? MemberId { get; set; }
-        public Member? Member { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public Guid? UserMemberShipPlanId { get; set; }
-        public UserMemberShipPlan? UserMemberShipPlan { get; set; }
+        public Guid? UserId { get; set; }
+        public User? User { get; set; } = null!;
+
+        public Guid? UserMembershipPlanId { get; set; }
+        public UserMembershipPlan? UserMembershipPlan { get; set; } = null!;
 
         public DateTime CheckedInAt { get; set; }
     }
