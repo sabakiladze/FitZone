@@ -22,6 +22,12 @@ namespace FitZone.Domain.Entities.Models
         public Role? Role { get; set; }= null!;
 
 
+
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public ICollection<UserMembershipPlan> Memberships { get; set; } = new List<UserMembership>();
+        public ICollection<Visit> Visits { get; set; } = new List<Visit>();
+
+
         public bool IsEmailVerified { get; set; }
 
         public string? VerificationCode { get; set; }
