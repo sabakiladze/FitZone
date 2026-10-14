@@ -27,11 +27,28 @@ namespace FitZone.Domain.Entities.Models
         public DateTime? LastLoginAt { get; set; }
 
 
-        // როდესაც მომინდება ვერიფიკაცია ამ მეთოდით კოდს და დროს შევუცვლი მნიშვნელობას.
+        // როდესაც მომინდება ვერიფიკაცია ამ მეთოდით კოდს და დროს შევუცვლი მნიშვნელობას ერთდროულად და ცალ-ცალკე აღარ შევუცვლი მნიშვენლობას 
         public void SetVerificationCode(string code, DateTime expiresAt)
         {
             VerificationCode = code;
             VerificationCodeExpiresAt = expiresAt;
+        }
+
+        public void VerifyEmail()
+        {
+            IsEmailVerified = true;
+             VerificationCode = null;
+             VerificationCodeExpiresAt = null;
+        }
+
+        public void Deactivate()
+        {
+            IsActive = false;
+        }
+
+        public void Activate()
+        {
+            IsActive = true;
         }
 
     }

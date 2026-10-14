@@ -8,7 +8,7 @@ namespace FitZone.Domain.Entities.Models
 {
     public class Member : User
     {
-        public string? PhoneNumber { get; private set; }
+        public string? PhoneNumber { get; set; }
 
     }
 }
