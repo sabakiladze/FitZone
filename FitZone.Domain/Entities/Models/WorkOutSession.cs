@@ -21,6 +21,6 @@ namespace FitZone.Domain.Entities.Models
 
 
             public ICollection<Booking> Bookings { get;  set; }
-                = new List<Booking>();
+                = [];
         }
    }
