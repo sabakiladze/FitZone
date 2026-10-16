@@ -11,11 +11,21 @@ namespace FitZone.Domain.Entities.Models
 
 
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string? UserName { get; set; }= null!;
-        public string? FirstName { get; set; }= null!;
-        public string? LastName { get; set; }= null!;
-        public string? Email { get; set; }= null!;
-        public string? PasswordHash { get; set; } = null!;
+        public string UserName { get; set; }= null!;
+        public string FirstName { get; set; }= null!;
+        public string LastName { get; set; }= null!;
+        public string Email { get; set; }= null!;
+        public string PasswordHash { get; set; } = null!;
+
+        public bool IsEmailVerified { get; set; }
+        public string? VerificationCode { get; set; }
+        public DateTime? VerificationCodeExpiresAt { get; set; }
+
+        public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? LastLoginAt { get; set; }
+
 
 
         public Guid? RoleId { get; set; } = null!;
@@ -28,15 +38,7 @@ namespace FitZone.Domain.Entities.Models
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 
 
-        public bool IsEmailVerified { get; set; }
-
-        public string? VerificationCode { get; set; }
-        public DateTime? VerificationCodeExpiresAt { get; set; }
-
-        public bool IsActive { get; set; } = true;
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? LastLoginAt { get; set; }
+        
 
 
         // როდესაც მომინდება ვერიფიკაცია ამ მეთოდით კოდს და დროს შევუცვლი მნიშვნელობას ერთდროულად და ცალ-ცალკე აღარ შევუცვლი მნიშვენლობას 

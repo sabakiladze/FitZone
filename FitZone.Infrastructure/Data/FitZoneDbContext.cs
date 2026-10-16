@@ -51,7 +51,7 @@ namespace FitZone.Infrastructure.Data
             {
                 builder.ToTable("Roles");
                 builder.HasKey(r => r.Id);
-                builder.Property(r => r.Id).HasDefaultValueSql("NewId()");
+                builder.Property(r => r.Id);
                 builder.Property(r => r.RoleName)
                 .HasMaxLength(100)
                 .IsRequired();
@@ -63,12 +63,188 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                builder.HasData(
-        new Role { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), RoleName = "User" },
-        new Role { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), RoleName = "Admin" });
+               
 
             });
 
+            modelBuilder.Entity<User>(builder =>
+            {
+                builder.ToTable("Users");
+
+                builder.HasKey(u => u.Id);
+                builder.Property(u => u.Id)
+                .ValueGeneratedOnAdd();
+
+                builder.Property(u => u.UserName)
+                .HasMaxLength(50)
+                .IsRequired();
+                builder.HasIndex(u => u.UserName)
+                .IsUnique();
+
+                builder.Property(u => u.FirstName)
+                .HasMaxLength(50)
+                .IsRequired();
+                builder.Property(u=>u.LastName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+                builder.Property(u => u.Email)
+                .HasMaxLength(256)
+                .IsRequired();
+                builder.HasIndex(u => u.Email)
+                .IsUnique();
+
+                builder.Property(u => u.PasswordHash)
+                .HasMaxLength(500)
+                .IsRequired();
+
+                builder.Property(u => u.IsEmailVerified)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+                builder.Property(u => u.VerificationCode)
+                .HasMaxLength(256);
+
+
+                builder.Property(u => u.VerificationCodeExpiresAt);
+
+                builder.Property(u => u.IsActive)
+                    .IsRequired();
+
+                builder.Property(u => u.CreatedAt)
+                    .IsRequired();
+
+                builder.Property(u => u.LastLoginAt);
+
+
+                builder.HasOne(u=>u.Role)
+                .WithMany(r=>r.Users)
+                .HasForeignKey(u=>u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasMany(u => u.Bookings)
+                .WithOne(b => b.User)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasMany(u=>u.Memberships)
+                .WithOne(m=>m.User)
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasMany(u => u.Visits)
+                .WithOne(v=>v.User)
+                .HasForeignKey(v=>v.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            });
+
+
+            modelBuilder.Entity<Trainer>(builder =>
+            {
+                builder.ToTable("Trainers");
+
+                builder.HasKey(t => t.Id);
+                builder.Property(t => t.Id);
+
+                builder.Property(t => t.FullName)
+                .HasMaxLength(100)
+                .IsRequired();
+
+                builder.Property(t => t.Specialization)
+                .HasMaxLength(500)
+                .IsRequired();
+
+                builder.Property(t => t.ExperienceYears);
+
+                builder.HasMany(t=>t.WorkoutSessions)
+                .WithOne(w=>w.Trainer)
+                .HasForeignKey(w=>w.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            });
+
+            modelBuilder.Entity<MembershipPlan>(builder =>
+            {
+                builder.ToTable("MembershipPlans");
+                builder.HasKey(m => m.Id);
+                builder.Property(m => m.Id);
+
+                builder.Property(m => m.Name).HasMaxLength(100);
+                builder.HasIndex(m => m.Name).IsUnique();
+                builder.Property(m => m.Price);
+                builder.Property(m => m.VisitLimit);
+                builder.Property(m => m.DurationInDays);
+
+                /// aq constraints დამჭირდება, რომ ერთნაირი სახელის მქონე გეგმები არ იყოს ბაზაში, ანუ უნიკალური უნდა იყოს Name.
+
+            });
+
+            modelBuilder.Entity<Booking>(builder =>
+            {
+                builder.ToTable("Bookings");
+                builder.HasKey(b => b.Id);
+                builder.Property(b => b.Id);
+                builder.Property(b => b.BookedAt);
+                builder.Property(b => b.Status);
+
+                builder.HasOne(b => b.User)
+                .WithMany(u => u.Bookings)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasOne(b => b.WorkoutSession)
+                .WithMany(w => w.Bookings)
+                .HasForeignKey(b => b.WorkoutSessionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            });
+
+            modelBuilder.Entity<WorkoutSession>(builder =>
+            {
+                builder.ToTable("WorkoutSessions");
+
+                builder.HasKey(w => w.Id);
+                builder.Property(w => w.Id);
+
+                builder.Property(w => w.StartsAt);
+                builder.Property(w => w.EndsAt);
+
+                builder.Property(w => w.Capacity);
+
+                builder.HasOne(w => w.Trainer)
+                .WithMany(t => t.WorkoutSessions)
+                .HasForeignKey(w => w.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasMany(w => w.Bookings)
+                .WithOne(b => b.WorkoutSession)
+                .HasForeignKey(b => b.WorkoutSessionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            });
+
+
+            modelBuilder.Entity<Visit>(builder =>
+            {
+                builder.ToTable("Visits");
+
+                builder.HasKey(v => v.Id);
+                builder.Property(v => v.Id);
+
+                builder.Property(v => v.CheckedInAt);
+
+                builder.HasOne(v => v.User)
+                .WithMany(u => u.Visits)
+                .HasForeignKey(v => v.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasOne(v => v.UserMembershipPlan)
+                .WithMany(m => m.Visits)
+                .HasForeignKey(v => v.UserMembershipPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
 
 
 

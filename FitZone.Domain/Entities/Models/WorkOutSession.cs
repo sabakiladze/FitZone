@@ -11,7 +11,7 @@ namespace FitZone.Domain.Entities.Models
         {
             public Guid Id { get;  set; }= Guid.NewGuid();
 
-        public DateTime StartsAt { get; set; }
+            public DateTime StartsAt { get; set; }
             public DateTime EndsAt { get;  set; }
 
             public int Capacity { get;  set; }

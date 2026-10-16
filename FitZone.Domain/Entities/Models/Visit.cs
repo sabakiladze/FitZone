@@ -10,14 +10,14 @@ namespace FitZone.Domain.Entities.Models
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public Guid? UserId { get; set; }
-        public User? User { get; set; } = null!;
-
-        public Guid? UserMembershipPlanId { get; set; }
-        public UserMembershipPlan? UserMembershipPlan { get; set; } = null!;
-
         public DateTime CheckedInAt { get; set; }
 
+        public Guid UserId { get; set; }
+        public User User { get; set; } = null!;
+
+        public Guid UserMembershipPlanId { get; set; }
+        public UserMembershipPlan UserMembershipPlan { get; set; } = null!;
+        
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 
     }

@@ -9,7 +9,7 @@ namespace FitZone.Domain.Entities.Models
     public  class MembershipPlan
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string? Name { get; set; }= null!;
+        public string Name { get; set; }= null!;
         public Decimal Price { get; set; }
         public int VisitLimit { get; set; }
         public int DurationInDays { get; set; }
