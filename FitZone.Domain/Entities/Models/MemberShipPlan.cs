@@ -14,7 +14,7 @@ namespace FitZone.Domain.Entities.Models
         public int? VisitLimit { get; set; }
         public int DurationInDays { get; set; }
 
-        public ICollection<UserMembershipPlan> UserMembershipPlans { get; set; } = new List<UserMembership>();
+        public ICollection<UserMembershipPlan> UserMembershipPlans { get; set; } = new List<UserMembershipPlan>();
 
     }
 }

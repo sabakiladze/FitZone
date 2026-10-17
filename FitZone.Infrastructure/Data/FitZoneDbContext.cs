@@ -197,12 +197,12 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(u => u.MembershipPlanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                builder.HasData(
-                    new MembershipPlan { Id = StarterPlanId, Name = "Starter", Price = 30m, DurationInDays = 30, VisitLimit = 8 },
-                    new MembershipPlan { Id = MonthlyPlanId, Name = "Monthly", Price = 50m, DurationInDays = 30, VisitLimit = 12 },
-                    new MembershipPlan { Id = UnlimitedPlanId, Name = "Monthly Unlimited", Price = 80m, DurationInDays = 30, VisitLimit = null },
-                    new MembershipPlan { Id = QuarterlyPlanId, Name = "Quarterly", Price = 130m, DurationInDays = 90, VisitLimit = 40 },
-                    new MembershipPlan { Id = YearlyPlanId, Name = "Yearly", Price = 450m, DurationInDays = 365, VisitLimit = null });
+                //builder.HasData(
+                //    new MembershipPlan { Id = StarterPlanId, Name = "Starter", Price = 30m, DurationInDays = 30, VisitLimit = 8 },
+                //    new MembershipPlan { Id = MonthlyPlanId, Name = "Monthly", Price = 50m, DurationInDays = 30, VisitLimit = 12 },
+                //    new MembershipPlan { Id = UnlimitedPlanId, Name = "Monthly Unlimited", Price = 80m, DurationInDays = 30, VisitLimit = null },
+                //    new MembershipPlan { Id = QuarterlyPlanId, Name = "Quarterly", Price = 130m, DurationInDays = 90, VisitLimit = 40 },
+                //    new MembershipPlan { Id = YearlyPlanId, Name = "Yearly", Price = 450m, DurationInDays = 365, VisitLimit = null });
             });
 
             modelBuilder.Entity<Booking>(builder =>
