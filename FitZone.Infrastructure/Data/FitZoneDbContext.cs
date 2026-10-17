@@ -32,7 +32,8 @@ namespace FitZone.Infrastructure.Data
         // აქ უნდა დავამტო მერე ტესტირებისთის if() პირობა.
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+           if (!optionsBuilder.IsConfigured)
+           {
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -41,6 +42,7 @@ namespace FitZone.Infrastructure.Data
 
             var _connectionString = configuration.GetConnectionString("DefaultConnection");
             optionsBuilder.UseSqlServer(_connectionString);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,8 +69,8 @@ namespace FitZone.Infrastructure.Data
                private static readonly Guid AdminRoleId = Guid.NewGuid();
 
         builder.HasData(
-                   new Role { Id = 33b55207-ab7c-474e-82e5-fd89bf9bab59, RoleName = "Admin" },
-                   new Role { Id = 59cbfac4-9a3a-4cf8-93af-ba88f71d5719, RoleName = "User" }
+                   new Role { Id = Guid.Parse("33b55207-ab7c-474e-82e5-fd89bf9bab59"), RoleName = "Admin" },
+                   new Role { Id = Guid.Parse("59cbfac4-9a3a-4cf8-93af-ba88f71d5719"), RoleName = "User" }
                );
 
                
@@ -172,12 +174,11 @@ namespace FitZone.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
                 builder.HasData(
-                new Trainer { Id = 063e3914-691e-4663-bbd4-5fb2acac5139, FullName = "Giorgi Beridze", Specialization = "Strength Training", ExperienceYears = 8 },
-                new Trainer { Id = 4d64029d-2c85-47e7-9d37-8a5417dd6872, FullName = "Nino Kapanadze", Specialization = "Yoga", ExperienceYears = 5 },
-                new Trainer { Id = 39a2d8bc-8c91-4a6a-965e-862c90c757ae, FullName = "Dato Maisuradze", Specialization = "Cardio & HIIT", ExperienceYears = 3 },
-                new Trainer { Id = 05966c03-f1ee-4285-a055-518a29c368ea, FullLName = "Mariam Nozadze". Specialization = "Cardio $ HIIT", ExperienceYears = 4 },
-                new Trainer { Id = 17f8c66d-6ec2-4b69-b7f5-1ee9c544e7f5, FullName = "Nika Donadze", Specialization = "Strength Training", ExperienceYears = 6 },
-);
+                new Trainer { Id = Guid.Parse("063e3914-691e-4663-bbd4-5fb2acac5139"), FullName = "Giorgi Beridze", Specialization = "Strength Training", ExperienceYears = 8 },
+                new Trainer { Id = Guid.Parse("4d64029d-2c85-47e7-9d37-8a5417dd6872"), FullName = "Nino Kapanadze", Specialization = "Yoga", ExperienceYears = 5 },
+                new Trainer { Id = Guid.Parse("39a2d8bc-8c91-4a6a-965e-862c90c757ae"), FullName = "Dato Maisuradze", Specialization = "Cardio & HIIT", ExperienceYears = 3 },
+                new Trainer { Id = Guid.Parse("05966c03-f1ee-4285-a055-518a29c368ea"), FullName = "Mariam Nozadze". Specialization = "Cardio $ HIIT", ExperienceYears = 4 },
+                new Trainer { Id = Guid.Parse("17f8c66d-6ec2-4b69-b7f5-1ee9c544e7f5"), FullName = "Nika Donadze", Specialization = "Strength Training", ExperienceYears = 6 });
 
             });
 
@@ -204,11 +205,11 @@ namespace FitZone.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
                 builder.HasData(
-                   new MembershipPlan { Id = e056ea0c-d394-44d3-b188-7ab1c33922e0, Name = "Starter", Price = 30m, DurationInDays = 30, VisitLimit = 8 },
-                   new MembershipPlan { Id = 82832180-3261-473e-a745-c251ec1cc799, Name = "Monthly", Price = 50m, DurationInDays = 30, VisitLimit = 12 },
-                   new MembershipPlan { Id = da2a4441-855b-4c4a-b67f-2a10702bd60a, Name = "Monthly Unlimited", Price = 80m, DurationInDays = 30, VisitLimit = null },
-                   new MembershipPlan { Id = c6986d8a-5af9-4f41-a1c1-606ef0f9fb92, Name = "Quarterly", Price = 130m, DurationInDays = 90, VisitLimit = 40 },
-                   new MembershipPlan { Id = ea72fe03-414f-4c72-8cdd-1277f3279c45, Name = "Yearly", Price = 450m, DurationInDays = 365, VisitLimit = null });
+                   new MembershipPlan { Id = Guid.Parse("e056ea0c-d394-44d3-b188-7ab1c33922e0"), Name = "Starter", Price = 30m, DurationInDays = 30, VisitLimit = 8 },
+                   new MembershipPlan { Id = Guid.Parse("82832180-3261-473e-a745-c251ec1cc799"), Name = "Monthly", Price = 50m, DurationInDays = 30, VisitLimit = 12 },
+                   new MembershipPlan { Id = Guid.Parse("da2a4441-855b-4c4a-b67f-2a10702bd60a"), Name = "Monthly Unlimited", Price = 80m, DurationInDays = 30, VisitLimit = null },
+                   new MembershipPlan { Id = Guid.Parse("c6986d8a-5af9-4f41-a1c1-606ef0f9fb92"), Name = "Quarterly", Price = 130m, DurationInDays = 90, VisitLimit = 40 },
+                   new MembershipPlan { Id = Guid.Parse("ea72fe03-414f-4c72-8cdd-1277f3279c45"), Name = "Yearly", Price = 450m, DurationInDays = 365, VisitLimit = null });
             });
 
             modelBuilder.Entity<Booking>(builder =>
