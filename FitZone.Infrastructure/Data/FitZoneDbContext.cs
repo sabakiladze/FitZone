@@ -113,7 +113,6 @@ namespace FitZone.Infrastructure.Data
                 builder.Property(u => u.VerificationCode)
                 .HasMaxLength(256);
 
-
                 builder.Property(u => u.VerificationCodeExpiresAt);
 
                 builder.Property(u => u.IsActive)
@@ -123,7 +122,6 @@ namespace FitZone.Infrastructure.Data
                     .IsRequired();
 
                 builder.Property(u => u.LastLoginAt);
-
 
                 builder.HasOne(u=>u.Role)
                 .WithMany(r=>r.Users)
@@ -172,6 +170,14 @@ namespace FitZone.Infrastructure.Data
                 .WithOne(w=>w.Trainer)
                 .HasForeignKey(w=>w.TrainerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasData(
+                new Trainer { Id = 063e3914-691e-4663-bbd4-5fb2acac5139, FullName = "Giorgi Beridze", Specialization = "Strength Training", ExperienceYears = 8 },
+                new Trainer { Id = 4d64029d-2c85-47e7-9d37-8a5417dd6872, FullName = "Nino Kapanadze", Specialization = "Yoga", ExperienceYears = 5 },
+                new Trainer { Id = 39a2d8bc-8c91-4a6a-965e-862c90c757ae, FullName = "Dato Maisuradze", Specialization = "Cardio & HIIT", ExperienceYears = 3 },
+                new Trainer { Id = 05966c03-f1ee-4285-a055-518a29c368ea, FullLName = "Mariam Nozadze". Specialization = "Cardio $ HIIT", ExperienceYears = 4 },
+                new Trainer { Id = 17f8c66d-6ec2-4b69-b7f5-1ee9c544e7f5, FullName = "Nika Donadze", Specialization = "Strength Training", ExperienceYears = 6 },
+);
 
             });
 
