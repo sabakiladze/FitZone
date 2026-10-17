@@ -64,12 +64,12 @@ namespace FitZone.Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-        //        private static readonly Guid AdminRoleId = Guid.NewGuid();
+               private static readonly Guid AdminRoleId = Guid.NewGuid();
 
-        //builder.HasData(
-        //            new Role { Id = Guid.NewGuid(), RoleName = "Admin" },
-        //            new Role { Id = Guid.NewGuid(), RoleName = "User" }
-        //        );
+        builder.HasData(
+                   new Role { Id = 33b55207-ab7c-474e-82e5-fd89bf9bab59, RoleName = "Admin" },
+                   new Role { Id = 59cbfac4-9a3a-4cf8-93af-ba88f71d5719, RoleName = "User" }
+               );
 
                
 
@@ -197,12 +197,12 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(u => u.MembershipPlanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                //builder.HasData(
-                //    new MembershipPlan { Id = StarterPlanId, Name = "Starter", Price = 30m, DurationInDays = 30, VisitLimit = 8 },
-                //    new MembershipPlan { Id = MonthlyPlanId, Name = "Monthly", Price = 50m, DurationInDays = 30, VisitLimit = 12 },
-                //    new MembershipPlan { Id = UnlimitedPlanId, Name = "Monthly Unlimited", Price = 80m, DurationInDays = 30, VisitLimit = null },
-                //    new MembershipPlan { Id = QuarterlyPlanId, Name = "Quarterly", Price = 130m, DurationInDays = 90, VisitLimit = 40 },
-                //    new MembershipPlan { Id = YearlyPlanId, Name = "Yearly", Price = 450m, DurationInDays = 365, VisitLimit = null });
+                builder.HasData(
+                   new MembershipPlan { Id = e056ea0c-d394-44d3-b188-7ab1c33922e0, Name = "Starter", Price = 30m, DurationInDays = 30, VisitLimit = 8 },
+                   new MembershipPlan { Id = 82832180-3261-473e-a745-c251ec1cc799, Name = "Monthly", Price = 50m, DurationInDays = 30, VisitLimit = 12 },
+                   new MembershipPlan { Id = da2a4441-855b-4c4a-b67f-2a10702bd60a, Name = "Monthly Unlimited", Price = 80m, DurationInDays = 30, VisitLimit = null },
+                   new MembershipPlan { Id = c6986d8a-5af9-4f41-a1c1-606ef0f9fb92, Name = "Quarterly", Price = 130m, DurationInDays = 90, VisitLimit = 40 },
+                   new MembershipPlan { Id = ea72fe03-414f-4c72-8cdd-1277f3279c45, Name = "Yearly", Price = 450m, DurationInDays = 365, VisitLimit = null });
             });
 
             modelBuilder.Entity<Booking>(builder =>
