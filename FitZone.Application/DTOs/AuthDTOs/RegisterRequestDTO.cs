@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.Auth
 {
-    public class RegisterRequest
+    public class RegisterRequestDTO
     {
         [Required(ErrorMessage ="UserName is required")]
         [StringLength(50, MinimumLength = 3, ErrorMessage ="UserName must be between 3 and 50 characters")]

@@ -1,7 +1,11 @@
 
 using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure.Data;
+using FitZone.Infrastructure.Repositories;
+using FitZone.Infrastructure.Repositorys;
+using FitZone.Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FitZone.WebApi
 {
@@ -16,7 +20,13 @@ namespace FitZone.WebApi
             builder.Services.AddDbContext<FitZoneDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
+
             
 
             // Add services to the container.

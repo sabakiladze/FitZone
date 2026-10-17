@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.Auth
 {
-    public class AuthResponse
+    public class AuthResponseDTO
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; } = null!;

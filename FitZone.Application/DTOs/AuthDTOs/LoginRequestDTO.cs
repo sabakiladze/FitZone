@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.Auth
 {
-    public class LoginRequest
+    public class LoginRequestDTO
     {
         [Required(ErrorMessage ="Email is required")]
         [StringLength(256, ErrorMessage ="Email must be less than 256 characters")]
