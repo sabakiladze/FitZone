@@ -1,12 +1,6 @@
 ﻿using FitZone.Domain.Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.IO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FitZone.Infrastructure.Data
 {
@@ -22,28 +16,9 @@ namespace FitZone.Infrastructure.Data
         public DbSet<Visit> Visits { get; set; }
 
 
-        public FitZoneDbContext() { }
         public FitZoneDbContext(DbContextOptions<FitZoneDbContext> options) : base(options) { }
 
 
-
-
-
-        // აქ უნდა დავამტო მერე ტესტირებისთის if() პირობა.
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-           if (!optionsBuilder.IsConfigured)
-           {
-            IConfiguration configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-
-            var _connectionString = configuration.GetConnectionString("DefaultConnection");
-            optionsBuilder.UseSqlServer(_connectionString);
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,10 +40,7 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-               private static readonly Guid AdminRoleId = Guid.NewGuid();
-
-        builder.HasData(
+                 builder.HasData(
                    new Role { Id = Guid.Parse("33b55207-ab7c-474e-82e5-fd89bf9bab59"), RoleName = "Admin" },
                    new Role { Id = Guid.Parse("59cbfac4-9a3a-4cf8-93af-ba88f71d5719"), RoleName = "User" }
                );
@@ -177,7 +149,7 @@ namespace FitZone.Infrastructure.Data
                 new Trainer { Id = Guid.Parse("063e3914-691e-4663-bbd4-5fb2acac5139"), FullName = "Giorgi Beridze", Specialization = "Strength Training", ExperienceYears = 8 },
                 new Trainer { Id = Guid.Parse("4d64029d-2c85-47e7-9d37-8a5417dd6872"), FullName = "Nino Kapanadze", Specialization = "Yoga", ExperienceYears = 5 },
                 new Trainer { Id = Guid.Parse("39a2d8bc-8c91-4a6a-965e-862c90c757ae"), FullName = "Dato Maisuradze", Specialization = "Cardio & HIIT", ExperienceYears = 3 },
-                new Trainer { Id = Guid.Parse("05966c03-f1ee-4285-a055-518a29c368ea"), FullName = "Mariam Nozadze". Specialization = "Cardio $ HIIT", ExperienceYears = 4 },
+                new Trainer { Id = Guid.Parse("05966c03-f1ee-4285-a055-518a29c368ea"), FullName = "Mariam Nozadze", Specialization = "Cardio $ HIIT", ExperienceYears = 4 },
                 new Trainer { Id = Guid.Parse("17f8c66d-6ec2-4b69-b7f5-1ee9c544e7f5"), FullName = "Nika Donadze", Specialization = "Strength Training", ExperienceYears = 6 });
 
             });
