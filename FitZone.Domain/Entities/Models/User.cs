@@ -34,7 +34,7 @@ namespace FitZone.Domain.Entities.Models
 
 
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-        public ICollection<UserMembershipPlan> Memberships { get; set; } = new List<UserMembershipPlan>();
+        public ICollection<UserMembershipPlan> UserMembershipPlans { get; set; } = new List<UserMembershipPlan>();
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 
 

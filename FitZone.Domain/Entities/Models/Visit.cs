@@ -18,7 +18,6 @@ namespace FitZone.Domain.Entities.Models
         public Guid UserMembershipPlanId { get; set; }
         public UserMembershipPlan UserMembershipPlan { get; set; } = null!;
         
-        public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 
     }
     // with user 1:1 to many relationship, one user can have many visits, but one visit can only belong to one user.
