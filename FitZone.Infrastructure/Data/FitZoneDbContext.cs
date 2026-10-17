@@ -163,11 +163,11 @@ namespace FitZone.Infrastructure.Data
                     t.HasCheckConstraint("CK_MembershipPlans_DurationInDays", "[DurationInDays] > 0");
                 });
                 builder.HasKey(m => m.Id);
-                builder.Property(m => m.Id);
+                builder.Property(m => m.Id); 
 
                 builder.Property(m => m.Name).HasMaxLength(100);
                 builder.HasIndex(m => m.Name).IsUnique();
-                builder.Property(m => m.Price);
+                builder.Property(m => m.Price).HasPrecision(18, 2);
                 builder.Property(m => m.VisitLimit);
                 builder.Property(m => m.DurationInDays);
 

@@ -1,4 +1,5 @@
 
+using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,8 @@ namespace FitZone.WebApi
             builder.Services.AddDbContext<FitZoneDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            
 
             // Add services to the container.
 
