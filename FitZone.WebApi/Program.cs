@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure.Data;
@@ -26,13 +27,14 @@ namespace FitZone.WebApi
                  .Bind(builder.Configuration.GetSection("EmailSettings"))
                     .ValidateDataAnnotations()
                       .ValidateOnStart();
+            builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
             if (builder.Environment.IsDevelopment())
-                builder.Services.AddScoped<IEmailSender, DevelopmentEmailSenderService>();
+                builder.Services.AddScoped<IEmailSender, DevelopmentEmailSender>();
             else
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
 
