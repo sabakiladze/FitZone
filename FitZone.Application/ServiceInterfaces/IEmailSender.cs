@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitZone.Application
+namespace FitZone.Application.ServiceInterfaces
 {
     public interface IEmailSender
     {

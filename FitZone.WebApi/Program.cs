@@ -1,6 +1,8 @@
 
+using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure.Data;
+using FitZone.Infrastructure.Email;
 using FitZone.Infrastructure.Repositories;
 using FitZone.Infrastructure.Repositorys;
 using FitZone.Infrastructure.Settings;
@@ -20,14 +22,23 @@ namespace FitZone.WebApi
             builder.Services.AddDbContext<FitZoneDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddOptions<EmailSettings>()
+                 .Bind(builder.Configuration.GetSection("EmailSettings"))
+                    .ValidateDataAnnotations()
+                      .ValidateOnStart();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
+            if (builder.Environment.IsDevelopment())
+                builder.Services.AddScoped<IEmailSender, DevelopmentEmailSenderService>();
+            else
+                builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
 
-            
+
+
+
 
             // Add services to the container.
 

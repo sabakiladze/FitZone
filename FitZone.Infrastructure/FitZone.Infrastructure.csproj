@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FitZone.Application\FitZone.Application.csproj" />
     <ProjectReference Include="..\FitZone.Domain\FitZone.Domain.csproj" />
   </ItemGroup>
 
