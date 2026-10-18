@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using Octopus.Client.Validation;
+
 
 namespace FitZone.Application.DTOs.Auth
 {
@@ -28,6 +25,7 @@ namespace FitZone.Application.DTOs.Auth
 
         [Required(ErrorMessage ="Password is required")]
         [StringLength(100, MinimumLength = 8, ErrorMessage ="Password must be between 8 and 100 characters")]
+        [PasswordComplexity(ErrorMessage = "Make sure that your password contains latin characters, minimum one symbol, and one uppercase character.")]
         public string Password { get; set; } = null!;
     }
 }

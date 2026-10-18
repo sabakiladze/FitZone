@@ -32,9 +32,25 @@ namespace FitZone.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default)
+        public async Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(request);
+
+            if (!await _userRepository.ExistsByEmailAsync(request.Email, ct))
+            {
+                throw new ArgumentException("User by this email could not found");
+            }
+            var user = await _userRepository.GetByEmailAsync(request.Email, ct);
+            if(_passwordHasher.Verify(request.Password, user.PasswordHash)==false)
+            {
+                throw new ArgumentException("Password is invalid");
+            }
+
+            if(user.IsEmailVerified==false)
+            {
+                throw new Exception("Email is not verified yet. Please Verify email first")
+            }
+            return new AuthResponseDTO { };  // ამას დავამატო
         }
 
         public Task LogOutAsync(string token, CancellationToken ct = default)
@@ -94,9 +110,22 @@ namespace FitZone.Application.Services
 
         }
 
-        public Task<bool> VerifyEmailAsync(string email, string code, CancellationToken ct = default)
+        public async Task<bool> VerifyEmailAsync(string email, string code, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+
+            if(string.IsNullOrEmpty(email)) { throw new ArgumentException("Email filed is empty");}
+            if (string.IsNullOrEmpty(code)) { throw new ArgumentException("Code is empty");}
+
+            var user = await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant(), ct) ?? throw new ArgumentException("User by this email could not found");
+
+            user.SetVerificationCode(code);
+            if(user.VerificationCode==code)
+            {
+                user.VerifyEmail();
+            }
+            return true;
+
+
         }
     }
 }
