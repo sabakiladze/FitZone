@@ -42,10 +42,10 @@ namespace FitZone.Domain.Entities.Models
 
 
         // როდესაც მომინდება ვერიფიკაცია ამ მეთოდით კოდს და დროს შევუცვლი მნიშვნელობას ერთდროულად და ცალ-ცალკე აღარ შევუცვლი მნიშვენლობას 
-        public void SetVerificationCode(string code, DateTime expiresAt)
+        public void SetVerificationCode(string code)
         {
             VerificationCode = code;
-            VerificationCodeExpiresAt = expiresAt;
+            VerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
         }
 
         public void VerifyEmail()

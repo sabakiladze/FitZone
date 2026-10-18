@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="Octopus.Client" Version="25.1.2958" />
   </ItemGroup>
 
   <ItemGroup>

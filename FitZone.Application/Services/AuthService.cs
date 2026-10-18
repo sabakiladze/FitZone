@@ -5,6 +5,7 @@ using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;
 using FitZone.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Security.Authentication;
 
 
 namespace FitZone.Application.Services
@@ -32,9 +33,16 @@ namespace FitZone.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default)
+        public async Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(request);
+
+            
+            var user = await _userRepository.GetByEmailAsync(request.Email, ct);
+            if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+                throw new Exception("Email or password is incorrect"); //?????????
+
+            return new AuthResponseDTO { };  // ამას დავამატო
         }
 
         public Task LogOutAsync(string token, CancellationToken ct = default)
@@ -52,11 +60,12 @@ namespace FitZone.Application.Services
             ArgumentNullException.ThrowIfNull(request);// ეს კარგი რაღაცაა დაიმახსოვრე
 
 
+            var email = request.Email.Trim().ToLowerInvariant();
 
-            bool user_email = await _userRepository.ExistsByEmailAsync(request.Email.Trim().ToLowerInvariant(), ct);
+            bool user_email = await _userRepository.ExistsByEmailAsync(email, ct);
             if (user_email == true) throw new EmailIsAlreadyRegisteredException();
 
-            bool user_username = await _userRepository.ExistsByEmailAsync(request.UserName, ct);
+            bool user_username = await _userRepository.ExistsByUserNameAsync(request.UserName, ct);
             if (user_username == true) throw new UserNameIsAlreadyTaken();
 
 
@@ -85,6 +94,7 @@ namespace FitZone.Application.Services
                 LastLoginAt = null
             };
 
+
             await _userRepository.AddAsync(newUser, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
@@ -94,9 +104,24 @@ namespace FitZone.Application.Services
 
         }
 
-        public Task<bool> VerifyEmailAsync(string email, string code, CancellationToken ct = default)
+        public async Task<bool> VerifyEmailAsync(string email, string code, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+
+
+            if(string.IsNullOrEmpty(email)) { throw new ArgumentException("Email filed is empty");}
+            if (string.IsNullOrEmpty(code)) { throw new ArgumentException("Code is empty");}
+
+            var email_check = email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email_check, ct) ?? throw new ArgumentException("User by this email could not found");
+
+           
+            if(user.VerificationCode==code)
+            {
+                user.VerifyEmail();
+            }
+            return true;
+
+
         }
     }
 }
