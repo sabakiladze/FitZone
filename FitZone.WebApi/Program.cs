@@ -1,7 +1,8 @@
 
-using AutoMapper;
+using FitZone.Application;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.Interfaces;
+using FitZone.Infrastructure;
 using FitZone.Infrastructure.Data;
 using FitZone.Infrastructure.Email;
 using FitZone.Infrastructure.Repositories;
@@ -27,12 +28,13 @@ namespace FitZone.WebApi
                  .Bind(builder.Configuration.GetSection("EmailSettings"))
                     .ValidateDataAnnotations()
                       .ValidateOnStart();
-            builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
+           // builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-
+            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             if (builder.Environment.IsDevelopment())
                 builder.Services.AddScoped<IEmailSender, DevelopmentEmailSender>();
             else

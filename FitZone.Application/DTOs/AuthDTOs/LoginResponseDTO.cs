@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.AuthDTOs
 {
-    public class LoginResponse
+    public class LoginResponseDTO
     {
         public AuthResponseDTO? AuthResponseDto { get; set; }
         public string? AccessToken { get; set; }

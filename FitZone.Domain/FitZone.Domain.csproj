@@ -12,8 +12,4 @@
     <None Remove="Entities\DTOs\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CustomExceptions\" />
-  </ItemGroup>
-
 </Project>
