@@ -1,8 +1,10 @@
 ﻿using FitZone.Application.DTOs.Auth;
+using FitZone.Application.DTOs.AuthDTOs;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;
 using FitZone.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 
 namespace FitZone.Application.Services
@@ -13,12 +15,16 @@ namespace FitZone.Application.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUnitOfWork _unitOfWork;
-        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher, IUnitOfWork unitOfWork)
+        private readonly ILogger<AuthService> _logger;
+
+
+        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher, IUnitOfWork unitOfWork, ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _passwordHasher = passwordHasher;
-            _unitOfWork=unitOfWork;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public Task<bool> DeleteUserAsync(Guid userId, CancellationToken ct = default)
@@ -41,7 +47,7 @@ namespace FitZone.Application.Services
             throw new NotImplementedException();
         }
 
-        public async Task<AuthResponseDTO> RegisterAsync(RegisterRequestDTO request, CancellationToken ct = default)
+        public async Task<RegisterResponseDTO> RegisterAsync(RegisterRequestDTO request, CancellationToken ct = default)
         {
             ArgumentNullException.ThrowIfNull(request);// ეს კარგი რაღაცაა დაიმახსოვრე
 
@@ -54,10 +60,17 @@ namespace FitZone.Application.Services
             if (user_username == true) throw new UserNameIsAlreadyTaken();
 
 
-            var role = await _roleRepository.GetByNameAsync("User", ct) ?? throw new RoleNotFoundException();
+            var role = await _roleRepository.GetByNameAsync("User", ct);
+
+            if (role is null)
+            {
+                _logger.LogError("Default role 'User' was not found.");
+                throw new RoleNotFoundException();
+            }
 
 
-            var newUser = new User {
+            var newUser = new User
+            {
                 UserName = request.UserName,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
@@ -71,12 +84,14 @@ namespace FitZone.Application.Services
                 CreatedAt = DateTime.Now,
                 LastLoginAt = null
             };
+
             await _userRepository.AddAsync(newUser, ct);
             await _unitOfWork.SaveChangesAsync(ct);
-            return new AuthResponseDTO
-            {
 
-            };
+            _logger.LogInformation("User {UserId} registered.", newUser.Id);
+
+            return new RegisterResponseDTO { UserId = newUser.Id, Email = newUser.Email };
+
         }
 
         public Task<bool> VerifyEmailAsync(string email, string code, CancellationToken ct = default)
