@@ -16,7 +16,6 @@ namespace FitZone.Application.DTOs.Auth
 
 
 
-        // აქ უნდა დავამატო რომ მინიმუმ 1 სიმბოლო
         [Required(ErrorMessage ="Password is required")]
         [StringLength(100, MinimumLength = 8, ErrorMessage ="Password must be between 8 and 100 characters")]
         public string Password { get; set; }=string.Empty;
