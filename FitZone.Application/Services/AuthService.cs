@@ -40,7 +40,7 @@ namespace FitZone.Application.Services
             
             var user = await _userRepository.GetByEmailAsync(request.Email, ct);
             if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
-                throw new Exception("Email or password is incorrect"); //?????????
+                throw new EmailOrPasswordIsIncorrectException();
 
             return new AuthResponseDTO { };  // ამას დავამატო
         }
@@ -83,15 +83,10 @@ namespace FitZone.Application.Services
                 UserName = request.UserName,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                Email = request.Email,
+                Email = email,
                 PasswordHash = _passwordHasher.Hash(request.Password),
                 RoleId = role.Id,
-                IsActive = true,
-                IsEmailVerified = false,
-                VerificationCode = null,
-                VerificationCodeExpiresAt = null,
-                CreatedAt = DateTime.Now,
-                LastLoginAt = null
+                
             };
 
 

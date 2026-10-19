@@ -1,6 +1,7 @@
 
 using FitZone.Application;
 using FitZone.Application.ServiceInterfaces;
+using FitZone.Application.Services;
 using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure;
 using FitZone.Infrastructure.Data;
@@ -35,13 +36,19 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+
+
             if (builder.Environment.IsDevelopment())
                 builder.Services.AddScoped<IEmailSender, DevelopmentEmailSender>();
             else
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
 
+            builder.Services.Configure<JwtSettings>(
+               builder.Configuration.GetSection("JwtTokenSettings"));
 
-
+            var jwtSettings = builder.Configuration.GetSection("JwtTokenSettings").Get<JwtSettings>()
+               ?? throw new InvalidOperationException("JwtTokenSettings section is missing.");
 
 
             // Add services to the container.
