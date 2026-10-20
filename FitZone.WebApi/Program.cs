@@ -1,4 +1,3 @@
-
 using FitZone.Application;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Application.Services;
@@ -9,8 +8,11 @@ using FitZone.Infrastructure.Email;
 using FitZone.Infrastructure.Repositories;
 using FitZone.Infrastructure.Repositorys;
 using FitZone.Infrastructure.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace FitZone.WebApi
 {
@@ -20,7 +22,7 @@ namespace FitZone.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-
+            
 
             builder.Services.AddDbContext<FitZoneDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -37,6 +39,8 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<>
 
 
             if (builder.Environment.IsDevelopment())
@@ -44,14 +48,38 @@ namespace FitZone.WebApi
             else
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
 
+
+
             builder.Services.Configure<JwtSettings>(
                builder.Configuration.GetSection("JwtTokenSettings"));
+            builder.Configuration.AddJsonFile( "secret.json", optional: false, reloadOnChange: false);
 
             var jwtSettings = builder.Configuration.GetSection("JwtTokenSettings").Get<JwtSettings>()
-               ?? throw new InvalidOperationException("JwtTokenSettings section is missing.");
+               ?? throw new InvalidOperationException("JwtSettings section is missing.");
 
-
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+           .AddJwtBearer(options =>
+           {
+               options.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuer = true,
+                   ValidateAudience = true,
+                   ValidateLifetime = true,
+                   ValidateIssuerSigningKey = true,
+                   ValidIssuer = jwtSettings.Issuer,
+                   ValidAudience = jwtSettings.Audience,
+                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                   ClockSkew = TimeSpan.Zero
+               };
+               });
             // Add services to the container.
+
+
+            builder.Services.AddAuthorization();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -69,7 +97,9 @@ namespace FitZone.WebApi
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+            
 
 
             app.MapControllers();

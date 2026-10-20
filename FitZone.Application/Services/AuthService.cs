@@ -17,15 +17,18 @@ namespace FitZone.Application.Services
         private readonly IPasswordHasher _passwordHasher;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AuthService> _logger;
+        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IEmailSender _emailSender;
 
-
-        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher, IUnitOfWork unitOfWork, ILogger<AuthService> logger)
+        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher, IUnitOfWork unitOfWork, ILogger<AuthService> logger, IJwtTokenService jwtTokenService, IEmailSender emailsender)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _passwordHasher = passwordHasher;
             _unitOfWork = unitOfWork;
+            _jwtTokenService = jwtTokenService;
             _logger = logger;
+            _emailSender = emailsender;
         }
 
         public Task<bool> DeleteUserAsync(Guid userId, CancellationToken ct = default)
@@ -37,12 +40,16 @@ namespace FitZone.Application.Services
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            
             var user = await _userRepository.GetByEmailAsync(request.Email, ct);
             if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
                 throw new EmailOrPasswordIsIncorrectException();
 
-            return new AuthResponseDTO { };  // ამას დავამატო
+            string accessToken = _jwtTokenService.GenerateAccessToken(user);
+            string refreshToken = _jwtTokenService.GenerateRefreshToken();
+
+
+
+            return new AuthResponseDTO { };  // ამას დავამატო automapper იტ
         }
 
         public Task LogOutAsync(string token, CancellationToken ct = default)
@@ -87,14 +94,18 @@ namespace FitZone.Application.Services
                 PasswordHash = _passwordHasher.Hash(request.Password),
                 RoleId = role.Id,
                 
-            };
+            }; // აუტო მაპერი
 
 
             await _userRepository.AddAsync(newUser, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
+           // await _emailSender.SendAsync(newUser.Email, );
+
             _logger.LogInformation("User {UserId} registered.", newUser.Id);
 
+
+            // აქაც უნდა დავამატო აუტომაპერი
             return new RegisterResponseDTO { UserId = newUser.Id, Email = newUser.Email };
 
         }
@@ -114,6 +125,8 @@ namespace FitZone.Application.Services
             {
                 user.VerifyEmail();
             }
+           
+            await _unitOfWork.SaveChangesAsync(ct);
             return true;
 
 

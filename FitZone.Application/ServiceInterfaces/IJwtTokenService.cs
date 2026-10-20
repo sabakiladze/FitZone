@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.ServiceInterfaces
 {
-    public interface IJwtTokenGenerator
+    public interface IJwtTokenService
     {
         public string GenerateAccessToken(User User);
         public string GenerateRefreshToken();

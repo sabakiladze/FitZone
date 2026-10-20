@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FitZone.Application.ServiceInterfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,7 +10,7 @@ namespace FitZone.Application
 {
     public static class VerificationEmailTemplate
     {
-        public static string Build(string firstName, string code, int expires)
+        public static string GenerateVerificationBody(string firstName, string code, int expires)
         {
             var name = WebUtility.HtmlEncode(firstName);
             var safeCode = WebUtility.HtmlEncode(code);
