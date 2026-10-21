@@ -72,8 +72,11 @@ namespace FitZone.Application.Services
             
             if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
                 throw new EmailOrPasswordIsIncorrectException();
+
+            if(user.IsEmailVerified ==false) throw new EmailIsNotVerifiedException();
+
             if (!user.IsActive)
-                throw new AccountIsDeactivatedException("Account is deactivated.");
+                throw new AccountIsDeactivatedException();
 
             var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user);
 

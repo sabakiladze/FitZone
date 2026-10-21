@@ -17,7 +17,7 @@ namespace FitZone.Domain.Entities.Models
         public string Email { get; set; }= null!;
         public string PasswordHash { get; set; } = null!;
 
-        public bool IsEmailVerified { get; private set; }
+        public bool IsEmailVerified { get; private set; } = false;
         public string? VerificationCode { get; set; }
         public DateTime? VerificationCodeExpiresAt { get; set; }
 
@@ -60,17 +60,17 @@ namespace FitZone.Domain.Entities.Models
 
         public void MarkAsDeleted()
         {
-            var suffix = Id.ToString("N");                    // 32 სიმბოლო, უნიკალურია
+            var suffix = Id.ToString("N");                    
 
             IsActive = false;
             DeletedAt = DateTime.UtcNow;
 
-            UserName = $"deleted_{suffix}";                   // 40 სიმბოლო, ლიმიტი 50
+            UserName = $"deleted_{suffix}";                   
             Email = $"deleted_{suffix}@deleted.local";
             FirstName = "Deleted";
             LastName = "User";
 
-            PasswordHash = Guid.NewGuid().ToString("N");      // არავალიდური ჰეში, ვერავინ შევა
+            PasswordHash = Guid.NewGuid().ToString("N");      
             ClearRefreshToken();
             VerificationCode = null;
             VerificationCodeExpiresAt = null;
