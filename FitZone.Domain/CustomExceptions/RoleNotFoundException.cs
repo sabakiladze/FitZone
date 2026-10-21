@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class RoleNotFoundException:Exception
+    public class RoleNotFoundException:AppException
     {
-        public RoleNotFoundException() :base ("Role By This Name Do Could Not Found") { }
-        public RoleNotFoundException(string message) : base(message) { }
-        public RoleNotFoundException(string message, Exception Inner) : base(message, Inner) { }
+        public RoleNotFoundException() :base ("Role By This Name Could Not Found.", 500) { }
     }
 }

@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class UserNotFoundException:Exception
+    public class UserNotFoundException:AppException
     {
-        public UserNotFoundException() : base("User not founf"){ }
-        public UserNotFoundException(string message) : base(message) { }
-        public UserNotFoundException(string message, Exception inner) : base(message, inner) { }
+        public UserNotFoundException() : base("User not found.",404){ }
 
     }
 }

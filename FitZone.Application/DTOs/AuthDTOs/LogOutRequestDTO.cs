@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.Auth
 {
-    public class LogOutRequetDTO
+    public class LogOutRequestDTO
     {
         [Required]
         public string RefreshToken { get; set; } = string.Empty;

@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class UserNameIsAlreadyTaken:Exception
+    public class UserNameIsAlreadyTaken:AppException
     {
-        public UserNameIsAlreadyTaken() : base("Username is alreadytaken") { }
-        public UserNameIsAlreadyTaken(string message) : base(message) { }
-        public UserNameIsAlreadyTaken(string message, Exception inner) : base(message, inner) { }
-
+        public UserNameIsAlreadyTaken() : base("Username is alreadytaken.", 409) { }
 
     }
 }

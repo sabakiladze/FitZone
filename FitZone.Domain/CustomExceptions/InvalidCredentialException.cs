@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class InvalidCredentialException:Exception
+    public class InvalidCredentialException : AppException
     {
-        public InvalidCredentialException() : base("Invalid Password") { }
-        public InvalidCredentialException(string message) : base(message) { }
-        public InvalidCredentialException(string message, Exception inner) : base(message, inner) { }
+        public InvalidCredentialException() : base("Invalid Password", 401) { }
 
 
 

@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class AccountIsDeactivatedException:Exception
+    public class AccountIsDeactivatedException:AppException
     {
-        public AccountIsDeactivatedException() : base("Account is deactivated.") { }
-        public AccountIsDeactivatedException(string message) : base(message) { }
-        public AccountIsDeactivatedException(string message, Exception inner) : base(message, inner) { }
+        public AccountIsDeactivatedException() : base("Account is deactivated.", 403) { }
 
     }
 }

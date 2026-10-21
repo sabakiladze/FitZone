@@ -8,6 +8,7 @@ using FitZone.Infrastructure.Email;
 using FitZone.Infrastructure.Repositories;
 using FitZone.Infrastructure.Repositorys;
 using FitZone.Infrastructure.Settings;
+using FitZone.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -85,6 +86,9 @@ namespace FitZone.WebApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -98,7 +102,8 @@ namespace FitZone.WebApi
 
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
+            app.UseExceptionHandler();
 
 
             app.MapControllers();

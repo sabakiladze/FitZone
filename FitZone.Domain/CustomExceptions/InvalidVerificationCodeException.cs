@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class InvalidVerificationCodeException:Exception
+    public class InvalidVerificationCodeException:AppException
     {
-        public InvalidVerificationCodeException() : base("Invalid Verification Code"){ }
-        public InvalidVerificationCodeException(string message) : base(message) { }
-        public InvalidVerificationCodeException(string message, Exception inner) : base(message, inner) { }
-
+        public InvalidVerificationCodeException() : base("Invalid Verification Code.",400){ }
     }
 }

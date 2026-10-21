@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class VerificationCodeExpiredException:Exception
+    public class VerificationCodeExpiredException:AppException
     {
-        public VerificationCodeExpiredException() : base("Verification code Expired") { }
-        public VerificationCodeExpiredException(string message) : base(message) { }
-        public VerificationCodeExpiredException(string message, Exception inner) : base(message, inner) { }
+        public VerificationCodeExpiredException() : base("Verification code Expired", 400) { }
 
     }
 }
