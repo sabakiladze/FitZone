@@ -14,4 +14,4 @@ namespace FitZone.Domain.CustomExceptions
 
     }
 }
-}
+

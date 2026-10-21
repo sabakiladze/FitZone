@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitZone.Infrastructure.Migrations
 {
     [DbContext(typeof(FitZoneDbContext))]
-    [Migration("20261021075408_InitialMigration")]
+    [Migration("20261021103519_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -230,6 +230,9 @@ namespace FitZone.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
