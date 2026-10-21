@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitZone.Infrastructure.Migrations
 {
     [DbContext(typeof(FitZoneDbContext))]
-    [Migration("20261017173641_InitialMigration")]
+    [Migration("20261021075408_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -262,6 +262,13 @@ namespace FitZone.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<Guid?>("RoleId")
                         .HasColumnType("uniqueidentifier");

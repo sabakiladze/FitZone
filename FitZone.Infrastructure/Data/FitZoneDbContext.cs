@@ -88,6 +88,7 @@ namespace FitZone.Infrastructure.Data
                 .HasMaxLength(256);
 
                 builder.Property(u => u.VerificationCodeExpiresAt);
+                builder.Property(u => u.RefreshTokenHash).HasMaxLength(128);
 
                 builder.Property(u => u.IsActive)
                     .IsRequired();

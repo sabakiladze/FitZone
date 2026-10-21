@@ -21,7 +21,9 @@ namespace FitZone.Infrastructure
         {
             _jwtSettings = jwtSettings.Value;
         }
-        public string GenerateAccessToken(User user)
+        
+
+        public (string Token, DateTime ExpiresAt) GenerateAccessToken(User user)
         {
             var claims = new List<Claim>
             {
@@ -46,23 +48,37 @@ namespace FitZone.Infrastructure
               შედეგად ვიღებთ ხელმოწერის სრულყოფილ მონაცემებს(SigningCredentials),
             რომლებიც შემდეგ გადაეცემა JWT ტოკენის გენერატორს, რათა ტოკენს უსაფრთხოების "ბეჭედი" დაუსვას*/
 
-            var token= new JwtSecurityToken(
-                issuer:_jwtSettings.Issuer,
-                audience:_jwtSettings.Audience,
-                claims:claims,
-                expires:DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
-                signingCredentials:credentials);
+            var experesAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: experesAt,
+                signingCredentials: credentials);
+
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+
+
+            return (accessToken,experesAt);
         }
 
-        public string GenerateRefreshToken()
-        {
-            // ნუ ეს ცალ-ცალკე 64 ბაიტს აგენერირებს ად არა მთლიან strings
-            var refreshToken = RandomNumberGenerator.GetBytes(64);
+        
 
-            // ეს 64 ბაიტი ერთიანდება ერთ სტრინგად. 
-            return Convert.ToBase64String(refreshToken); 
+        (string Token, string Hash, DateTime ExpiresAt) IJwtTokenService.GenerateRefreshToken()
+        {
+            //  Convert.tobase64stinf ეს 64 ბაიტი ერთიანდება ერთ სტრინგად. 
+            // RandomNumberGenerator.GetBytes  ეს ცალ-ცალკე 64 ბაიტს აგენერირებს ად არა მთლიან strings
+
+            var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+            //ბაზაში ტოკენის ჰეშირებულ ვარიანტს ჩავსვამ, ამიტომ მჭირდება დაჰაშვა 
+            var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken)));
+
+            var experesAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+
+            return (refreshToken, hash, experesAt);
         }
     }
 }

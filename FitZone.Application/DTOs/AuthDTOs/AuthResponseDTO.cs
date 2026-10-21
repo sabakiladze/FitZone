@@ -12,8 +12,12 @@ namespace FitZone.Application.DTOs.Auth
         public string UserName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string Role { get; set; } = null!;
+
         public string AccessToken { get; set; } = null!;
         public DateTime AccessTokenExpiresAt { get; set; }
-        public DateTime ExpiresAt { get; set; }
+
+        public string RefreshToken { get; set; } = null!;
+
+
     }
 }

@@ -40,7 +40,6 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-            builder.Services.AddScoped<>
 
 
             if (builder.Environment.IsDevelopment())
@@ -52,7 +51,7 @@ namespace FitZone.WebApi
 
             builder.Services.Configure<JwtSettings>(
                builder.Configuration.GetSection("JwtTokenSettings"));
-            builder.Configuration.AddJsonFile( "secret.json", optional: false, reloadOnChange: false);
+
 
             var jwtSettings = builder.Configuration.GetSection("JwtTokenSettings").Get<JwtSettings>()
                ?? throw new InvalidOperationException("JwtSettings section is missing.");

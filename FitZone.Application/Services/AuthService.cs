@@ -1,12 +1,14 @@
 ﻿using FitZone.Application.DTOs.Auth;
 using FitZone.Application.DTOs.AuthDTOs;
+using FitZone.Application.Helpers;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;
 using FitZone.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Security.Authentication;
-
+using System.Security.Cryptography;
+using System.Text;
 
 namespace FitZone.Application.Services
 {
@@ -20,7 +22,16 @@ namespace FitZone.Application.Services
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IEmailSender _emailSender;
 
-        public AuthService(IUserRepository userRepository, IRoleRepository roleRepository, IPasswordHasher passwordHasher, IUnitOfWork unitOfWork, ILogger<AuthService> logger, IJwtTokenService jwtTokenService, IEmailSender emailsender)
+
+
+        public AuthService(IUserRepository userRepository,
+            IRoleRepository roleRepository,
+            IPasswordHasher passwordHasher,
+            IUnitOfWork unitOfWork,
+            ILogger<AuthService> logger,
+            IJwtTokenService jwtTokenService,
+            IEmailSender emailsender
+            )
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -31,30 +42,64 @@ namespace FitZone.Application.Services
             _emailSender = emailsender;
         }
 
-        public Task<bool> DeleteUserAsync(Guid userId, CancellationToken ct = default)
+        public async Task DeleteUserAsync(Guid userId, DeleteAccountRequestDTO request, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(request);
+            var user = await _userRepository.GetByIdAsync(userId, ct);
+            if (user is null || user.DeletedAt is not null)
+                throw new UserNotFoundException();
+
+            if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
+                throw new System.Security.Authentication.InvalidCredentialException();
+
+            user.MarkAsDeleted();
+
+            // TODO: მომავალი ჩაწერების გაუქმება (Booking-ის ლოგიკის შემდეგ)
+
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            _logger.LogInformation("User {UserId} deleted account.", userId);
+
         }
 
         public async Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default)
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            var user = await _userRepository.GetByEmailAsync(request.Email, ct);
+            var email = request.Email.Trim().ToLowerInvariant();
+
+            var user = await _userRepository.GetByEmailAsync(email, ct);
+            
             if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
                 throw new EmailOrPasswordIsIncorrectException();
+            if (!user.IsActive)
+                throw new AccountIsDeactivatedException("Account is deactivated.");
 
-            string accessToken = _jwtTokenService.GenerateAccessToken(user);
-            string refreshToken = _jwtTokenService.GenerateRefreshToken();
+            var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user);
 
 
+            var(refreshToken, tokenHash,refreshexpiresAt)= _jwtTokenService.GenerateRefreshToken();
 
-            return new AuthResponseDTO { };  // ამას დავამატო automapper იტ
+            user.SetRefreshToken(tokenHash, refreshexpiresAt);
+
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            return new AuthResponseDTO {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = user.Role.RoleName,
+                AccessToken = accessToken,
+                AccessTokenExpiresAt = accessExpiresAt,
+                RefreshToken = refreshToken
+            };  
         }
 
-        public Task LogOutAsync(string token, CancellationToken ct = default)
+        public async Task LogOutAsync(string hashToken, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var user=await _userRepository.GetUserByHashedToken(hashToken, ct);
+            user?.ClearRefreshToken();
+            await _unitOfWork.SaveChangesAsync(ct);
         }
 
         public Task<AuthResponseDTO> RefreshTokenAsync(string token, CancellationToken ct = default)
@@ -94,39 +139,55 @@ namespace FitZone.Application.Services
                 PasswordHash = _passwordHasher.Hash(request.Password),
                 RoleId = role.Id,
                 
-            }; // აუტო მაპერი
+            }; 
+
+            const int codeLifespanMinutes = 15;
+            var code = VerificationCodeHelper.Generate();
+            var hash = VerificationCodeHelper.Hash(code);
+
+            newUser.SetVerificationCode(hash,
+                DateTime.UtcNow.AddMinutes(codeLifespanMinutes));
 
 
             await _userRepository.AddAsync(newUser, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
-           // await _emailSender.SendAsync(newUser.Email, );
+
+            var body = VerificationEmailTemplate.GenerateVerificationBody(newUser.FirstName, code, codeLifespanMinutes);
+            await _emailSender.SendAsync(newUser.Email, "Account Verification", body, ct); 
 
             _logger.LogInformation("User {UserId} registered.", newUser.Id);
 
 
-            // აქაც უნდა დავამატო აუტომაპერი
             return new RegisterResponseDTO { UserId = newUser.Id, Email = newUser.Email };
 
         }
 
-        public async Task<bool> VerifyEmailAsync(string email, string code, CancellationToken ct = default)
+        public async Task<bool> VerifyEmailAsync(VerificationEmailRequestDTO request, CancellationToken ct = default)
         {
 
+            ArgumentNullException.ThrowIfNull(request);
 
-            if(string.IsNullOrEmpty(email)) { throw new ArgumentException("Email filed is empty");}
-            if (string.IsNullOrEmpty(code)) { throw new ArgumentException("Code is empty");}
+            var email = request.Email.Trim().ToLowerInvariant();
+            var user = await _userRepository.GetByEmailAsync(email, ct);
 
-            var email_check = email.Trim().ToLowerInvariant();
-            var user = await _userRepository.GetByEmailAsync(email_check, ct) ?? throw new ArgumentException("User by this email could not found");
+             if (user is null || user.IsEmailVerified == true || user.VerificationCode is null)
+                    throw new InvalidVerificationCodeException();
 
-           
-            if(user.VerificationCode==code)
-            {
-                user.VerifyEmail();
-            }
-           
+            if (user.VerificationCodeExpiresAt is null || user.VerificationCodeExpiresAt < DateTime.UtcNow)
+                throw new VerificationCodeExpiredException();
+
+            var provided = Encoding.UTF8.GetBytes(VerificationCodeHelper.Hash(request.Code));
+            var stored = Encoding.UTF8.GetBytes(user.VerificationCode!);
+
+            if (!CryptographicOperations.FixedTimeEquals(provided, stored))
+                throw new InvalidVerificationCodeException();
+
+
+            user.VerifyEmail();
             await _unitOfWork.SaveChangesAsync(ct);
+            _logger.LogInformation("User {UserId} verified email.", user.Id);
+
             return true;
 
 

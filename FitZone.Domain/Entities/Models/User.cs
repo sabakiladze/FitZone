@@ -17,16 +17,19 @@ namespace FitZone.Domain.Entities.Models
         public string Email { get; set; }= null!;
         public string PasswordHash { get; set; } = null!;
 
-        public bool IsEmailVerified { get; set; }
+        public bool IsEmailVerified { get; private set; }
         public string? VerificationCode { get; set; }
         public DateTime? VerificationCodeExpiresAt { get; set; }
+
+        public string? RefreshTokenHash { get; set; }
+        public DateTime? RefreshTokenExpiresAt { get; set; }
 
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
 
-
+        public DateTime? DeletedAt { get; private set; }
 
         public Guid? RoleId { get; set; } = null!;
         public Role? Role { get; set; }= null!;
@@ -38,22 +41,41 @@ namespace FitZone.Domain.Entities.Models
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 
 
-        
+
 
 
         // როდესაც მომინდება ვერიფიკაცია ამ მეთოდით კოდს და დროს შევუცვლი მნიშვნელობას ერთდროულად და ცალ-ცალკე აღარ შევუცვლი მნიშვენლობას 
-        public void SetVerificationCode(string code)
+        public void SetVerificationCode(string codeHash, DateTime expiresAt)
         {
-            VerificationCode = code;
-            VerificationCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            VerificationCode = codeHash;              // ბაზაში ჰეში ინახება და არა კოდი
+            VerificationCodeExpiresAt = expiresAt;
         }
-
         public void VerifyEmail()
         {
             IsEmailVerified = true;
              VerificationCode = null;
              VerificationCodeExpiresAt = null;
         }
+
+
+        public void MarkAsDeleted()
+        {
+            var suffix = Id.ToString("N");                    // 32 სიმბოლო, უნიკალურია
+
+            IsActive = false;
+            DeletedAt = DateTime.UtcNow;
+
+            UserName = $"deleted_{suffix}";                   // 40 სიმბოლო, ლიმიტი 50
+            Email = $"deleted_{suffix}@deleted.local";
+            FirstName = "Deleted";
+            LastName = "User";
+
+            PasswordHash = Guid.NewGuid().ToString("N");      // არავალიდური ჰეში, ვერავინ შევა
+            ClearRefreshToken();
+            VerificationCode = null;
+            VerificationCodeExpiresAt = null;
+        }
+
 
         public void Deactivate()
         {
@@ -63,6 +85,18 @@ namespace FitZone.Domain.Entities.Models
         public void Activate()
         {
             IsActive = true;
+        }
+
+        public void SetRefreshToken(string hash, DateTime expiresAt)
+        {
+            RefreshTokenHash = hash;
+            RefreshTokenExpiresAt = expiresAt;
+        }
+
+        public void ClearRefreshToken()
+        {
+            RefreshTokenHash = null;
+            RefreshTokenExpiresAt = null;
         }
 
     }

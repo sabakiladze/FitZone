@@ -71,6 +71,8 @@ namespace FitZone.Infrastructure.Migrations
                     IsEmailVerified = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     VerificationCode = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     VerificationCodeExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RefreshTokenHash = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: true),
+                    RefreshTokenExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastLoginAt = table.Column<DateTime>(type: "datetime2", nullable: true),

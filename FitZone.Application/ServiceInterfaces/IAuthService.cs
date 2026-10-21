@@ -12,11 +12,11 @@ namespace FitZone.Application.ServiceInterfaces
     {
         Task<RegisterResponseDTO> RegisterAsync(RegisterRequestDTO request, CancellationToken ct = default);
         Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default);
-        Task<bool> DeleteUserAsync(Guid userId, CancellationToken ct = default);
-        Task<bool> VerifyEmailAsync(string email,string code, CancellationToken ct = default);
+        Task DeleteUserAsync(Guid userId, DeleteAccountRequestDTO request, CancellationToken ct = default);
+        Task<bool> VerifyEmailAsync(VerificationEmailRequestDTO request, CancellationToken ct = default);
         Task LogOutAsync(string token, CancellationToken ct = default);
 
-        Task<AuthResponseDTO> RefreshTokenAsync(string token, CancellationToken ct = default);
+        Task<AuthResponseDTO> RefreshTokenAsync(string hashToken, CancellationToken ct = default);
 
     }
 }

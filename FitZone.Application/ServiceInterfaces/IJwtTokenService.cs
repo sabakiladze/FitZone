@@ -9,7 +9,9 @@ namespace FitZone.Application.ServiceInterfaces
 {
     public interface IJwtTokenService
     {
-        public string GenerateAccessToken(User User);
-        public string GenerateRefreshToken();
+      
+            (string Token, DateTime ExpiresAt) GenerateAccessToken(User user);
+            (string Token, string Hash, DateTime ExpiresAt) GenerateRefreshToken();
+        
     }
 }

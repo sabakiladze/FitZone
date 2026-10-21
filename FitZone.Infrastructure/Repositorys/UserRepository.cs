@@ -42,5 +42,16 @@ namespace FitZone.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email, ct);
         }
 
+        public async Task<User?> GetUserByHashedToken(string token, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.Users
+                .FirstOrDefaultAsync(x=>x.RefreshTokenHash==token);
+
+        }
+        public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.Users
+                .FirstOrDefaultAsync(u => u.Id == id, ct);
+        }
     }
 }
