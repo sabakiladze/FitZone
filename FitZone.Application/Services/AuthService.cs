@@ -6,6 +6,7 @@ using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;
 using FitZone.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Data;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
@@ -98,17 +99,49 @@ namespace FitZone.Application.Services
             };  
         }
 
-        public async Task LogOutAsync(string hashToken, CancellationToken ct = default)
+        public async Task LogOutAsync(LogOutRequestDTO token, CancellationToken ct = default)
         {
-            var user=await _userRepository.GetUserByHashedToken(hashToken, ct);
+            ArgumentNullException.ThrowIfNull(token);
+
+            var hash = RefreshTokenHasher.Hash(token.RefreshToken);
+            var user =await _userRepository.GetUserByHashedToken(hash, ct);
+
+            if (user is null) return;
+
             user?.ClearRefreshToken();
             await _unitOfWork.SaveChangesAsync(ct);
         }
 
-        public Task<AuthResponseDTO> RefreshTokenAsync(string token, CancellationToken ct = default)
+        public async Task<AuthResponseDTO> RefreshTokenAsync(RefreshTokenRequestDTO token, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(token.RefreshToken))
+                throw new InvalidRefreshTokenException();
+
+            var hash = RefreshTokenHasher.Hash(token.RefreshToken);
+            var user = await _userRepository.GetUserByHashedToken(hash, ct);
+
+            if(user is null || !user.IsActive || user.RefreshTokenExpiresAt is null ||user.RefreshTokenExpiresAt<DateTime.UtcNow)
+                throw new InvalidRefreshTokenException();
+
+            var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user);
+            var (newRefreshToken, newHash, newRefreshExpiresAt) = _jwtTokenService.GenerateRefreshToken();
+
+            user.SetRefreshToken(newRefreshToken, newRefreshExpiresAt);
+            _unitOfWork.SaveChangesAsync(ct);
+
+            return new AuthResponseDTO
+            {
+                UserId = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = user.Role.RoleName,
+                AccessToken = accessToken,
+                AccessTokenExpiresAt = accessExpiresAt,
+                RefreshToken = newRefreshToken      
+            };
         }
+
+       
 
         public async Task<RegisterResponseDTO> RegisterAsync(RegisterRequestDTO request, CancellationToken ct = default)
         {
@@ -144,25 +177,41 @@ namespace FitZone.Application.Services
                 
             }; 
 
-            const int codeLifespanMinutes = 15;
-            var code = VerificationCodeHelper.Generate();
-            var hash = VerificationCodeHelper.Hash(code);
-
-            newUser.SetVerificationCode(hash,
-                DateTime.UtcNow.AddMinutes(codeLifespanMinutes));
-
-
             await _userRepository.AddAsync(newUser, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
-
-            var body = VerificationEmailTemplate.GenerateVerificationBody(newUser.FirstName, code, codeLifespanMinutes);
-            await _emailSender.SendAsync(newUser.Email, "Account Verification", body, ct); 
 
             _logger.LogInformation("User {UserId} registered.", newUser.Id);
 
 
             return new RegisterResponseDTO { UserId = newUser.Id, Email = newUser.Email };
+
+        }
+
+        public async Task SentVerifivationCode(SentVerificationCodeDTO request, CancellationToken ct = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+
+            var eamil = request.Email.Trim().ToLowerInvariant();
+
+            var user= await _userRepository.GetByEmailAsync(eamil, ct) ?? throw new UserNotFoundException();
+
+            if (user.IsEmailVerified == true) throw new AccountByThisEmailIsAlreadyVerified();
+
+            if (user.VerificationCodeExpiresAt is not null && user.VerificationCodeExpiresAt > DateTime.UtcNow)
+                throw new ResendCodeTooSoonException();
+
+            const int codeLifespanMinutes = 15;
+            var code = VerificationCodeHelper.Generate();
+            var hash = VerificationCodeHelper.Hash(code);
+
+            user.SetVerificationCode(hash,
+                DateTime.UtcNow.AddMinutes(codeLifespanMinutes));
+
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            var body = VerificationEmailTemplate.GenerateVerificationBody(user.FirstName, code, codeLifespanMinutes);
+            await _emailSender.SendAsync(user.Email, "Account Verification", body, ct);
 
         }
 

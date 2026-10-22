@@ -1,7 +1,7 @@
 ﻿using FitZone.Application.ServiceInterfaces;
 using BCrypt.Net;
 
-using System.Threading.Tasks;
+
 
 namespace FitZone.Infrastructure
 {

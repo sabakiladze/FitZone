@@ -14,9 +14,9 @@ namespace FitZone.Application.ServiceInterfaces
         Task<AuthResponseDTO> LoginAsync(LoginRequestDTO request, CancellationToken ct = default);
         Task DeleteUserAsync(Guid userId, DeleteAccountRequestDTO request, CancellationToken ct = default);
         Task<bool> VerifyEmailAsync(VerificationEmailRequestDTO request, CancellationToken ct = default);
-        Task LogOutAsync(string token, CancellationToken ct = default);
+        Task LogOutAsync(LogOutRequestDTO token, CancellationToken ct = default);
 
-        Task<AuthResponseDTO> RefreshTokenAsync(string hashToken, CancellationToken ct = default);
-
+        Task<AuthResponseDTO> RefreshTokenAsync(RefreshTokenRequestDTO hashToken, CancellationToken ct = default);
+        Task SentVerifivationCode(SentVerificationCodeDTO request, CancellationToken ct = default);
     }
 }

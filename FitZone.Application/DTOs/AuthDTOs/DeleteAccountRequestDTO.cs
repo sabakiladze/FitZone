@@ -9,7 +9,8 @@ namespace FitZone.Application.DTOs.AuthDTOs
 {
     public class DeleteAccountRequestDTO
     {
-        [Required]
+        [Required(ErrorMessage ="To delete your account first confirm by entering your password.")]
+        [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
     }
 }

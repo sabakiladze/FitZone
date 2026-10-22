@@ -31,6 +31,13 @@ namespace FitZone.WebApi.Controllers
             return Ok(await _authService.LoginAsync(request, ct)); 
         }
 
+        [HttpPost("send-verification-code")]
+        public async Task<ActionResult>SendVerificationCode(SentVerificationCodeDTO request, CancellationToken ct)
+        {
+            await _authService.SentVerifivationCode(request, ct);
+            return NoContent();
+        }
+
         [HttpPost("verify-email")]
         public async Task<IActionResult> VerifyEmail(VerificationEmailRequestDTO request, CancellationToken ct)
         {
@@ -38,27 +45,17 @@ namespace FitZone.WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize]
+        [HttpPost("refresh")]
+        public async Task<ActionResult<AuthResponseDTO>> Refresh(RefreshTokenRequestDTO request, CancellationToken ct)
+        {
+            return Ok(await _authService.RefreshTokenAsync(request, ct));
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout(LogOutRequestDTO request, CancellationToken ct)
         {
-            await _authService.LogOutAsync(request.RefreshToken, ct);
+            await _authService.LogOutAsync(request, ct);
             return NoContent();
         }
-
-        [Authorize]
-        [HttpDelete("me")]
-        public async Task<IActionResult> DeleteAccount(DeleteAccountRequestDTO request, CancellationToken ct)
-        {
-            await _authService.DeleteUserAsync(GetUserId(), request, ct);
-            return NoContent();
-        }
-
-        [Authorize]
-        [HttpGet("me")]
-        public IActionResult Me() => Ok(new { UserId = GetUserId() });
-
-        private Guid GetUserId() =>
-            Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     }
 }

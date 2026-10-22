@@ -28,5 +28,10 @@ namespace FitZone.Application.DTOs.Auth
         [RegularExpression(@"^(?=.*[A-Z])(?=.*[^a-zA-Z0-9])[\x21-\x7E]+$",
         ErrorMessage = "Password must contain only Latin characters, at least one uppercase letter and one symbol.")]
         public string Password { get; set; } = null!;
+
+        [Required(ErrorMessage = "Confirm password is required.")]
+        [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = null!;
     }
 }

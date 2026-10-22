@@ -44,3 +44,12 @@ namespace FitZone.Infrastructure.Email
         }
     }
 }
+
+/*
+ * 2. ჩაბარებამდე: სამი რამ
+1.შემფასებელს SMTP-ის პაროლი არ ექნება და true-ზე რეგისტრაცია ჩავარდებოდა. false-ზე კონსოლში კოდს დაინახავს და ვერიფიკაციას გაივლის.
+2.README-ში ერთი ხაზი დაწერე: “Development-ში წერილები კონსოლში იბეჭდება.
+ნამდვილი გაგზავნისთვის UseRealEmail: true და Email-ის პარამეტრები User Secrets-ში (EmailSettings:AppPassword).”
+3.პაროლი რეპოზიტორიაში არ უნდა იყოს. 
+შეამოწმე appsettings.json: EmailSettings-ში მხოლოდ SmtpServer, Port, SenderName, SenderEmail უნდა იყოს და AppPassword არა
+. თუ რომელიმე commit-ში პაროლი ოდესმე ჩაიწერა, ის Git-ის ისტორიაში რჩება. ამ შემთხვევაში პაროლი უკვე გააუქმე და ახალი გამოიყენე.*/

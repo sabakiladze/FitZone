@@ -43,10 +43,10 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 
-            if (builder.Environment.IsDevelopment())
-                builder.Services.AddScoped<IEmailSender, DevelopmentEmailSender>();
-            else
+            if (builder.Configuration.GetValue<bool>("UseRealEmail"))
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
+            else
+                builder.Services.AddScoped<IEmailSender, DevelopmentEmailSender>();
 
 
 
