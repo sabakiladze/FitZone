@@ -11,7 +11,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FitZone.Application.Services
+namespace FitZone.Application.Implementations
 {
     public class AuthService : IAuthService
     {
