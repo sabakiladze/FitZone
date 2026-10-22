@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitZone.Infrastructure
+namespace FitZone.Infrastructure.JwtTokenService
 {
     public class JwtTokenService : IJwtTokenService
     {

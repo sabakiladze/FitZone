@@ -5,6 +5,7 @@ using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure;
 using FitZone.Infrastructure.Data;
 using FitZone.Infrastructure.Email;
+using FitZone.Infrastructure.JwtTokenService;
 using FitZone.Infrastructure.Repositories;
 using FitZone.Infrastructure.Repositorys;
 using FitZone.Infrastructure.Settings;
