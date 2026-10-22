@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace FitZone.Testing.ServicesTesting
 {
-    public class SmtpEmailSenderServiceTest
-    {
-        private
-    }
+    //public class SmtpEmailSenderServiceTest
+    //{
+    //    private
+    //}
 }

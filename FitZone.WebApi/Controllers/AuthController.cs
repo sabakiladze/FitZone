@@ -25,6 +25,7 @@ namespace FitZone.WebApi.Controllers
             return Ok(await _authService.RegisterAsync(request, ct));
         }
 
+        
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDTO>> Login(LoginRequestDTO request, CancellationToken ct)
         { 
@@ -51,6 +52,7 @@ namespace FitZone.WebApi.Controllers
             return Ok(await _authService.RefreshTokenAsync(request, ct));
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout(LogOutRequestDTO request, CancellationToken ct)
         {

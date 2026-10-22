@@ -1,6 +1,6 @@
 using FitZone.Application;
+using FitZone.Application.Implementations;
 using FitZone.Application.ServiceInterfaces;
-using FitZone.Application.Services;
 using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure;
 using FitZone.Infrastructure.Data;
