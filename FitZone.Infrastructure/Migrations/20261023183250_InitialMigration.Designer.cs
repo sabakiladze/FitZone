@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitZone.Infrastructure.Migrations
 {
     [DbContext(typeof(FitZoneDbContext))]
-    [Migration("20261021103519_InitialMigration")]
+    [Migration("20261023183250_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -313,7 +313,7 @@ namespace FitZone.Infrastructure.Migrations
                     b.Property<Guid>("MembershipPlanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("RemainingVisits")
+                    b.Property<int?>("RemainingVisits")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")

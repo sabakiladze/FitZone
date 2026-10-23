@@ -2,6 +2,7 @@
 using FitZone.Application.DTOs.Auth;
 using FitZone.Application.DTOs.AuthDTOs;
 using FitZone.Application.DTOs.MembershipDTOs;
+using FitZone.Application.DTOs.VisitDTOs;
 using FitZone.Domain.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace FitZone.Application
            .ForMember(d => d.PlanName, o => o.MapFrom(s => s.MembershipPlan.Name))
            .ForMember(d => d.IsActive, o => o.MapFrom(s => s.EndDate > DateTime.UtcNow));
 
+            CreateMap<Visit, VisitDTO>()
+    .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
         }
     }
 }

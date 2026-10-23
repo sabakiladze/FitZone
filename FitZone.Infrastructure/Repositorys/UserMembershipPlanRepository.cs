@@ -25,6 +25,7 @@ namespace FitZone.Infrastructure.Repositorys
         public async Task<UserMembershipPlan?> GetActiveByUserIdAsync(Guid userId, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.UserMembershipPlans
+                .AsNoTracking()
                 .Include(x => x.MembershipPlan) // აქ ეს იმიტომ მჭირდება რომ მერე dto-ში პლან ის სახელი დავწერო
                 .Where(x => x.UserId == userId && x.EndDate > DateTime.UtcNow)
                 .OrderByDescending(m => m.EndDate)

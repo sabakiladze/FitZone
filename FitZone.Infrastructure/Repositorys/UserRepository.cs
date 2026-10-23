@@ -38,6 +38,7 @@ namespace FitZone.Infrastructure.Repositories
         public async Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.Users
+                .AsNoTracking()
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == email, ct);
         }
@@ -45,6 +46,7 @@ namespace FitZone.Infrastructure.Repositories
         public async Task<User?> GetUserByHashedToken(string hash, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.Users
+                .AsNoTracking()
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.RefreshTokenHash == hash, ct);
         }
@@ -52,6 +54,7 @@ namespace FitZone.Infrastructure.Repositories
         public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.Users
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == id, ct);
         }
     }

@@ -47,9 +47,11 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<IMembershipService, MembershipService>();
             builder.Services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
             builder.Services.AddScoped<IUserMembershipRepository, UserMembershipPlanRepository>();
-
+            builder.Services.AddScoped<IVisitRepository, VisitRepository>();
+            builder.Services.AddScoped<IVisitService, VisitService>();
 
             if (builder.Configuration.GetValue<bool>("UseRealEmail"))
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();

@@ -310,7 +310,7 @@ namespace FitZone.Infrastructure.Migrations
                     b.Property<Guid>("MembershipPlanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("RemainingVisits")
+                    b.Property<int?>("RemainingVisits")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")

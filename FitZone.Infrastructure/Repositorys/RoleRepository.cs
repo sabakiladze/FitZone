@@ -15,7 +15,7 @@ namespace FitZone.Infrastructure.Repositorys
         }
         public async Task<Role?> GetByNameAsync(string roleName, CancellationToken ct = default)
         {
-            return await _fitZoneDbContext.Roles.FirstOrDefaultAsync(x => x.RoleName.ToLower() == roleName.ToLower(), ct);
+            return await _fitZoneDbContext.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.RoleName.ToLower() == roleName.ToLower(), ct);
         }
     }
 }

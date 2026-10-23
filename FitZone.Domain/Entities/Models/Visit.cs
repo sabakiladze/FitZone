@@ -20,5 +20,4 @@ namespace FitZone.Domain.Entities.Models
         
 
     }
-    // with user 1:1 to many relationship, one user can have many visits, but one visit can only belong to one user.
 }

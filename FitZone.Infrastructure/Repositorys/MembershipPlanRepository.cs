@@ -19,12 +19,12 @@ namespace FitZone.Infrastructure.Repositorys
         }
         public async Task<ICollection<MembershipPlan>> GetAllMembersipPlanAsync(CancellationToken ct = default)
         {
-            return await  _fitZoneDbContext.MembershipPlans.ToListAsync(ct);
+            return await  _fitZoneDbContext.MembershipPlans.AsNoTracking().ToListAsync(ct);
         }
 
         public async Task<MembershipPlan?> GetbyIdMembershipPlan(Guid id, CancellationToken ct = default)
         {
-            return await _fitZoneDbContext.MembershipPlans.FirstOrDefaultAsync( x => x.Id == id, ct);
+            return await _fitZoneDbContext.MembershipPlans.AsNoTracking().FirstOrDefaultAsync( x => x.Id == id, ct);
         }
     }
 }

@@ -121,7 +121,7 @@ namespace FitZone.Infrastructure.Migrations
                     MembershipPlanId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RemainingVisits = table.Column<int>(type: "int", nullable: false)
+                    RemainingVisits = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
