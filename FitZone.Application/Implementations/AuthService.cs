@@ -126,8 +126,8 @@ namespace FitZone.Application.Implementations
             var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user);
             var (newRefreshToken, newHash, newRefreshExpiresAt) = _jwtTokenService.GenerateRefreshToken();
 
-            user.SetRefreshToken(newRefreshToken, newRefreshExpiresAt);
-            _unitOfWork.SaveChangesAsync(ct);
+            user.SetRefreshToken(newHash, newRefreshExpiresAt);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             return new AuthResponseDTO
             {

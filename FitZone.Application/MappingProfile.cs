@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FitZone.Application.DTOs.Auth;
 using FitZone.Application.DTOs.AuthDTOs;
+using FitZone.Application.DTOs.MembershipDTOs;
 using FitZone.Domain.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,12 @@ namespace FitZone.Application
     {
         public MappingProfile()
         {
-            CreateMap<RegisterRequestDTO, User>();
-            CreateMap<User, AuthResponseDTO>();
-            CreateMap<User, RegisterResponseDTO>();
+            CreateMap<MembershipPlan, MembershipPlanDTO>();
+
+            CreateMap<UserMembershipPlan, UserMembershipDTO>()
+           .ForMember(d => d.PlanName, o => o.MapFrom(s => s.MembershipPlan.Name))
+           .ForMember(d => d.IsActive, o => o.MapFrom(s => s.EndDate > DateTime.UtcNow));
+
         }
     }
 }

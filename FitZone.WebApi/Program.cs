@@ -2,6 +2,7 @@ using FitZone.Application;
 using FitZone.Application.Implementations;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.Interfaces;
+using FitZone.Domain.RepositoryInterfaces;
 using FitZone.Infrastructure;
 using FitZone.Infrastructure.Data;
 using FitZone.Infrastructure.Email;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace FitZone.WebApi
@@ -24,7 +26,10 @@ namespace FitZone.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<MappingProfile>();
+            });
 
             builder.Services.AddDbContext<FitZoneDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -42,6 +47,8 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+            builder.Services.AddScoped<IMembershipPlanRepository, MembershipPlanRepository>();
+            builder.Services.AddScoped<IUserMembershipRepository, UserMembershipPlanRepository>();
 
 
             if (builder.Configuration.GetValue<bool>("UseRealEmail"))
@@ -77,6 +84,34 @@ namespace FitZone.WebApi
                    ClockSkew = TimeSpan.Zero
                };
                });
+
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter JWT token without Bearer prefix."
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+            });
             // Add services to the container.
 
 
@@ -99,12 +134,14 @@ namespace FitZone.WebApi
                 app.UseSwaggerUI();
             }
 
+            app.UseExceptionHandler();
+
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseExceptionHandler();
+            
 
 
             app.MapControllers();
