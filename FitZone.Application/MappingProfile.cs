@@ -23,6 +23,9 @@ namespace FitZone.Application
            .ForMember(d => d.IsActive, o => o.MapFrom(s => s.EndDate > DateTime.UtcNow));
 
             CreateMap<Visit, VisitDTO>()
+            .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
+
+            CreateMap<Visit, VisitDTO>()
     .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
         }
     }

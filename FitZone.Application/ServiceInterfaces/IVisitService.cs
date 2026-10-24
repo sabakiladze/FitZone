@@ -10,7 +10,10 @@ namespace FitZone.Application.ServiceInterfaces
 {
     public interface IVisitService
     {
-        Task<CheckInResponseDTO> AddVisitAsync(Visit visit, CancellationToken ct);
-        Task<ICollection<VisitDTO>> GetMyVisitHistory(Visit visit, CancellationToken ct);
+        public interface IVisitService
+        {
+            Task<CheckInResponseDTO> CheckInAsync(Guid userId, CancellationToken ct = default);
+            Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default);
+        }
     }
 }

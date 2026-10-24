@@ -27,6 +27,8 @@ namespace FitZone.Infrastructure.Repositorys
         {
             return await _fitZone.Visits
                 .AsNoTracking()
+                .Include(x=>x.UserMembershipPlan)
+                .ThenInclude(x=>x.MembershipPlan)
                 .Where(v => v.UserId == userId)
                 .OrderByDescending(v => v.CheckedInAt)
                 .ToListAsync(ct);

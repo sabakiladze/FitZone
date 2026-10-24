@@ -44,14 +44,7 @@ namespace FitZone.Application.Implementations
                 throw new YouAlreadyHavePlanException();
 
             var startDate = DateTime.UtcNow;
-            var membership = new UserMembershipPlan
-            {
-                UserId = userId,
-                MembershipPlanId = plan.Id,
-                StartDate = startDate,
-                EndDate = startDate.AddDays(plan.DurationInDays),
-                RemainingVisits = plan.VisitLimit
-            };
+            var membership = new UserMembershipPlan(userId, plan.Id, DateTime.UtcNow, plan.DurationInDays, plan.VisitLimit);
 
             await _userMembershipRepository.AddAsync(membership, ct);
             await _unitOfWork.SaveChangesAsync(ct);
@@ -65,6 +58,8 @@ namespace FitZone.Application.Implementations
 
         public async Task<UserMembershipDTO?> GetMyActiveAsync(Guid userId, CancellationToken ct = default)
         {
+
+            // usermembership უსერ ის მოქმედ აბონიმენტს აბრუნებს
             var membership = await _userMembershipRepository.GetActiveByUserIdAsync(userId, ct);
             return membership is null ? null : _mapper.Map<UserMembershipDTO>(membership);
         }
