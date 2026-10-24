@@ -64,9 +64,4 @@ namespace FitZone.Application.Implementations
             };
         }
 
-        public Task<ICollection<VisitDTO>> GetMyVisitHistory(Visit visit, CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-    }
 }
