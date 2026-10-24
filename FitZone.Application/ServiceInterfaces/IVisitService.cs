@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.ServiceInterfaces
 {
+
     public interface IVisitService
     {
-        public interface IVisitService
-        {
-            Task<CheckInResponseDTO> CheckInAsync(Guid userId, CancellationToken ct = default);
-            Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default);
-        }
+        Task<CheckInResponseDTO> CheckInAsync(Guid userId, CancellationToken ct = default);
+        Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default);
     }
+
 }

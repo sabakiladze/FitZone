@@ -34,7 +34,7 @@ namespace FitZone.Application.Implementations
             _mapper = mapper;
             _userMembershipRepo = userMembershipRepo;
         }
-        public async Task<CheckInResponseDTO> AddVisitAsync(Guid userId, CancellationToken ct)
+        public async Task<CheckInResponseDTO> CheckInAsync(Guid userId, CancellationToken ct=default)
         {
 
             var membership = await _userMembershipRepo.GetActiveByUserIdAsync(userId, ct) // rom shevamowmo remaining visits
@@ -63,5 +63,11 @@ namespace FitZone.Application.Implementations
 
             };
         }
+        public async Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default)
+        {
+            var visits = await _visitRepo.GetByUserIdAsync(userId, ct);
+            return _mapper.Map<ICollection<VisitDTO>>(visits);
+        }
 
+    }
 }

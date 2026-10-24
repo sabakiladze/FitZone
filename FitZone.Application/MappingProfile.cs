@@ -2,6 +2,7 @@
 using FitZone.Application.DTOs.Auth;
 using FitZone.Application.DTOs.AuthDTOs;
 using FitZone.Application.DTOs.MembershipDTOs;
+using FitZone.Application.DTOs.TrainerDTOs;
 using FitZone.Application.DTOs.VisitDTOs;
 using FitZone.Domain.Entities.Models;
 using System;
@@ -26,7 +27,12 @@ namespace FitZone.Application
             .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
 
             CreateMap<Visit, VisitDTO>()
-    .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
+            .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
+
+            CreateMap<Trainer, TrainerDTO>();
+
+            CreateMap<Trainer, Trainer>();
+        
         }
     }
 }
