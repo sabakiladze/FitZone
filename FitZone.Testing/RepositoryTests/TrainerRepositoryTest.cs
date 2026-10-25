@@ -1,249 +1,255 @@
-﻿
-using AutoMapper;
-using FitZone.Application;
+﻿using AutoMapper;
 using FitZone.Domain.Entities.Models;
 using FitZone.Infrastructure.Data;
 using FitZone.Infrastructure.Repositorys;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
+using Microsoft.Extensions.Logging.Abstractions;
 
-namespace FitZone.Tests.Infrastructure.Repositories
+namespace FitZone.Testing.RepositoryTests
 {
     public class TrainerRepositoryTests
     {
-        private readonly IMapper _mapper;
-
-        private IMapper 
-
-        private FitZoneDbContext GetFitZoneDbContext()
+        private static FitZoneDbContext CreateContext()
         {
             var options = new DbContextOptionsBuilder<FitZoneDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
-
             return new FitZoneDbContext(options);
         }
 
-        private TrainerRepository GetRepository(FitZoneDbContext context)
+        private static TrainerRepository CreateRepo(FitZoneDbContext context)
         {
-            return new TrainerRepository(context, _mapper);
+            var config = new MapperConfiguration(
+                cfg => cfg.CreateMap<Trainer, Trainer>(),
+                NullLoggerFactory.Instance);
+            var mapper = config.CreateMapper(); return new TrainerRepository(context, config.CreateMapper());
         }
 
-        private Trainer CreateTrainer(
-            string fullName = "John Smith",
-            string specialization = "Fitness")
+        private static Trainer NewTrainer(string name, string specialization, int years = 3) => new()
         {
-            return new Trainer
-            {
-                Id = Guid.NewGuid(),
-                FullName = fullName,
-                Specialization = specialization,
-                ExperienceYears = 5
-            };
-        }
+            Id = Guid.NewGuid(),
+            FullName = name,
+            Specialization = specialization,
+            ExperienceYears = years
+        };
+
 
         [Fact]
-        public async Task AddAsync_ShouldAddTrainerToContext()
+        public async Task AddAsync_Should_Persist_Trainer_After_SaveChanges()
         {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-            var trainer = CreateTrainer();
+            using var context = CreateContext();
+            var repo = CreateRepo(context);
+            var trainer = NewTrainer("Nino Kapanadze", "Yoga");
 
-            await repository.AddAsync(trainer);
-
-            context.ChangeTracker.Entries<Trainer>()
-                .Should().ContainSingle();
-
-            context.Trainers.Local.Should().Contain(trainer);
-        }
-
-        [Fact]
-        public async Task GetAllAsync_ShouldReturnAllTrainers()
-        {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-
-            var trainers = new[]
-            {
-                CreateTrainer("John Smith"),
-                CreateTrainer("Jane Doe")
-            };
-
-            await context.Trainers.AddRangeAsync(trainers);
+            await repo.AddAsync(trainer);
             await context.SaveChangesAsync();
 
-            var result = await repository.GetAllAsync();
-
-            result.Should().HaveCount(2);
-            result.Should().Contain(t => t.FullName == "John Smith");
-            result.Should().Contain(t => t.FullName == "Jane Doe");
+            var saved = await context.Trainers.AsNoTracking().FirstOrDefaultAsync(t => t.Id == trainer.Id);
+            saved.Should().NotBeNull();
+            saved!.FullName.Should().Be("Nino Kapanadze");
         }
 
         [Fact]
-        public async Task GetAllAsync_WhenNoTrainersExist_ShouldReturnEmptyCollection()
+        public async Task AddAsync_Should_Not_Persist_Until_SaveChanges_Is_Called()
         {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
+            using var context = CreateContext();
+            var repo = CreateRepo(context);
 
-            var result = await repository.GetAllAsync();
+            await repo.AddAsync(NewTrainer("Nino", "Yoga"));
+
+            (await context.Trainers.AsNoTracking().CountAsync()).Should().Be(0);
+        }
+
+
+        [Fact]
+        public async Task GetAllAsync_Should_Return_All_Trainers()
+        {
+            using var context = CreateContext();
+            context.Trainers.AddRange(NewTrainer("A", "Yoga"), NewTrainer("B", "Cardio"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.GetAllAsync();
+
+            result.Should().HaveCount(2);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_Should_Return_Empty_When_No_Trainers()
+        {
+            using var context = CreateContext();
+            var repo = CreateRepo(context);
+
+            var result = await repo.GetAllAsync();
+
+            result.Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_Trainer_When_Exists()
+        {
+            using var context = CreateContext();
+            var trainer = NewTrainer("Giorgi", "Strength");
+            context.Trainers.Add(trainer);
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.GetByIdAsync(trainer.Id);
+
+            result.Should().NotBeNull();
+            result!.Id.Should().Be(trainer.Id);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_Null_When_Not_Found()
+        {
+            using var context = CreateContext();
+            var repo = CreateRepo(context);
+
+            var result = await repo.GetByIdAsync(Guid.NewGuid());
+
+            result.Should().BeNull();
+        }
+
+       
+
+
+        [Fact]
+        public async Task SearchAsync_Should_Return_All_When_No_Filters()
+        {
+            using var context = CreateContext();
+            context.Trainers.AddRange(NewTrainer("A", "Yoga"), NewTrainer("B", "Cardio"), NewTrainer("C", "Strength"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.SearchAsync(null, null);
+
+            result.Should().HaveCount(3);
+        }
+
+        [Fact]
+        public async Task SearchAsync_Should_Filter_By_Name()
+        {
+            using var context = CreateContext();
+            context.Trainers.AddRange(NewTrainer("Nino Kapanadze", "Yoga"), NewTrainer("Giorgi Beridze", "Strength"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.SearchAsync("Nino", null);
+
+            result.Should().ContainSingle();
+            result.Single().FullName.Should().Contain("Nino");
+        }
+
+        [Fact]
+        public async Task SearchAsync_Should_Filter_By_Specialization()
+        {
+            using var context = CreateContext();
+            context.Trainers.AddRange(NewTrainer("A", "Yoga"), NewTrainer("B", "Yoga"), NewTrainer("C", "Cardio"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.SearchAsync(null, "Yoga");
+
+            result.Should().HaveCount(2);
+            result.Should().OnlyContain(t => t.Specialization == "Yoga");
+        }
+
+        [Fact]
+        public async Task SearchAsync_Should_Apply_Both_Filters_Together()
+        {
+            using var context = CreateContext();
+            context.Trainers.AddRange(NewTrainer("Nino A", "Yoga"), NewTrainer("Nino B", "Cardio"), NewTrainer("Giorgi", "Yoga"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.SearchAsync("Nino", "Yoga");
+
+            result.Should().ContainSingle();
+            result.Single().FullName.Should().Be("Nino A");
+        }
+
+        [Fact]
+        public async Task SearchAsync_Should_Return_Empty_When_Nothing_Matches()
+        {
+            using var context = CreateContext();
+            context.Trainers.Add(NewTrainer("Nino", "Yoga"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
+
+            var result = await repo.SearchAsync("არარსებული", null);
 
             result.Should().BeEmpty();
         }
 
         [Fact]
-        public async Task GetByIdAsync_WhenTrainerExists_ShouldReturnTrainer()
+        public async Task SearchAsync_Should_Order_By_FullName()
         {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-            var trainer = CreateTrainer();
+            using var context = CreateContext();
+            context.Trainers.AddRange(NewTrainer("Charlie", "X"), NewTrainer("Alice", "X"), NewTrainer("Bob", "X"));
+            await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
 
+            var result = await repo.SearchAsync(null, null);
+
+            result.Select(t => t.FullName).Should().ContainInOrder("Alice", "Bob", "Charlie");
+        }
+
+
+        [Fact]
+        public async Task Remove_Should_Delete_Trainer_After_SaveChanges()
+        {
+            using var context = CreateContext();
+            var trainer = NewTrainer("To Delete", "Yoga");
             context.Trainers.Add(trainer);
             await context.SaveChangesAsync();
+            var repo = CreateRepo(context);
 
-            var result = await repository.GetByIdAsync(trainer.Id);
-
-            result.Should().NotBeNull();
-            result!.Id.Should().Be(trainer.Id);
-            result.FullName.Should().Be(trainer.FullName);
-        }
-
-        [Fact]
-        public async Task GetByIdAsync_WhenTrainerDoesNotExist_ShouldReturnNull()
-        {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-
-            var result = await repository.GetByIdAsync(Guid.NewGuid());
-
-            result.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task SearchAsync_ByName_ShouldReturnMatchingTrainers()
-        {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-
-            var trainers = new[]
-            {
-                CreateTrainer("John Smith", "Fitness"),
-                CreateTrainer("John Brown", "Yoga"),
-                CreateTrainer("Jane Doe", "Fitness")
-            };
-
-            await context.Trainers.AddRangeAsync(trainers);
+            var loaded = await repo.GetByIdAsync(trainer.Id);
+            repo.Remove(loaded!);
             await context.SaveChangesAsync();
 
-            var result = await repository.SearchAsync("John", null);
-
-            result.Should().HaveCount(2);
-            result.Should().OnlyContain(t => t.FullName.Contains("John"));
+            (await context.Trainers.AsNoTracking().AnyAsync(t => t.Id == trainer.Id)).Should().BeFalse();
         }
 
-        [Fact]
-        public async Task SearchAsync_BySpecialization_ShouldReturnMatchingTrainers()
-        {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-
-            var trainers = new[]
-            {
-                CreateTrainer("John Smith", "Fitness"),
-                CreateTrainer("Jane Doe", "Yoga"),
-                CreateTrainer("Alex Brown", "Fitness")
-            };
-
-            await context.Trainers.AddRangeAsync(trainers);
-            await context.SaveChangesAsync();
-
-            var result = await repository.SearchAsync(null, "Fitness");
-
-            result.Should().HaveCount(2);
-            result.Should().OnlyContain(
-                t => t.Specialization.Contains("Fitness"));
-        }
 
         [Fact]
-        public async Task SearchAsync_WithoutFilters_ShouldReturnTrainersOrderedByName()
+        public async Task Update_Should_Copy_Values_To_Existing_Trainer_After_SaveChanges()
         {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-
-            var trainers = new[]
-            {
-                CreateTrainer("John Smith"),
-                CreateTrainer("Alex Brown"),
-                CreateTrainer("Jane Doe")
-            };
-
-            await context.Trainers.AddRangeAsync(trainers);
-            await context.SaveChangesAsync();
-
-            var result = await repository.SearchAsync(null, null);
-
-            result.Select(t => t.FullName)
-                .Should()
-                .BeInAscendingOrder();
-        }
-
-        [Fact]
-        public async Task Remove_ShouldMarkTrainerAsDeleted()
-        {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-            var trainer = CreateTrainer();
-
+            using var context = CreateContext();
+            var trainer = NewTrainer("Old Name", "Yoga", 2);
             context.Trainers.Add(trainer);
             await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
+            var repo = CreateRepo(context);
 
-            repository.Remove(trainer);
-
-            context.Entry(trainer).State
-                .Should().Be(EntityState.Deleted);
-        }
-
-        [Fact]
-        public async Task Update_WhenTrainerExists_ShouldUpdateTrainer()
-        {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-
-            var existingTrainer = CreateTrainer("John Smith", "Fitness");
-
-            context.Trainers.Add(existingTrainer);
-            await context.SaveChangesAsync();
-
-            var updatedTrainer = new Trainer
+            await repo.Update(new Trainer
             {
-                Id = existingTrainer.Id,
-                FullName = "John Updated",
-                Specialization = "Yoga",
-                ExperienceYears = 10
-            };
-
-            await repository.Update(updatedTrainer);
+                Id = trainer.Id,
+                FullName = "New Name",
+                Specialization = "Cardio",
+                ExperienceYears = 9
+            });
             await context.SaveChangesAsync();
 
-            var result = await context.Trainers
-                .AsNoTracking()
-                .FirstAsync(t => t.Id == existingTrainer.Id);
-
-            result.FullName.Should().Be("John Updated");
-            result.Specialization.Should().Be("Yoga");
-            result.ExperienceYears.Should().Be(10);
+            var fromDb = await context.Trainers.AsNoTracking().FirstAsync(t => t.Id == trainer.Id);
+            fromDb.FullName.Should().Be("New Name");
+            fromDb.Specialization.Should().Be("Cardio");
+            fromDb.ExperienceYears.Should().Be(9);
         }
 
         [Fact]
-        public async Task Update_WhenTrainerDoesNotExist_ShouldNotAddTrainer()
+        public async Task Update_Should_Do_Nothing_When_Trainer_Does_Not_Exist()
         {
-            using var context = GetFitZoneDbContext();
-            var repository = GetRepository(context);
-            var trainer = CreateTrainer();
+            using var context = CreateContext();
+            var repo = CreateRepo(context);
 
-            await repository.Update(trainer);
+            await repo.Update(NewTrainer("Ghost", "Yoga"));
+            await context.SaveChangesAsync();
 
-            (await context.Trainers.CountAsync()).Should().Be(0);
+            (await context.Trainers.AsNoTracking().CountAsync()).Should().Be(0);
         }
     }
 }

@@ -51,10 +51,8 @@ namespace FitZone.Testing.RepositoryTests
 
             //assert
 
-            result.Should().Be(plan);
-            result.Name.Should().Be("pro");
-            result.Price.Should().Be(19.00m);
-            result.DurationInDays.Should().Be(14);
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(plan);
 
         }
         [Fact]
@@ -110,8 +108,9 @@ namespace FitZone.Testing.RepositoryTests
 
             //assert
 
-            result.Should().Be(plan);
-            result.VisitLimit.Should().Be(null);
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(plan);
+            result!.VisitLimit.Should().BeNull();
 
         }
     }

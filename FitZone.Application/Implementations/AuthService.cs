@@ -70,11 +70,11 @@ namespace FitZone.Application.Implementations
             var email = request.Email.Trim().ToLowerInvariant();
 
             var user = await _userRepository.GetByEmailAsync(email, ct);
-            
+
             if (user is null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
                 throw new EmailOrPasswordIsIncorrectException();
 
-            if(user.IsEmailVerified ==false) throw new EmailIsNotVerifiedException();
+            if (user.IsEmailVerified == false) throw new EmailIsNotVerifiedException();
 
             if (!user.IsActive)
                 throw new AccountIsDeactivatedException();
@@ -82,13 +82,14 @@ namespace FitZone.Application.Implementations
             var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user);
 
 
-            var(refreshToken, tokenHash,refreshexpiresAt)= _jwtTokenService.GenerateRefreshToken();
+            var (refreshToken, tokenHash, refreshexpiresAt) = _jwtTokenService.GenerateRefreshToken();
 
             user.SetRefreshToken(tokenHash, refreshexpiresAt);
 
             await _unitOfWork.SaveChangesAsync(ct);
 
-            return new AuthResponseDTO {
+            return new AuthResponseDTO
+            {
                 UserId = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
@@ -96,7 +97,7 @@ namespace FitZone.Application.Implementations
                 AccessToken = accessToken,
                 AccessTokenExpiresAt = accessExpiresAt,
                 RefreshToken = refreshToken
-            };  
+            };
         }
 
         public async Task LogOutAsync(LogOutRequestDTO token, CancellationToken ct = default)
@@ -104,7 +105,7 @@ namespace FitZone.Application.Implementations
             ArgumentNullException.ThrowIfNull(token);
 
             var hash = RefreshTokenHasher.Hash(token.RefreshToken);
-            var user =await _userRepository.GetUserByHashedToken(hash, ct);
+            var user = await _userRepository.GetUserByHashedToken(hash, ct);
 
             if (user is null) return;
 
@@ -120,7 +121,7 @@ namespace FitZone.Application.Implementations
             var hash = RefreshTokenHasher.Hash(token.RefreshToken);
             var user = await _userRepository.GetUserByHashedToken(hash, ct);
 
-            if(user is null || !user.IsActive || user.RefreshTokenExpiresAt is null ||user.RefreshTokenExpiresAt<DateTime.UtcNow)
+            if (user is null || !user.IsActive || user.RefreshTokenExpiresAt is null || user.RefreshTokenExpiresAt < DateTime.UtcNow)
                 throw new InvalidRefreshTokenException();
 
             var (accessToken, accessExpiresAt) = _jwtTokenService.GenerateAccessToken(user);
@@ -137,11 +138,11 @@ namespace FitZone.Application.Implementations
                 Role = user.Role.RoleName,
                 AccessToken = accessToken,
                 AccessTokenExpiresAt = accessExpiresAt,
-                RefreshToken = newRefreshToken      
+                RefreshToken = newRefreshToken
             };
         }
 
-       
+
 
         public async Task<RegisterResponseDTO> RegisterAsync(RegisterRequestDTO request, CancellationToken ct = default)
         {
@@ -174,8 +175,8 @@ namespace FitZone.Application.Implementations
                 Email = email,
                 PasswordHash = _passwordHasher.Hash(request.Password),
                 RoleId = role.Id,
-                
-            }; 
+
+            };
 
             await _userRepository.AddAsync(newUser, ct);
             await _unitOfWork.SaveChangesAsync(ct);
@@ -194,7 +195,7 @@ namespace FitZone.Application.Implementations
 
             var eamil = request.Email.Trim().ToLowerInvariant();
 
-            var user= await _userRepository.GetByEmailAsync(eamil, ct) ?? throw new UserNotFoundException();
+            var user = await _userRepository.GetByEmailAsync(eamil, ct) ?? throw new UserNotFoundException();
 
             if (user.IsEmailVerified == true) throw new AccountByThisEmailIsAlreadyVerified();
 
@@ -223,8 +224,8 @@ namespace FitZone.Application.Implementations
             var email = request.Email.Trim().ToLowerInvariant();
             var user = await _userRepository.GetByEmailAsync(email, ct);
 
-             if (user is null || user.IsEmailVerified == true || user.VerificationCode is null)
-                    throw new InvalidVerificationCodeException();
+            if (user is null || user.IsEmailVerified == true || user.VerificationCode is null)
+                throw new InvalidVerificationCodeException();
 
             if (user.VerificationCodeExpiresAt is null || user.VerificationCodeExpiresAt < DateTime.UtcNow)
                 throw new VerificationCodeExpiredException();

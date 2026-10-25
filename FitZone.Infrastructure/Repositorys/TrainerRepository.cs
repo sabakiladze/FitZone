@@ -34,7 +34,7 @@ namespace FitZone.Infrastructure.Repositorys
 
         public async Task<Trainer?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
-            return await _context.Trainers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Trainers.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<IReadOnlyList<Trainer>> SearchAsync(string? name, string? specialization, CancellationToken ct = default)

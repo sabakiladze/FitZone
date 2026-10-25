@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="FluentAssertions" Version="8.11.0" />
+    <PackageReference Include="Moq" Version="4.21.0" />
     <PackageReference Include="Octopus.Client" Version="25.1.2958" />
   </ItemGroup>
 

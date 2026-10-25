@@ -57,12 +57,24 @@ namespace FitZone.Testing.RepositoryTests
             using var context = CreateContext();
             var repo = new VisitRepository(context);
             var userId = Guid.NewGuid();
-            var membershipId = Guid.NewGuid();
+            var otherUserId = Guid.NewGuid();
 
+            var plan = new MembershipPlan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Monthly",
+                Price = 50m,
+                DurationInDays = 30,
+                VisitLimit = 12
+            };
+            var membership = new UserMembershipPlan(userId, plan.Id, DateTime.UtcNow, 30, 12);
+            var otherMembership = new UserMembershipPlan(otherUserId, plan.Id, DateTime.UtcNow, 30, 12);
+
+            context.AddRange(plan, membership, otherMembership);
             context.Visits.AddRange(
-                NewVisit(userId, membershipId),
-                NewVisit(userId, membershipId),
-                NewVisit(Guid.NewGuid(), membershipId));
+                NewVisit(userId, membership.Id),
+                NewVisit(userId, membership.Id),
+                NewVisit(otherUserId, otherMembership.Id));
             await context.SaveChangesAsync();
 
             var result = await repo.GetByUserIdAsync(userId);

@@ -8,11 +8,7 @@ using FitZone.Domain.Entities.Models;
 using FitZone.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FitZone.Testing.ServicesTesting
 {
@@ -39,24 +35,22 @@ namespace FitZone.Testing.ServicesTesting
                 _jwtTokenService.Object,
                 _emailSender.Object);
         }
-        private static User CreateUser()
+        private static User CreateUser(bool verified = true, bool active = true)
         {
-            return new User
+            var user = new User
             {
                 Id = Guid.NewGuid(),
                 UserName = "testuser",
                 FirstName = "Test",
                 LastName = "User",
                 Email = "test@example.com",
-                PasswordHash = "hashed-password",
-                //IsEmailVerified = true,
-                IsActive = true,
-                Role = new Role
-                {
-                    Id = Guid.NewGuid(),
-                    RoleName = "User"
-                }
+                PasswordHash = "hash",
+                IsActive = active,
+                Role = new Role { Id = Guid.NewGuid(), RoleName = "User" }
             };
+
+            if (verified) user.VerifyEmail();
+            return user;
         }
         [Fact]
         public async Task LoginAsync_ValidCredentials_ReturnsAuthResponse()
@@ -187,11 +181,9 @@ namespace FitZone.Testing.ServicesTesting
             var user = CreateUser();
             user.IsActive = false;
 
-            _userRepository
-                .Setup(r => r.GetByEmailAsync(
-                    user.Email,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(user);
+             _userRepository
+            .Setup(r => r.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
 
             _passwordHasher
                 .Setup(p => p.Verify("correct-password", user.PasswordHash))
@@ -273,7 +265,7 @@ namespace FitZone.Testing.ServicesTesting
              It.IsAny<User>(),
              It.IsAny<CancellationToken>()))
             .Callback<User, CancellationToken>((u, _) => savedUser = u)
-.ReturnsAsync((User u, CancellationToken _) => u);
+            .ReturnsAsync((User u, CancellationToken _) => u);
             _unitOfWork.Verify(
                 u => u.SaveChangesAsync(It.IsAny<CancellationToken>()),
                 Times.Once);

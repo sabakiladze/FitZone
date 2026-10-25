@@ -40,6 +40,9 @@ namespace FitZone.Application.Implementations
             var trainer = await _repo.GetByIdAsync(id, ct)
                ?? throw new TrainersDoNotFoundException();
 
+
+
+            /// todo თუ workoutsessinn მაქვს მაშნ ვერ წავშლი ტრენეერს, ამიტომ ჯერ სესია უნდა წავშალო
             _repo.Remove(trainer);
             await _unit.SaveChangesAsync(ct);
 
