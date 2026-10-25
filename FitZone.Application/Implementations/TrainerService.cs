@@ -20,63 +20,80 @@ namespace FitZone.Application.Implementations
         private readonly ITrainerRepository _repo;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unit;
-        private readonly ILogger _logger;
-        public TrainerService(ITrainerRepository repo,
-           IMapper mapper,
-           IUnitOfWork unit,
-           ILogger logger)
+        private readonly ILogger<TrainerService> _logger;
+
+
+        public TrainerService(ITrainerRepository repo, IMapper mapper,
+            IUnitOfWork unit, ILogger<TrainerService> logger)
         {
-            _repo=repo;
-            _mapper=mapper;
-            _unit=unit;
+            _repo = repo;
+            _mapper = mapper;
+            _unit = unit;
             _logger = logger;
         }
 
-        public Task AddAsync(CreateTrainerRequestDTO trainer, CancellationToken ct = default)
+
+        
+
+        public async Task RemoveAsync(Guid id, CancellationToken ct = default)
         {
-            ArgumentNullException.ThrowIfNull(trainer);
+            var trainer = await _repo.GetByIdAsync(id, ct)
+               ?? throw new TrainersDoNotFoundException();
+
+            _repo.Remove(trainer);
+            await _unit.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Trainer {TrainerId} deleted.", trainer.Id);
+        }
+
+
+
+        public async Task<TrainerDTO> AddAsync(CreateTrainerRequestDTO request, CancellationToken ct = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+
+            var trainer = _mapper.Map<Trainer>(request);
+            await _repo.AddAsync(trainer, ct);
+            await _unit.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Trainer {TrainerId} created.", trainer.Id);
+            return _mapper.Map<TrainerDTO>(trainer);
         }
 
         public async Task<ICollection<TrainerDTO>> GetAllAsync(CancellationToken ct = default)
         {
-           var result= await _repo.GetAllAsync(ct)?? throw new TrainersDoNotFoundException();
-            return _mapper.Map<ICollection<TrainerDTO>>(result);
+            var trainers = await _repo.GetAllAsync(ct);
+            return _mapper.Map<ICollection<TrainerDTO>>(trainers);
         }
 
-        public async Task<TrainerDTO?> GetByIdAsync(Guid userId, CancellationToken ct = default)
+        public async Task<TrainerDTO> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
-            var result=await _repo.GetByIdAsync(userId, ct) ?? throw new TrainersDoNotFoundException();
-            return _mapper.Map<TrainerDTO>(result);
+            var trainer = await _repo.GetByIdAsync(id, ct)
+                ?? throw new TrainersDoNotFoundException();
+            return _mapper.Map<TrainerDTO>(trainer);
         }
 
-        public async Task<ICollection<TrainerDTO>> GetByNameAsync(string name, CancellationToken ct = default)
+        public async Task UpdateAsync(Guid id, UpdateTrainerRequestDTO request, CancellationToken ct = default)
         {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(name)) 
-                    {
-                throw new TrainersDoNotFoundException();
-            }
-            var result = await _repo.GetByNameAsync(name, ct)?? throw new TrainersDoNotFoundException();
-            return _mapper.Map<ICollection<TrainerDTO>>(result);
+            ArgumentNullException.ThrowIfNull(request);
+
+            var trainer = await _repo.GetByIdAsync(id, ct)
+                ?? throw new TrainersDoNotFoundException();
+
+            _mapper.Map(request, trainer);
+            await _unit.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Trainer {TrainerId} updated.", trainer.Id);
         }
 
-        public async Task<ICollection<TrainerDTO>> GetBySpecializationAsync(string specialization, CancellationToken ct = default)
+        public async Task<ICollection<TrainerDTO>> SearchAsync(string? name, string? specialization, CancellationToken ct = default)
         {
-            if (string.IsNullOrEmpty(specialization) || string.IsNullOrWhiteSpace(specialization))
-            {
-                throw new TrainersDoNotFoundException();
-            }
-            var result = await _repo.GetBySpecializationAsync(specialization, ct) ?? throw new TrainersDoNotFoundException();
-            return _mapper.Map<ICollection<TrainerDTO>>(result);
-        }
+            var trainers = await _repo.SearchAsync(
+                string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
+                string.IsNullOrWhiteSpace(specialization) ? null : specialization.Trim(),
+                ct);
 
-        public Task RemoveAsync(Guid id, CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(UpdateTrainerRequestDTO trainer, CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
+            return _mapper.Map<ICollection<TrainerDTO>>(trainers);
         }
     }
 }

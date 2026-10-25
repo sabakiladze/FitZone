@@ -37,15 +37,17 @@ namespace FitZone.Infrastructure.Repositorys
             return await _context.Trainers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<ICollection<Trainer>> GetByNameAsync(string name, CancellationToken ct = default)
+        public async Task<IReadOnlyList<Trainer>> SearchAsync(string? name, string? specialization, CancellationToken ct = default)
         {
-            return await _context.Trainers.AsNoTracking().Where(x => x.FullName == name.Trim().ToLowerInvariant()).ToListAsync();
-        }
+            var query = _context.Trainers.AsNoTracking();
 
-        public async Task<ICollection<Trainer>> GetBySpecializationAsync(string specialization, CancellationToken ct = default)
-        {
-            return await _context.Trainers.AsNoTracking().Where(x => x.Specialization == specialization.Trim().ToLowerInvariant()).ToListAsync();
+            if (name is not null)
+                query = query.Where(t => t.FullName.Contains(name));
 
+            if (specialization is not null)
+                query = query.Where(t => t.Specialization.Contains(specialization));
+
+            return await query.OrderBy(t => t.FullName).ToListAsync(ct);
         }
 
         public  void  Remove(Trainer trainer)
@@ -55,15 +57,13 @@ namespace FitZone.Infrastructure.Repositorys
 
         public async Task Update(Trainer trainer)
         {
-            var existingTrainer = await _context.Trainers.FirstOrDefaultAsync(x=>x.Id==trainer.Id);
+            var existingTrainer = await _context.Trainers
+                .FirstOrDefaultAsync(x => x.Id == trainer.Id);
 
             if (existingTrainer is null)
                 return;
-            _mapper.Map<Trainer>(existingTrainer);
 
-
-
-
+            _mapper.Map(trainer, existingTrainer);
         }
     }
 }
