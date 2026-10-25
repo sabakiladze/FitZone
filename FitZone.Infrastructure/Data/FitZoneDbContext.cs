@@ -40,12 +40,12 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                 builder.HasData(
-                   new Role { Id = Guid.Parse("33b55207-ab7c-474e-82e5-fd89bf9bab59"), RoleName = "Admin" },
-                   new Role { Id = Guid.Parse("59cbfac4-9a3a-4cf8-93af-ba88f71d5719"), RoleName = "User" }
-               );
+                builder.HasData(
+                  new Role { Id = Guid.Parse("33b55207-ab7c-474e-82e5-fd89bf9bab59"), RoleName = "Admin" },
+                  new Role { Id = Guid.Parse("59cbfac4-9a3a-4cf8-93af-ba88f71d5719"), RoleName = "User" }
+              );
 
-               
+
 
             });
 
@@ -66,7 +66,7 @@ namespace FitZone.Infrastructure.Data
                 builder.Property(u => u.FirstName)
                 .HasMaxLength(50)
                 .IsRequired();
-                builder.Property(u=>u.LastName)
+                builder.Property(u => u.LastName)
                 .HasMaxLength(50)
                 .IsRequired();
 
@@ -98,9 +98,9 @@ namespace FitZone.Infrastructure.Data
 
                 builder.Property(u => u.LastLoginAt);
 
-                builder.HasOne(u=>u.Role)
-                .WithMany(r=>r.Users)
-                .HasForeignKey(u=>u.RoleId)
+                builder.HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
                 builder.HasMany(u => u.Bookings)
@@ -108,14 +108,14 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(b => b.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                builder.HasMany(u=>u.UserMembershipPlans)
-                .WithOne(m=>m.User)
+                builder.HasMany(u => u.UserMembershipPlans)
+                .WithOne(m => m.User)
                 .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
                 builder.HasMany(u => u.Visits)
-                .WithOne(v=>v.User)
-                .HasForeignKey(v=>v.UserId)
+                .WithOne(v => v.User)
+                .HasForeignKey(v => v.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             });
@@ -141,9 +141,9 @@ namespace FitZone.Infrastructure.Data
 
                 builder.Property(t => t.ExperienceYears);
 
-                builder.HasMany(t=>t.WorkoutSessions)
-                .WithOne(w=>w.Trainer)
-                .HasForeignKey(w=>w.TrainerId)
+                builder.HasMany(t => t.WorkoutSessions)
+                .WithOne(w => w.Trainer)
+                .HasForeignKey(w => w.TrainerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
                 builder.HasData(
@@ -157,14 +157,14 @@ namespace FitZone.Infrastructure.Data
 
             modelBuilder.Entity<MembershipPlan>(builder =>
             {
-                builder.ToTable("MembershipPlans", t=>
+                builder.ToTable("MembershipPlans", t =>
                 {
                     t.HasCheckConstraint("CK_MembershipPlans_Price", "[Price] > 0");
                     t.HasCheckConstraint("CK_MembershipPlans_VisitLimit", "[VisitLimit] IS NULL OR [VisitLimit] > 0");
                     t.HasCheckConstraint("CK_MembershipPlans_DurationInDays", "[DurationInDays] > 0");
                 });
                 builder.HasKey(m => m.Id);
-                builder.Property(m => m.Id); 
+                builder.Property(m => m.Id);
 
                 builder.Property(m => m.Name).HasMaxLength(100);
                 builder.HasIndex(m => m.Name).IsUnique();
@@ -189,6 +189,9 @@ namespace FitZone.Infrastructure.Data
             {
                 builder.ToTable("Bookings");
                 builder.HasKey(b => b.Id);
+                builder.HasIndex(b => new { b.UserId, b.WorkoutSessionId })
+                .IsUnique()
+                .HasFilter("[Status] <> 2 AND [Status] <> 4");
                 builder.Property(b => b.Id);
                 builder.Property(b => b.BookedAt);
                 builder.Property(b => b.Status);
@@ -207,9 +210,11 @@ namespace FitZone.Infrastructure.Data
 
             modelBuilder.Entity<WorkoutSession>(builder =>
             {
-                builder.ToTable("WorkoutSessions", t=>
+                builder.ToTable("WorkoutSessions", t =>
                 {
                     t.HasCheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity]>0");
+                    t.HasCheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity] > 0");
+                    t.HasCheckConstraint("CK_WorkoutSessions_Dates", "[EndsAt] > [StartsAt]");
                 });
 
                 builder.HasKey(w => w.Id);
@@ -256,7 +261,12 @@ namespace FitZone.Infrastructure.Data
 
             modelBuilder.Entity<UserMembershipPlan>(builder =>
             {
-                builder.ToTable("UserMembershipPlans");
+                builder.ToTable("UserMembershipPlans", t =>
+                {
+                    t.HasCheckConstraint("CK_UserMembershipPlans_RemainingVisits",
+                        "[RemainingVisits] IS NULL OR [RemainingVisits] >= 0");
+                    t.HasCheckConstraint("CK_UserMembershipPlans_Dates", "[EndDate] > [StartDate]");
+                });
                 builder.HasKey(u => u.Id);
                 builder.Property(u => u.Id);
 
@@ -265,9 +275,9 @@ namespace FitZone.Infrastructure.Data
 
                 builder.Property(u => u.RemainingVisits);
 
-                builder.HasOne(um=>um.User)
-                .WithMany(us=>us.UserMembershipPlans)
-                .HasForeignKey(um=>um.UserId)
+                builder.HasOne(um => um.User)
+                .WithMany(us => us.UserMembershipPlans)
+                .HasForeignKey(um => um.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
             });
 

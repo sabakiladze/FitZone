@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FitZone.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -103,7 +103,8 @@ namespace FitZone.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkoutSessions", x => x.Id);
-                    table.CheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity]>0");
+                    table.CheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity] > 0");
+                    table.CheckConstraint("CK_WorkoutSessions_Dates", "[EndsAt] > [StartsAt]");
                     table.ForeignKey(
                         name: "FK_WorkoutSessions_Trainers_TrainerId",
                         column: x => x.TrainerId,
@@ -126,6 +127,8 @@ namespace FitZone.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserMembershipPlans", x => x.Id);
+                    table.CheckConstraint("CK_UserMembershipPlans_Dates", "[EndDate] > [StartDate]");
+                    table.CheckConstraint("CK_UserMembershipPlans_RemainingVisits", "[RemainingVisits] IS NULL OR [RemainingVisits] >= 0");
                     table.ForeignKey(
                         name: "FK_UserMembershipPlans_MembershipPlans_MembershipPlanId",
                         column: x => x.MembershipPlanId,
@@ -227,9 +230,11 @@ namespace FitZone.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bookings_UserId",
+                name: "IX_Bookings_UserId_WorkoutSessionId",
                 table: "Bookings",
-                column: "UserId");
+                columns: new[] { "UserId", "WorkoutSessionId" },
+                unique: true,
+                filter: "[Status] <> 2 AND [Status] <> 4");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_WorkoutSessionId",

@@ -8,7 +8,7 @@ namespace FitZone.Domain.CustomExceptions
 {
     public class InvalidCredentialException : AppException
     {
-        public InvalidCredentialException() : base("Invalid Password", 401) { }
+        public InvalidCredentialException() : base("Invalid Credential", 401) { }
 
 
 

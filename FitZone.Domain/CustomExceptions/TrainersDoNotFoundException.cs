@@ -8,6 +8,6 @@ namespace FitZone.Domain.CustomExceptions
 {
     public class TrainersDoNotFoundException:AppException
     {
-        public TrainersDoNotFoundException() : base("Trainers Do Not Found",404 ) { }
+        public TrainersDoNotFoundException() : base("Trainers Do Not Found",400 ) { }
     }
 }

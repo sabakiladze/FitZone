@@ -51,7 +51,7 @@ namespace FitZone.Application.Implementations
                 throw new UserNotFoundException();
 
             if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
-                throw new System.Security.Authentication.InvalidCredentialException();
+                throw new Domain.CustomExceptions.InvalidCredentialException();
 
             user.MarkAsDeleted();
 

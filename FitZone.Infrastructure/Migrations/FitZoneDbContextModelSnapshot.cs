@@ -42,9 +42,11 @@ namespace FitZone.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("WorkoutSessionId");
+
+                    b.HasIndex("UserId", "WorkoutSessionId")
+                        .IsUnique()
+                        .HasFilter("[Status] <> 2 AND [Status] <> 4");
 
                     b.ToTable("Bookings", (string)null);
                 });
@@ -325,7 +327,12 @@ namespace FitZone.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserMembershipPlans", (string)null);
+                    b.ToTable("UserMembershipPlans", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_UserMembershipPlans_Dates", "[EndDate] > [StartDate]");
+
+                            t.HasCheckConstraint("CK_UserMembershipPlans_RemainingVisits", "[RemainingVisits] IS NULL OR [RemainingVisits] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("FitZone.Domain.Entities.Models.Visit", b =>
@@ -376,7 +383,9 @@ namespace FitZone.Infrastructure.Migrations
 
                     b.ToTable("WorkoutSessions", null, t =>
                         {
-                            t.HasCheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity]>0");
+                            t.HasCheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity] > 0");
+
+                            t.HasCheckConstraint("CK_WorkoutSessions_Dates", "[EndsAt] > [StartsAt]");
                         });
                 });
 

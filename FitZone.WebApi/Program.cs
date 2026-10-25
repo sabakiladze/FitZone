@@ -39,7 +39,6 @@ namespace FitZone.WebApi
                     .ValidateDataAnnotations()
                       .ValidateOnStart();
 
-           // builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -53,6 +52,7 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IVisitRepository, VisitRepository>();
             builder.Services.AddScoped<IVisitService, VisitService>();
             builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
+            builder.Services.AddScoped<ITrainerService, TrainerService>();
 
             if (builder.Configuration.GetValue<bool>("UseRealEmail"))
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
@@ -123,7 +123,6 @@ namespace FitZone.WebApi
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
