@@ -93,7 +93,7 @@ namespace FitZone.Application.Implementations
                 UserId = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
-                Role = user.Role.RoleName,
+                Role = user?.Role?.RoleName!,
                 AccessToken = accessToken,
                 AccessTokenExpiresAt = accessExpiresAt,
                 RefreshToken = refreshToken

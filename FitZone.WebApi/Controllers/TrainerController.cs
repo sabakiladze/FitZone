@@ -2,6 +2,7 @@
 using FitZone.Application.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FitZone.WebApi.Controllers
 {
@@ -26,26 +27,26 @@ namespace FitZone.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<TrainerDTO>> Create(CreateTrainerRequestDTO request, CancellationToken ct)
+        public async Task<ActionResult<TrainerDTO>> Create(CreateTrainerRequestDTO request, string adminEmail, CancellationToken ct)
         {
-            var created = await _trainerService.AddAsync(request, ct);
+            var created = await _trainerService.AddAsync(request,adminEmail, ct);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
 
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, UpdateTrainerRequestDTO request, CancellationToken ct)
+        public async Task<IActionResult> Update(Guid id, string adminEmail, UpdateTrainerRequestDTO request, CancellationToken ct)
         {
-            await _trainerService.UpdateAsync(id, request, ct);
+            await _trainerService.UpdateAsync(id, request, adminEmail, ct);
             return NoContent();
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+        public async Task<IActionResult> Delete(Guid id, string adminEmail, CancellationToken ct)
         {
-            await _trainerService.RemoveAsync(id, ct);
+            await _trainerService.RemoveAsync(id,adminEmail, ct);
             return NoContent();
         }
 
@@ -54,5 +55,16 @@ namespace FitZone.WebApi.Controllers
         {
             return Ok(await _trainerService.SearchAsync(name, specialization, ct));
         }
+
+        private Guid GetAdminId()
+        {
+            return Guid.Parse(User.FindFirstValue(ClaimTypes.Email)!);
+
+        }
+
+        // update, add, remoce ისთვის ემაილს გავატან ტოკენიდან რა.
+        // იმ შემთხვევაში თუ ისეთი ემაილი გადაეცა რომელიც არაა ადმინი,
+        // ამ შემთხვევაში user ის ემაილი გადაეცემა, მაგრამ არ ამოაგდებს შეცდომას
+        // რადგან authorize role==admin ჩააგდებს სანამ მივა საერთოდ სერვისამდე.
     }
 }
