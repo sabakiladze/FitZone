@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.WorkOutSessionDTOs
 {
-    public class UpdateWorkoutSessionRequestDTOcs
+    public class UpdateWorkoutSessionRequestDTO
     {
         [Required(ErrorMessage = "TrainerId is required")]
         public Guid TrainerId { get; set; }
