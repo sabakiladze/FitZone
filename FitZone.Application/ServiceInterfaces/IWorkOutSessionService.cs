@@ -12,7 +12,7 @@ namespace FitZone.Application.ServiceInterfaces
     public interface IWorkOutSessionService
     {
         Task<WorkoutSessionDTO> AddAsync(CreateWorkoutSessionRequestDTO request, CancellationToken ct = default);
-        Task UpdateAsync(Guid id, UpdateWorkoutSessionRequestDTO request, CancellationToken ct = default);
+        Task<WorkoutSessionDTO> UpdateAsync(Guid id, UpdateWorkoutSessionRequestDTO request, CancellationToken ct = default);
 
         Task RemoveAsync(Guid id, CancellationToken ct = default);
         Task<WorkoutSessionDTO> GetByIdAsync(Guid id, CancellationToken ct = default);

@@ -9,6 +9,7 @@ namespace FitZone.Application.DTOs.WorkOutSessionDTOs
    public class WorkoutSessionDTO
     {
         public Guid Id { get; set; }
+        public Guid TrainerName {  get; set; }
         public DateTime StartsAt { get; set; }
         public DateTime EndsAt { get; set; }
 

@@ -18,6 +18,13 @@ namespace FitZone.WebApi.Middleware
         // ამ შინაარსს ვცვლი მე ზუსტად, ანუ მე ვწერ შეცდომის შემთხვევაში რას დაააბრუნებს.
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken ct)
         {
+            // კლიენტმა მოთხოვნა თვითონ გააუქმა: ეს შეცდომა არ არის, პასუხს აღარ ვწერთ
+            if (exception is OperationCanceledException)
+            {
+                _logger.LogInformation("Request was cancelled by the client: {Path}",
+                    httpContext.Request.Path);
+                return true;
+            }
             int status;
             string title;
             string details;
@@ -25,6 +32,7 @@ namespace FitZone.WebApi.Middleware
 
             // თუ შემავალი შეცდომა არის AppException ამ ტიპის (ანუ ჩემი ქუსთომ exception) 
             // მაშნ იფ ში შეიტანოს როგორც
+
             if (exception is AppException appException)
             {
                 status = appException.StatusCode;
@@ -41,6 +49,7 @@ namespace FitZone.WebApi.Middleware
                 details = "An unexpected error occurred.";
                 _logger.LogError(exception, "Unhandled exception");
             }
+
 
 
             // http კონტექსტს/პასუხს უწერს სტატუსკოდს(ჩემს კოდს)

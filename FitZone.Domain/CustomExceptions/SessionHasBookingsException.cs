@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace FitZone.Domain.CustomExceptions
 {
-    public class WorkoutSessionNotFounfException :AppException
+    public class SessionHasBookingsException:AppException
     {
-        public WorkoutSessionNotFounfException() : base("WorkOutSession NotcFound", 404) { }
+        public SessionHasBookingsException() : base("Session Has Bookings you can't delete it", 409) { }
     }
 }

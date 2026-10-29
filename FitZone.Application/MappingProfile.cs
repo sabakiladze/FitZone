@@ -21,9 +21,12 @@ namespace FitZone.Application
         {
             CreateMap<MembershipPlan, MembershipPlanDTO>();
 
+
             CreateMap<UserMembershipPlan, UserMembershipDTO>()
+
            .ForMember(d => d.PlanName, o => o.MapFrom(s => s.MembershipPlan.Name))
            .ForMember(d => d.IsActive, o => o.MapFrom(s => s.EndDate > DateTime.UtcNow));
+
 
             CreateMap<Visit, VisitDTO>()
             .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
@@ -35,23 +38,10 @@ namespace FitZone.Application
 
             CreateMap<Trainer, Trainer>();
 
+
             CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>();
 
 
-            ///
-            CreateMap<WorkoutSession, WorkoutSessionDTO>()
-                .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.Trainer.FullName))
-                .ForMember(d => d.FreeSpots, o => o.MapFrom(s =>
-                    Math.Max(0, s.Capacity - s.Bookings.Count(b =>
-                        b.Status != BookingStatus.Cancelled &&
-                        b.Status != BookingStatus.NoShow))));
-            /// ამას მიაქციე ყურადღება
-
-
-            CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>()
-            .ForMember(d => d.Id, o => o.Ignore())
-            .ForMember(d => d.Trainer, o => o.Ignore())
-            .ForMember(d => d.Bookings, o => o.Ignore());
-         }
+        }
     }
 }

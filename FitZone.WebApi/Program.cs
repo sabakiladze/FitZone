@@ -54,6 +54,7 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<IWorkOutSessionRepository, WorkOutSessioRepository>();
+            builder.Services.AddScoped<IWorkOutSessionService, WorkoutSessionService>();
 
             if (builder.Configuration.GetValue<bool>("UseRealEmail"))
                 builder.Services.AddScoped<IEmailSender, SmtpEmailSenderService>();
