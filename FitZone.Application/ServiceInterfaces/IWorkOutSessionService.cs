@@ -1,4 +1,5 @@
-﻿using FitZone.Application.DTOs.WorkOutSessionDTOs;
+﻿using FitZone.Application.DTOs;
+using FitZone.Application.DTOs.WorkOutSessionDTOs;
 using FitZone.Domain.Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace FitZone.Application.ServiceInterfaces
         Task RemoveAsync(Guid id, CancellationToken ct = default);
         Task<WorkoutSessionDTO> GetByIdAsync(Guid id, CancellationToken ct = default);
 
+        Task<PagedResponseDTO<WorkoutSessionDTO>> GetAsync(WorkoutSessionFilterDTO filter, PaginationQueryDTO paging, CancellationToken ct = default);
 
     }
 }

@@ -9,6 +9,8 @@ namespace FitZone.Application.DTOs.WorkOutSessionDTOs
 {
     public class UpdateWorkoutSessionRequestDTO
     {
+        [Required(ErrorMessage ="Id is neccessery to Update WorkoutSession")]
+        public Guid  Id { get; set; }
         [Required(ErrorMessage = "TrainerId is required")]
         public Guid TrainerId { get; set; }
 

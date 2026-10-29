@@ -4,7 +4,9 @@ using FitZone.Application.DTOs.AuthDTOs;
 using FitZone.Application.DTOs.MembershipDTOs;
 using FitZone.Application.DTOs.TrainerDTOs;
 using FitZone.Application.DTOs.VisitDTOs;
+using FitZone.Application.DTOs.WorkOutSessionDTOs;
 using FitZone.Domain.Entities.Models;
+using FitZone.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application
 {
-   public class MappingProfile:Profile
+    public class MappingProfile : Profile
     {
         public MappingProfile()
         {
@@ -32,7 +34,24 @@ namespace FitZone.Application
             CreateMap<Trainer, TrainerDTO>();
 
             CreateMap<Trainer, Trainer>();
-        
-        }
+
+            CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>();
+
+
+            ///
+            CreateMap<WorkoutSession, WorkoutSessionDTO>()
+                .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.Trainer.FullName))
+                .ForMember(d => d.FreeSpots, o => o.MapFrom(s =>
+                    Math.Max(0, s.Capacity - s.Bookings.Count(b =>
+                        b.Status != BookingStatus.Cancelled &&
+                        b.Status != BookingStatus.NoShow))));
+            /// ამას მიაქციე ყურადღება
+
+
+            CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>()
+            .ForMember(d => d.Id, o => o.Ignore())
+            .ForMember(d => d.Trainer, o => o.Ignore())
+            .ForMember(d => d.Bookings, o => o.Ignore());
+         }
     }
 }
