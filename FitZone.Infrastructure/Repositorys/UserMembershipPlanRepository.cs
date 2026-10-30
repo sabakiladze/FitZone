@@ -30,6 +30,8 @@ namespace FitZone.Infrastructure.Repositorys
                 .Where(x => x.UserId == userId && x.EndDate > DateTime.UtcNow)
                 .OrderByDescending(m => m.EndDate)
                 .FirstOrDefaultAsync(x => x.UserId == userId, ct);
+
+            // ეს აბრუნებს ობიექტს რომლის ვადა და აიდი ემთხვევა, ანუ ვადა კიდევ აქვს მის გეგმას
         }
     }
 }

@@ -28,6 +28,9 @@ namespace FitZone.Infrastructure.Repositorys
             (x.WorkoutSessionId == sessionId &&
             x.Status != Domain.Enums.BookingStatus.Cancelled &&
             x.Status != Domain.Enums.BookingStatus.NoShow), ct);
+
+           // ეს ეძებს და ითვლის ისეთ book ობიექტებს რომლებიც ეკუთვნის მოცემული სესსის აიდის და ასევე მისი სტატუსი არაა გაუქმებული ანუ არის აქტიური
+           // გამიყენება იმსთის რომ გავიგოთ რამდენი ადგილი დაგვრჩა.
         }
 
         public async Task<WorkoutSession?> GetByIdAsync(Guid id, CancellationToken ct = default)

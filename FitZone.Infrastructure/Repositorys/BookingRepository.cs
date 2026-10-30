@@ -74,9 +74,13 @@ namespace FitZone.Infrastructure.Repositorys
         public async Task<bool> UserHasActiveBookingAsync(Guid userId, Guid sessionId, CancellationToken ct = default)
         {//  უდნა შევამოწმო არის თუ არა რეგისტირრებული უსერი ამ სესიაზე
 
+
+            //bookings ში უ არსებობს ისეთი ობიექტი სადას user and workoutsession id-ები ემთხვევა ამას და სტატუსი არაა გაუქმებული.
+            // ანუ თუ არსებობს ასეთი ჯავშანი უსერის და სესიის ადით სადაც სტატუსი არაა გაუქმებული
+
             var registere = _fitZone.Bookings.Where(x => x.UserId == userId && x.WorkoutSessionId == sessionId && x.Status != BookingStatus.Cancelled && x.Status != BookingStatus.NoShow);
-            if(!registere.Any() ) {return false;} // ar aqvs
-            return true; //aqvs
+            if(registere.Any() ) {return true;} // aqvs ukve
+            return false; // ar aqvs
         }
 
         public async Task<bool> UserHasOverlapAsync(Guid userId, DateTime startsAt, DateTime endsAt, CancellationToken ct = default)
@@ -90,12 +94,10 @@ namespace FitZone.Infrastructure.Repositorys
                 x.Status != BookingStatus.NoShow &&
                 x.WorkoutSession.StartsAt < endsAt &&
                 x.WorkoutSession.EndsAt > startsAt);
+            // თუ არსეობოს ერთი ობიექტიც ასეთი მაშინ დააბრუნებს true, ანუ ეჯახებიან და არ მაქვს უფლება შევქმნა ახალი დაჯავშნა
 
-
-            // ეხლა უნდა შევამოწმო რომელიმეს ხომ  ეჯახება bookings ში და თუ ეს ობიექტი ცარიელი იქნება ანუ არ ეჯახება
         }
 
-        // 1. თუ ახალი
 
     }
 }

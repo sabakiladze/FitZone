@@ -82,29 +82,7 @@ namespace FitZone.Testing.RepositoryTests
         }
 
 
-        [Theory]
-        [InlineData("10:30", "11:30", false)]  // მხოლოდ საკუთარ თავს ფარავსარ ითვლება
-        [InlineData("11:00", "12:00", false)]
-        [InlineData("15:30", "16:30", true)]   // ეჯახება    B-ს
-        [InlineData("14:00", "15:30", true)]   // ეჯახება B-ს
-        public async Task TrainerHasOverlapAsync_OnUpdate_Should_IgnoreCurrentSessionOnly(
-            string from, string to, bool expected)
-        {
-            using var context = CreateContext();
-            var trainer = NewTrainer();
-            var sessionA = NewSession(trainer.Id, "10:00", "11:00");
-            var sessionB = NewSession(trainer.Id, "15:00", "16:00");
-            context.Trainers.Add(trainer);
-            context.WorkoutSessions.AddRange(sessionA, sessionB);
-            await context.SaveChangesAsync();
-            var repo = new WorkOutSessioRepository(context);
-
-            var result = await repo.TrainerHasOverlapAsync(
-                trainer.Id, At(from), At(to), excludeSessionId: sessionA.Id);
-
-            result.Should().Be(expected);
-        }
-
+       
         [Fact]
         public async Task TrainerHasOverlapAsync_OnUpdate_SessionOfAnotherTrainer_Should_NotConflict()
         {

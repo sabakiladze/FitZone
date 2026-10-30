@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FitZone.Application.DTOs.Auth;
 using FitZone.Application.DTOs.AuthDTOs;
+using FitZone.Application.DTOs.BookingDTOs;
 using FitZone.Application.DTOs.MembershipDTOs;
 using FitZone.Application.DTOs.TrainerDTOs;
 using FitZone.Application.DTOs.VisitDTOs;
@@ -36,12 +37,13 @@ namespace FitZone.Application
 
             CreateMap<Trainer, TrainerDTO>();
 
-            CreateMap<Trainer, Trainer>();
 
 
             CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>();
 
-
+            CreateMap<Booking, BookingDTO>()
+                .ForMember(d => d.StartsAt, o => o.MapFrom(s => s.WorkoutSession.StartsAt))
+                .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.WorkoutSession.Trainer!.FullName));
         }
     }
 }
