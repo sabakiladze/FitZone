@@ -43,6 +43,7 @@ namespace FitZone.Application.Implementations
 
         public async Task RemoveAsync(Guid id, string adminEmail, CancellationToken ct = default)
         {
+            if (id == Guid.Empty) throw new EnterProperIdException();
             var trainer = await _repo.GetByIdAsync(id, ct)
                ?? throw new TrainersDoNotFoundException();
 
@@ -71,6 +72,7 @@ namespace FitZone.Application.Implementations
         public async Task<TrainerDTO> AddAsync(CreateTrainerRequestDTO request, string adminEmail, CancellationToken ct = default)
         {
             ArgumentNullException.ThrowIfNull(request);
+
 
             var trainer = _mapper.Map<Trainer>(request);
             await _repo.AddAsync(trainer, ct);
@@ -105,6 +107,7 @@ namespace FitZone.Application.Implementations
 
         public async Task UpdateAsync(Guid id, UpdateTrainerRequestDTO request, string adminEmail, CancellationToken ct = default)
         {
+            if (id == Guid.Empty) throw new EnterProperIdException();
             ArgumentNullException.ThrowIfNull(request);
 
             var trainer = await _repo.GetByIdAsync(id, ct)

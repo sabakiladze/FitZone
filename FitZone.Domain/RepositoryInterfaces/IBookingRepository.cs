@@ -17,8 +17,7 @@ namespace FitZone.Domain.RepositoryInterfaces
         Task<(ICollection<Booking> Items, int TotalCount)> GetByUserAsync(
     Guid userId, int page, int pageSize, CancellationToken ct = default);
 
-        Task<(ICollection<Booking> Items, int TotalCount)> GetFilteredAsync(
-    Guid? sessionId, BookingStatus? status, int page, int pageSize, CancellationToken ct = default);
+        Task<(ICollection<Booking> Items, int TotalCount)> GetFilteredAsync(Guid? sessionId, BookingStatus? status, string? trainerName, DateOnly? date,int page, int pageSize, CancellationToken ct = default);
 
         Task<bool> UserHasActiveBookingAsync(Guid userId, Guid sessionId, CancellationToken ct = default);
 

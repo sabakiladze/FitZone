@@ -35,9 +35,15 @@ namespace FitZone.Application.Implementations
             Guid userId, ActivateMembershipRequestDTO request, CancellationToken ct = default)
         {
             ArgumentNullException.ThrowIfNull(request);
+            if (userId == Guid.Empty) throw new EnterProperIdException();
+            if (request.PlanId == Guid.Empty) throw new EnterProperIdException();
+
 
             var plan = await _membershipPlanRepository.GetbyIdMembershipPlan(request.PlanId, ct)
                 ?? throw new MembershipPlanDoNotExistsException();
+            if (request.Amount != plan.Price)
+                throw new NotEnoyghMoneyException();
+
 
             var existing = await _userMembershipRepository.GetActiveByUserIdAsync(userId, ct);
             if (existing is not null)
@@ -59,6 +65,7 @@ namespace FitZone.Application.Implementations
         public async Task<UserMembershipDTO?> GetMyActiveAsync(Guid userId, CancellationToken ct = default)
         {
 
+            if (userId == Guid.Empty) throw new EnterProperIdException();
             // usermembership უსერ ის მოქმედ აბონიმენტს აბრუნებს
             var membership = await _userMembershipRepository.GetActiveByUserIdAsync(userId, ct);
             return membership is null ? null : _mapper.Map<UserMembershipDTO>(membership);

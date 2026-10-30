@@ -103,6 +103,7 @@ namespace FitZone.Application.Implementations
 
         public async Task<WorkoutSessionDTO> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
+            if (id == Guid.Empty) throw new EnterProperIdException();
             var workout = await _repository.GetByIdAsync(id, ct) ?? throw new WorkoutSessionNotFoundException();
             return _mapper.Map<WorkoutSessionDTO>(workout);
 
@@ -124,6 +125,7 @@ namespace FitZone.Application.Implementations
 
         public async Task<WorkoutSessionDTO> UpdateAsync(Guid id, UpdateWorkoutSessionRequestDTO request, CancellationToken ct = default)
         {
+            if (id == Guid.Empty) throw new EnterProperIdException();
             ArgumentNullException.ThrowIfNull(request);
 
             if (request.EndsAt <= request.StartsAt)

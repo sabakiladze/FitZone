@@ -37,6 +37,7 @@ namespace FitZone.Application.Implementations
         public async Task<CheckInResponseDTO> CheckInAsync(Guid userId, CancellationToken ct=default)
         {
 
+            if (userId == Guid.Empty) throw new EnterProperIdException();
             var membership = await _userMembershipRepo.GetActiveByUserIdAsync(userId, ct) // rom shevamowmo remaining visits
                 ?? throw new NoActiveMembershipException();
 
@@ -65,6 +66,7 @@ namespace FitZone.Application.Implementations
         }
         public async Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default)
         {
+            if (userId == Guid.Empty) throw new EnterProperIdException();
             var visits = await _visitRepo.GetByUserIdAsync(userId, ct);
             return _mapper.Map<ICollection<VisitDTO>>(visits);
         }
