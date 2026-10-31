@@ -50,9 +50,13 @@ namespace FitZone.Application
             CreateMap<UpdateTrainerRequestDTO, Trainer>()
                  .ForMember(d => d.Id, o => o.Ignore())              
                  .ForMember(d => d.WorkoutSessions, o => o.Ignore());
-            CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>();
 
-           CreateMap<Booking, BookingDTO>()
+            CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>()
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.Trainer, o => o.Ignore())
+                .ForMember(d => d.Bookings, o => o.Ignore());
+
+            CreateMap<Booking, BookingDTO>()
                 .ForMember(d => d.StartsAt, o => o.MapFrom(s => s.WorkoutSession.StartsAt))
                 .ForMember(d => d.EndsAt, o => o.MapFrom(s => s.WorkoutSession.EndsAt))
                 .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.WorkoutSession.Trainer!.FullName));

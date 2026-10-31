@@ -298,6 +298,21 @@ namespace FitZone.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("7d3a5c2e-4b1f-4e8a-9c6d-2f1a8b9e0c34"),
+                            CreatedAt = new DateTime(2026, 10, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@fitzone.local",
+                            FirstName = "System",
+                            IsActive = true,
+                            IsEmailVerified = true,
+                            LastName = "Admin",
+                            PasswordHash = "$2a$11$QpULRn1Nj7pcQsRi.J2je.w5V23VIxVqLIDANfOzvzSO6b2P01pG.",
+                            RoleId = new Guid("33b55207-ab7c-474e-82e5-fd89bf9bab59"),
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("FitZone.Domain.Entities.Models.UserMembershipPlan", b =>

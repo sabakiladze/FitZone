@@ -212,8 +212,21 @@ namespace FitZone.Application.Implementations
             await _unitOfWork.SaveChangesAsync(ct);
 
             var body = VerificationEmailTemplate.GenerateVerificationBody(user.FirstName, code, codeLifespanMinutes);
-            await _emailSender.SendAsync(user.Email, "Account Verification", body, ct);
 
+
+            //try
+            //{
+            //    await _emailSender.SendAsync(user.Email, "Account Verification", body, ct);
+            //}
+            //catch (Exception ex) when (ex is not OperationCanceledException)
+            //{
+            //    _logger.LogError(ex, "Failed to send verification email to user {UserId}", user.Id);
+
+            //    user.SetVerificationCode(null!, null!); 
+            //    await _unitOfWork.SaveChangesAsync(ct);
+
+            //    throw new EmailSendingFailedException(); 
+            //}
         }
 
         public async Task<bool> VerifyEmailAsync(VerificationEmailRequestDTO request, CancellationToken ct = default)

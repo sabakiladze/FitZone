@@ -118,6 +118,20 @@ namespace FitZone.Infrastructure.Data
                 .HasForeignKey(v => v.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+                builder.HasData(new
+                {
+                    Id = new Guid("7d3a5c2e-4b1f-4e8a-9c6d-2f1a8b9e0c34"),
+                    UserName = "admin",
+                    FirstName = "System",
+                    LastName = "Admin",
+                    Email = "admin@fitzone.local",
+                    PasswordHash = "$2a$11$QpULRn1Nj7pcQsRi.J2je.w5V23VIxVqLIDANfOzvzSO6b2P01pG.",
+                    IsEmailVerified = true,
+                    IsActive = true,
+                    CreatedAt = new DateTime(2026, 10, 25, 0, 0, 0, DateTimeKind.Utc),
+                    RoleId = (Guid?)new Guid("33b55207-ab7c-474e-82e5-fd89bf9bab59")
+                });
+
             });
 
 
