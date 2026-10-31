@@ -11,7 +11,7 @@ namespace FitZone.Application.DTOs.BookingDTOs
     {
         public Guid? WorkoutSessionId { get; set; }
         public string? TrainerName { get; set; }
-        public DateTime? DateTime { get; set; }
+        public DateOnly? Date { get; set; }
         public BookingStatus? Status { get; set; }
 
     }

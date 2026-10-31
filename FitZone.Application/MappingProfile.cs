@@ -41,8 +41,9 @@ namespace FitZone.Application
 
             CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>();
 
-            CreateMap<Booking, BookingDTO>()
+           CreateMap<Booking, BookingDTO>()
                 .ForMember(d => d.StartsAt, o => o.MapFrom(s => s.WorkoutSession.StartsAt))
+                .ForMember(d => d.EndsAt, o => o.MapFrom(s => s.WorkoutSession.EndsAt))
                 .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.WorkoutSession.Trainer!.FullName));
         }
     }
