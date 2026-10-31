@@ -29,7 +29,7 @@ namespace FitZone.Infrastructure.Repositorys
 
         public async Task<ICollection<Trainer>> GetAllAsync(CancellationToken ct = default)
         {
-            return await _context.Trainers.AsNoTracking().ToListAsync();
+            return await _context.Trainers.AsNoTracking().Where(x=>x.IsActive).ToListAsync();
         }
 
         public async Task<Trainer?> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -39,7 +39,7 @@ namespace FitZone.Infrastructure.Repositorys
 
         public async Task<IReadOnlyList<Trainer>> SearchAsync(string? name, string? specialization, CancellationToken ct = default)
         {
-            var query = _context.Trainers.AsNoTracking();
+            var query = _context.Trainers.AsNoTracking().Where(x=>x.IsActive);
 
             if (name is not null)
                 query = query.Where(t => t.FullName.Contains(name));
@@ -64,6 +64,14 @@ namespace FitZone.Infrastructure.Repositorys
                 return;
 
             _mapper.Map(trainer, existingTrainer);
+        }
+
+        public async Task<bool> HasUpcomingSessionsAsync(Guid trainerId, CancellationToken ct = default)
+        {
+            return await _context.WorkoutSessions
+        .AnyAsync(s => s.TrainerId == trainerId && s.StartsAt > DateTime.UtcNow, ct);
+
+            // Tu true daabruna anu aqvs momavalshi
         }
     }
 }

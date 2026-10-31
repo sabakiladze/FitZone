@@ -13,7 +13,17 @@ namespace FitZone.Domain.Entities.Models
         public string FullName { get; set; } = null!;
         public string Specialization { get; set; } = null!;
         public int ExperienceYears { get; set; }
+        public bool IsActive { get; private set; } = true;
+        public DateTime? DeletedAt { get; private set; }
         public ICollection<WorkoutSession> WorkoutSessions { get; set; } = new List<WorkoutSession>();
+
+
+
+        public void Deactivate()
+        {
+            DeletedAt = DateTime.UtcNow;
+            IsActive = false;
+        }
 
 
     }

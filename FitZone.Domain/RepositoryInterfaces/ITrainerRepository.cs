@@ -16,6 +16,7 @@ namespace FitZone.Domain.RepositoryInterfaces
         Task AddAsync(Trainer trainer, CancellationToken ct = default);
         Task Update(Trainer trainer);
         void Remove(Trainer trainer);
+        Task<bool> HasUpcomingSessionsAsync(Guid trainerId, CancellationToken ct = default);
 
     }
 }

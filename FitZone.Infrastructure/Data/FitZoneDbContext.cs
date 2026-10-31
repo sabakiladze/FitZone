@@ -153,6 +153,12 @@ namespace FitZone.Infrastructure.Data
                 .HasMaxLength(500)
                 .IsRequired();
 
+                builder.Property(t=>t.IsActive)
+                .IsRequired();
+
+
+                builder.Property(t => t.DeletedAt);
+
                 builder.Property(t => t.ExperienceYears);
 
                 builder.HasMany(t => t.WorkoutSessions)

@@ -38,32 +38,34 @@ namespace FitZone.Application.Implementations
         }
 
 
-        
+
 
         public async Task RemoveAsync(Guid id, string adminEmail, CancellationToken ct = default)
         {
             if (id == Guid.Empty) throw new EnterProperIdException();
+
             var trainer = await _repo.GetByIdAsync(id, ct)
-               ?? throw new TrainersDoNotFoundException();
+                ?? throw new TrainersDoNotFoundException();
 
+            if (!trainer.IsActive) throw new TrainersDoNotFoundException();
 
+            if (await _repo.HasUpcomingSessionsAsync(id, ct))
+                throw new TrainerHasUpcomingSessionsException();
 
-            /// todo თუ workoutsessinn მაქვს მაშნ ვერ წავშლი ტრენეერს, ამიტომ ჯერ სესია უნდა წავშალო
-            _repo.Remove(trainer);
+            trainer.Deactivate();
             await _unit.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Trainer {TrainerId} deactivated by {AdminEmail}.", trainer.Id, adminEmail);
 
             try
             {
                 var body = TrainerEmailTemplates.GenerateDeletedBody(trainer.FullName);
-                await _emailSender.SendAsync(adminEmail, "Trainer added", body, ct);
-                _logger.LogInformation($"Trainer deleted by {trainer.Id} in FitZone");
+                await _emailSender.SendAsync(adminEmail, "Trainer removed", body, ct);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send trainer-remove email for {TrainerId}", trainer.Id);
             }
-
-            _logger.LogInformation("Trainer {TrainerId} deleted.", trainer.Id);
         }
 
 
@@ -82,7 +84,6 @@ namespace FitZone.Application.Implementations
             {
                 var body = TrainerEmailTemplates.GenerateAddedBody(trainer.FullName, trainer.Specialization, trainer.ExperienceYears);
                 await _emailSender.SendAsync(adminEmail, "Trainer added", body, ct);
-                _logger.LogInformation($"Trainer added by {trainer.Id} in FitZone");
             }
             catch (Exception ex)
             {
@@ -99,8 +100,10 @@ namespace FitZone.Application.Implementations
 
         public async Task<TrainerDTO> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
-            var trainer = await _repo.GetByIdAsync(id, ct)
-                ?? throw new TrainersDoNotFoundException();
+            var trainer = await _repo.GetByIdAsync(id, ct)?? throw new TrainersDoNotFoundException();
+
+            if (trainer.IsActive == false) throw new TrainersDoNotFoundException();
+
             return _mapper.Map<TrainerDTO>(trainer);
         }
 
@@ -111,7 +114,7 @@ namespace FitZone.Application.Implementations
 
             var trainer = await _repo.GetByIdAsync(id, ct)
                 ?? throw new TrainersDoNotFoundException();
-
+            if(!trainer.IsActive) throw new TrainersDoNotFoundException();
             _mapper.Map(request, trainer);
             await _unit.SaveChangesAsync(ct);
             _logger.LogInformation("Trainer {TrainerId} updated.", trainer.Id);
@@ -119,8 +122,7 @@ namespace FitZone.Application.Implementations
             try
             {
                 var body = TrainerEmailTemplates.GenerateAddedBody(trainer.FullName, trainer.Specialization, trainer.ExperienceYears);
-                await _emailSender.SendAsync(adminEmail, "Trainer added", body, ct);
-                _logger.LogInformation($"Trainer  by {trainer.Id} id updated in FitZone");
+                await _emailSender.SendAsync(adminEmail, "Trainer Updated", body, ct);
             }
             catch (Exception ex)
             {

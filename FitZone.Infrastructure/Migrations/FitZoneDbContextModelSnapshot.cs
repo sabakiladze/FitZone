@@ -164,6 +164,9 @@ namespace FitZone.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ExperienceYears")
                         .HasColumnType("int");
 
@@ -171,6 +174,9 @@ namespace FitZone.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Specialization")
                         .IsRequired()
@@ -190,6 +196,7 @@ namespace FitZone.Infrastructure.Migrations
                             Id = new Guid("063e3914-691e-4663-bbd4-5fb2acac5139"),
                             ExperienceYears = 8,
                             FullName = "Giorgi Beridze",
+                            IsActive = true,
                             Specialization = "Strength Training"
                         },
                         new
@@ -197,6 +204,7 @@ namespace FitZone.Infrastructure.Migrations
                             Id = new Guid("4d64029d-2c85-47e7-9d37-8a5417dd6872"),
                             ExperienceYears = 5,
                             FullName = "Nino Kapanadze",
+                            IsActive = true,
                             Specialization = "Yoga"
                         },
                         new
@@ -204,6 +212,7 @@ namespace FitZone.Infrastructure.Migrations
                             Id = new Guid("39a2d8bc-8c91-4a6a-965e-862c90c757ae"),
                             ExperienceYears = 3,
                             FullName = "Dato Maisuradze",
+                            IsActive = true,
                             Specialization = "Cardio & HIIT"
                         },
                         new
@@ -211,6 +220,7 @@ namespace FitZone.Infrastructure.Migrations
                             Id = new Guid("05966c03-f1ee-4285-a055-518a29c368ea"),
                             ExperienceYears = 4,
                             FullName = "Mariam Nozadze",
+                            IsActive = true,
                             Specialization = "Cardio $ HIIT"
                         },
                         new
@@ -218,6 +228,7 @@ namespace FitZone.Infrastructure.Migrations
                             Id = new Guid("17f8c66d-6ec2-4b69-b7f5-1ee9c544e7f5"),
                             ExperienceYears = 6,
                             FullName = "Nika Donadze",
+                            IsActive = true,
                             Specialization = "Strength Training"
                         });
                 });

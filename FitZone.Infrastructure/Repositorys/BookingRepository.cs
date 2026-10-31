@@ -82,7 +82,7 @@ namespace FitZone.Infrastructure.Repositorys
         }
 
 
-        public async Task<bool> UserHasActiveBookingAsync(Guid userId, Guid sessionId, CancellationToken ct = default)
+        public  async Task<bool> UserHasActiveBookingAsync(Guid userId, Guid sessionId, CancellationToken ct = default)
         {//  უდნა შევამოწმო არის თუ არა რეგისტირრებული უსერი ამ სესიაზე
 
 
