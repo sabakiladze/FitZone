@@ -76,5 +76,65 @@ namespace FitZone.Application.Implementations
             var plans = await _membershipPlanRepository.GetAllMembersipPlanAsync(ct);
             return _mapper.Map<ICollection<MembershipPlanDTO>>(plans);
         }
+        public async Task<MembershipPlanDTO> CreatePlanAsync(
+    CreateMembershipPlanRequestDTO request, CancellationToken ct = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+
+            var name = request.Name.Trim();
+            if (await _membershipPlanRepository.ExistsByNameAsync(name, null, ct))
+                throw new MembershipPlanNameAlreadyExistsException();
+
+            var plan = new MembershipPlan
+            {
+                Name = name,
+                Price = request.Price,
+                DurationInDays = request.DurationInDays,
+                VisitLimit = request.VisitLimit
+            };
+
+            await _membershipPlanRepository.AddAsync(plan, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Membership plan {PlanId} created.", plan.Id);
+            return _mapper.Map<MembershipPlanDTO>(plan);
+        }
+
+        public async Task UpdatePlanAsync(
+            Guid id, UpdateMembershipPlanRequestDTO request, CancellationToken ct = default)
+        {
+            if (id == Guid.Empty) throw new EnterProperIdException();
+            ArgumentNullException.ThrowIfNull(request);
+
+            var plan = await _membershipPlanRepository.GetTrackedByIdAsync(id, ct)
+                ?? throw new MembershipPlanDoNotExistsException();
+
+            var name = request.Name.Trim();
+            if (await _membershipPlanRepository.ExistsByNameAsync(name, id, ct))
+                throw new MembershipPlanNameAlreadyExistsException();
+
+            plan.Name = name;
+            plan.Price = request.Price;
+            plan.DurationInDays = request.DurationInDays;
+            plan.VisitLimit = request.VisitLimit;
+
+            await _unitOfWork.SaveChangesAsync(ct);
+            _logger.LogInformation("Membership plan {PlanId} updated.", id);
+        }
+
+        public async Task DeletePlanAsync(Guid id, CancellationToken ct = default)
+        {
+            if (id == Guid.Empty) throw new EnterProperIdException();
+
+            var plan = await _membershipPlanRepository.GetTrackedByIdAsync(id, ct)
+                ?? throw new MembershipPlanDoNotExistsException();
+
+            if (await _membershipPlanRepository.HasUserMembershipsAsync(id, ct))
+                throw new MembershipPlanInUseException();
+
+            _membershipPlanRepository.Remove(plan);
+            await _unitOfWork.SaveChangesAsync(ct);
+            _logger.LogInformation("Membership plan {PlanId} deleted.", id);
+        }
     }
 }

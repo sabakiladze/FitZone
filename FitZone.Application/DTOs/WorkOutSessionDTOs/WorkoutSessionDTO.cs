@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace FitZone.Application.DTOs.WorkOutSessionDTOs
 {
-   public class WorkoutSessionDTO
+    public class WorkoutSessionDTO
     {
         public Guid Id { get; set; }
-        public Guid TrainerName {  get; set; }
+        public Guid TrainerId { get; set; }
+        public string TrainerName { get; set; } = null!;
         public DateTime StartsAt { get; set; }
         public DateTime EndsAt { get; set; }
-
         public int Capacity { get; set; }
-
-        public Guid TrainerId { get; set; }
+        public int FreeSpots { get; set; }
     }
 }

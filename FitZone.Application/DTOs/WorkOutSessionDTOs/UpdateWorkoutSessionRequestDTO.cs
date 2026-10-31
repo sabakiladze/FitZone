@@ -9,8 +9,6 @@ namespace FitZone.Application.DTOs.WorkOutSessionDTOs
 {
     public class UpdateWorkoutSessionRequestDTO
     {
-        public Guid  Id { get; set; }
-        public Guid TrainerId { get; set; }
 
         public DateTime StartsAt { get; set; }
 

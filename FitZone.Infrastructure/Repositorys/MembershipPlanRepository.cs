@@ -26,5 +26,29 @@ namespace FitZone.Infrastructure.Repositorys
         {
             return await _fitZoneDbContext.MembershipPlans.AsNoTracking().FirstOrDefaultAsync( x => x.Id == id, ct);
         }
+        public async Task<MembershipPlan?> GetTrackedByIdAsync(Guid id, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.MembershipPlans.FirstOrDefaultAsync(x => x.Id == id, ct);
+        }
+
+        public async Task<bool> ExistsByNameAsync(string name, Guid? excludeId, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.MembershipPlans
+                .AnyAsync(p => p.Name == name && (excludeId == null || p.Id != excludeId), ct);
+        }
+
+        public async Task<bool> HasUserMembershipsAsync(Guid planId, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.MembershipPlans
+                .AnyAsync(p => p.Id == planId && p.UserMembershipPlans.Any(), ct);
+        }
+        public async Task AddAsync(MembershipPlan plan, CancellationToken ct = default)
+        { 
+           await _fitZoneDbContext.MembershipPlans.AddAsync(plan, ct);
+        }
+
+
+        public void Remove(MembershipPlan plan)
+        { _fitZoneDbContext.MembershipPlans.Remove(plan); }
     }
 }

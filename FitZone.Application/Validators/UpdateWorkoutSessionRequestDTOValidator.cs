@@ -12,7 +12,6 @@ namespace FitZone.Application.Validators
     {
         public UpdateWorkoutSessionRequestDTOValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required");
             RuleFor(x => x.StartsAt).GreaterThan(x => DateTime.UtcNow)
                 .WithMessage("Session must start in the future.");
             RuleFor(x => x.EndsAt).GreaterThan(x => x.StartsAt)

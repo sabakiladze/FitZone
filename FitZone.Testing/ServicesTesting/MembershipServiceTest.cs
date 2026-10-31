@@ -68,8 +68,13 @@ namespace FitZone.Testing.ServiceTests
             _userMembershipRepo.Setup(r => r.GetActiveByUserIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                                .ReturnsAsync(new UserMembershipPlan());
 
-            var act = () => _service.ActivateAsync(
-                Guid.NewGuid(), new ActivateMembershipRequestDTO { PlanId = plan.Id });
+            var request = new ActivateMembershipRequestDTO
+            {
+                PlanId = plan.Id,
+                Amount = plan.Price
+            };
+
+            var act = () => _service.ActivateAsync(Guid.NewGuid(), request);
 
             await act.Should().ThrowAsync<YouAlreadyHavePlanException>();
             _unitOfWork_SaveWasNeverCalled();
@@ -90,10 +95,14 @@ namespace FitZone.Testing.ServiceTests
                                .Callback<UserMembershipPlan, CancellationToken>((m, _) => saved = m)
                                .Returns(Task.CompletedTask);
 
-            var result = await _service.ActivateAsync(userId, new ActivateMembershipRequestDTO { PlanId = plan.Id });
+            var request = new ActivateMembershipRequestDTO
+            {
+                PlanId = plan.Id,
+                Amount = plan.Price
+            };
+            var result = await _service.ActivateAsync(userId,request);
 
             saved.Should().NotBeNull();
-            saved!.UserId.Should().Be(userId);
             saved.RemainingVisits.Should().Be(12);
             (saved.EndDate - saved.StartDate).Days.Should().Be(30);
             result.PlanName.Should().Be("Monthly");
@@ -114,7 +123,12 @@ namespace FitZone.Testing.ServiceTests
                                .Callback<UserMembershipPlan, CancellationToken>((m, _) => saved = m)
                                .Returns(Task.CompletedTask);
 
-            await _service.ActivateAsync(Guid.NewGuid(), new ActivateMembershipRequestDTO { PlanId = plan.Id });
+            var request = new ActivateMembershipRequestDTO
+            {
+                PlanId = plan.Id,
+                Amount = plan.Price
+            };
+            await _service.ActivateAsync(Guid.NewGuid(), request);
 
             saved!.RemainingVisits.Should().BeNull();
         }

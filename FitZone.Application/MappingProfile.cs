@@ -29,16 +29,27 @@ namespace FitZone.Application
            .ForMember(d => d.IsActive, o => o.MapFrom(s => s.EndDate > DateTime.UtcNow));
 
 
-            CreateMap<Visit, VisitDTO>()
-            .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
+          
 
             CreateMap<Visit, VisitDTO>()
             .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
 
             CreateMap<Trainer, TrainerDTO>();
 
+            CreateMap<CreateTrainerRequestDTO, Trainer>()
+                      .ForMember(d => d.Id, o => o.Ignore())
+                      .ForMember(d => d.WorkoutSessions, o => o.Ignore());
 
 
+            CreateMap<WorkoutSession, WorkoutSessionDTO>()
+                    .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.Trainer!.FullName))
+                     .ForMember(d => d.FreeSpots, o => o.MapFrom(s =>
+                     Math.Max(0, s.Capacity - s.Bookings.Count(b =>
+                          b.Status != BookingStatus.Cancelled && b.Status != BookingStatus.NoShow))));
+
+            CreateMap<UpdateTrainerRequestDTO, Trainer>()
+                 .ForMember(d => d.Id, o => o.Ignore())              
+                 .ForMember(d => d.WorkoutSessions, o => o.Ignore());
             CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>();
 
            CreateMap<Booking, BookingDTO>()

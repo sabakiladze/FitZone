@@ -12,7 +12,6 @@ namespace FitZone.Application.Validators
     {
         public UpdateTrainerRequestDTOValidator()
         {
-            RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required");
             RuleFor(x => x.FullName)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("FullName is required.")

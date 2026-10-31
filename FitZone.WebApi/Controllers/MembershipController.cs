@@ -62,6 +62,70 @@ namespace FitZone.WebApi.Controllers
             return result is null ? NotFound() : Ok(result);
         }
 
+        /// <summary>Creates a membership plan. Admin only.</summary>
+        /// <param name="request">Name, price, duration and optional visit limit.</param>
+        /// <response code="201">Plan created.</response>
+        /// <response code="400">Validation failed.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">The user is not an Admin.</response>
+        /// <response code="409">A plan with this name already exists.</response>
+        [Authorize(Roles = "Admin")]
+        [HttpPost("plans")]
+        [ProducesResponseType(typeof(MembershipPlanDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<ActionResult<MembershipPlanDTO>> CreatePlan(
+            CreateMembershipPlanRequestDTO request, CancellationToken ct)
+        {
+            var created = await _membershipService.CreatePlanAsync(request, ct);
+            return StatusCode(StatusCodes.Status201Created, created);
+        }
+
+        /// <summary>Updates a membership plan. Admin only.</summary>
+        /// <param name="id">The plan id.</param>
+        /// <param name="request">New plan data.</param>
+        /// <response code="204">Plan updated.</response>
+        /// <response code="400">Validation failed.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">The user is not an Admin.</response>
+        /// <response code="404">Plan not found.</response>
+        /// <response code="409">Another plan already has this name.</response>
+        [Authorize(Roles = "Admin")]
+        [HttpPut("plans/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> UpdatePlan(
+            Guid id, UpdateMembershipPlanRequestDTO request, CancellationToken ct)
+        {
+            await _membershipService.UpdatePlanAsync(id, request, ct);
+            return NoContent();
+        }
+
+        /// <summary>Deletes a membership plan. Admin only.</summary>
+        /// <param name="id">The plan id.</param>
+        /// <response code="204">Plan deleted.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">The user is not an Admin.</response>
+        /// <response code="404">Plan not found.</response>
+        /// <response code="409">The plan is used by users and cannot be deleted.</response>
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("plans/{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> DeletePlan(Guid id, CancellationToken ct)
+        {
+            await _membershipService.DeletePlanAsync(id, ct);
+            return NoContent();
+        }
         private Guid GetUserId()
         {
             return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

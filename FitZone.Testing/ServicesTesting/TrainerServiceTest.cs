@@ -129,22 +129,7 @@ namespace FitZone.Testing.ServiceTests
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        [Fact]
-        public async Task UpdateAsync_Should_Not_Change_Id()
-        {
-            var trainer = NewTrainer();
-            var originalId = trainer.Id;
-            SetupGetById(trainer.Id, trainer);
-
-            await _service.UpdateAsync(trainer.Id, new UpdateTrainerRequestDTO
-            {
-                FullName = "X",
-                Specialization = "Y",
-                ExperienceYears = 1
-            }, AdminEmail);
-
-            trainer.Id.Should().Be(originalId);
-        }
+       
 
         [Fact]
         public async Task UpdateAsync_Should_Throw_And_Save_Nothing_When_Not_Found()
