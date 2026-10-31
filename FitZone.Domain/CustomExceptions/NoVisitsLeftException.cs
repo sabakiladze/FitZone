@@ -8,6 +8,6 @@ namespace FitZone.Domain.CustomExceptions
 {
     public class NoVisitsLeftException:AppException
     {
-        public NoVisitsLeftException() : base("No Visits Left.", 422) { }
+        public NoVisitsLeftException() : base("No Visits Left.", 403) { }
     }
 }

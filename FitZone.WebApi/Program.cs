@@ -1,6 +1,7 @@
 using FitZone.Application;
 using FitZone.Application.Implementations;
 using FitZone.Application.ServiceInterfaces;
+using FitZone.Application.Validators;
 using FitZone.Domain.Interfaces;
 using FitZone.Domain.RepositoryInterfaces;
 using FitZone.Infrastructure;
@@ -10,14 +11,16 @@ using FitZone.Infrastructure.JwtTokenService;
 using FitZone.Infrastructure.Repositories;
 using FitZone.Infrastructure.Repositorys;
 using FitZone.Infrastructure.Settings;
-using FitZone.WebApi.Middleware;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Reflection;
+using FitZone.WebApi.Middleware;
 
 namespace FitZone.WebApi
 {
@@ -67,6 +70,8 @@ namespace FitZone.WebApi
             else
                 builder.Services.AddScoped<IEmailSender, DevelopmentEmailSender>();
 
+            builder.Services.AddValidatorsFromAssemblyContaining<CreatingBookingRequestDTOValidator>();
+            builder.Services.AddFluentValidationAutoValidation();
 
 
             builder.Services.Configure<JwtSettings>(
@@ -94,7 +99,8 @@ namespace FitZone.WebApi
                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
                    ClockSkew = TimeSpan.Zero
                };
-               });
+           });
+
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -122,7 +128,12 @@ namespace FitZone.WebApi
             Array.Empty<string>()
         }
     });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
             });
+
             // Add services to the container.
 
 
@@ -151,7 +162,7 @@ namespace FitZone.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
-            
+
 
 
             app.MapControllers();

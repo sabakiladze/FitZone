@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using FitZone.Application.DTOs;
 using FitZone.Application.DTOs.BookingDTOs;
+using FitZone.Application.DTOs.PaginationDTOs;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;

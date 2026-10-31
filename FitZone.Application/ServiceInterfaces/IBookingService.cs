@@ -1,5 +1,5 @@
-﻿using FitZone.Application.DTOs;
-using FitZone.Application.DTOs.BookingDTOs;
+﻿using FitZone.Application.DTOs.BookingDTOs;
+using FitZone.Application.DTOs.PaginationDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

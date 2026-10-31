@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FitZone.Application.DTOs;
+using FitZone.Application.DTOs.PaginationDTOs;
 using FitZone.Application.DTOs.WorkOutSessionDTOs;
 using FitZone.Application.ServiceInterfaces;
 using FitZone.Domain.CustomExceptions;

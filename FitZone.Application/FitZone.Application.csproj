@@ -18,8 +18,4 @@
     <ProjectReference Include="..\FitZone.Domain\FitZone.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
 </Project>

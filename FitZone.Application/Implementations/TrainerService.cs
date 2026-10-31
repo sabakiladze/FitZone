@@ -6,7 +6,6 @@ using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;
 using FitZone.Domain.Interfaces;
 using FitZone.Domain.RepositoryInterfaces;
-using FluentAssertions.Equivalency.Tracing;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

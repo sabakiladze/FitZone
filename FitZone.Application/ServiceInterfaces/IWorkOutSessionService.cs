@@ -1,4 +1,4 @@
-﻿using FitZone.Application.DTOs;
+﻿using FitZone.Application.DTOs.PaginationDTOs;
 using FitZone.Application.DTOs.WorkOutSessionDTOs;
 using FitZone.Domain.Entities.Models;
 using System;

@@ -9,7 +9,6 @@ namespace FitZone.Application.DTOs.BookingDTOs
 {
     public class CreateBookingRequestDTO
     {
-        [Required(ErrorMessage ="To book a session you must neter wotkoutSessionId")]
         public Guid WorkoutSessionId { get; set; }
     }
 }

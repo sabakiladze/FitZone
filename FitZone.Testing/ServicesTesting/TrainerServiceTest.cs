@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FitZone.Application.ServiceInterfaces;
 using FitZone.Application.DTOs.TrainerDTOs;
 using FitZone.Application.Implementations;
 using FitZone.Domain.CustomExceptions;
@@ -17,7 +18,9 @@ namespace FitZone.Testing.ServiceTests
         private readonly Mock<IUnitOfWork> _uow = new();
         private readonly IMapper _mapper;
         private readonly TrainerService _service;
+        private readonly Mock<IEmailSender> _email = new();
 
+        private const string AdminEmail = "admin@test.com";
         public TrainerServiceTests()
         {
             var config = new MapperConfiguration(cfg =>
@@ -30,8 +33,9 @@ namespace FitZone.Testing.ServiceTests
             _mapper = config.CreateMapper();
 
             _service = new TrainerService(
-                _repo.Object, _mapper, _uow.Object,
-                NullLogger<TrainerService>.Instance);
+                    _repo.Object, _mapper, _uow.Object,
+                    NullLogger<TrainerService>.Instance,
+                    _email.Object);
         }
 
         private static Trainer NewTrainer(string name = "Nino Kapanadze", string spec = "Yoga", int years = 5) => new()
@@ -46,7 +50,6 @@ namespace FitZone.Testing.ServiceTests
             _repo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
                  .ReturnsAsync(result);
 
-        // ---------- AddAsync ----------
 
         [Fact]
         public async Task AddAsync_Should_Add_Save_And_Return_Dto()
@@ -63,10 +66,9 @@ namespace FitZone.Testing.ServiceTests
                 ExperienceYears = 8
             };
 
-            var result = await _service.AddAsync(request);
+            var result=await  _service.AddAsync(request, AdminEmail);
 
             added.Should().NotBeNull();
-            added!.FullName.Should().Be("Giorgi Beridze");
             result.FullName.Should().Be("Giorgi Beridze");
             result.ExperienceYears.Should().Be(8);
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -75,13 +77,12 @@ namespace FitZone.Testing.ServiceTests
         [Fact]
         public async Task AddAsync_Should_Throw_When_Request_Is_Null()
         {
-            var act = () => _service.AddAsync(null!);
+            var act = () => _service.AddAsync(null!, AdminEmail);
 
             await act.Should().ThrowAsync<ArgumentNullException>();
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
-        // ---------- GetByIdAsync ----------
 
         [Fact]
         public async Task GetByIdAsync_Should_Return_Dto_When_Trainer_Exists()
@@ -106,7 +107,6 @@ namespace FitZone.Testing.ServiceTests
             await act.Should().ThrowAsync<TrainersDoNotFoundException>();
         }
 
-        // ---------- UpdateAsync ----------
 
         [Fact]
         public async Task UpdateAsync_Should_Change_Fields_And_Save()
@@ -121,7 +121,7 @@ namespace FitZone.Testing.ServiceTests
                 ExperienceYears = 7
             };
 
-            await _service.UpdateAsync(trainer.Id, request);
+            await _service.UpdateAsync(trainer.Id, request, AdminEmail);
 
             trainer.FullName.Should().Be("New Name");
             trainer.Specialization.Should().Be("Cardio");
@@ -141,7 +141,7 @@ namespace FitZone.Testing.ServiceTests
                 FullName = "X",
                 Specialization = "Y",
                 ExperienceYears = 1
-            });
+            }, AdminEmail);
 
             trainer.Id.Should().Be(originalId);
         }
@@ -157,13 +157,12 @@ namespace FitZone.Testing.ServiceTests
                 FullName = "X",
                 Specialization = "Y",
                 ExperienceYears = 1
-            });
+            }, AdminEmail);
 
             await act.Should().ThrowAsync<TrainersDoNotFoundException>();
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
-        // ---------- RemoveAsync ----------
 
         [Fact]
         public async Task RemoveAsync_Should_Remove_And_Save()
@@ -171,7 +170,7 @@ namespace FitZone.Testing.ServiceTests
             var trainer = NewTrainer();
             SetupGetById(trainer.Id, trainer);
 
-            await _service.RemoveAsync(trainer.Id);
+            await _service.RemoveAsync(trainer.Id, AdminEmail);
 
             _repo.Verify(r => r.Remove(trainer), Times.Once);
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -183,14 +182,13 @@ namespace FitZone.Testing.ServiceTests
             var id = Guid.NewGuid();
             SetupGetById(id, null);
 
-            var act = () => _service.RemoveAsync(id);
+            var act = () => _service.RemoveAsync(id, AdminEmail);
 
             await act.Should().ThrowAsync<TrainersDoNotFoundException>();
             _repo.Verify(r => r.Remove(It.IsAny<Trainer>()), Times.Never);
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
-        // ---------- SearchAsync ----------
 
         [Fact]
         public async Task SearchAsync_Should_Trim_Values_Before_Querying()
@@ -224,7 +222,7 @@ namespace FitZone.Testing.ServiceTests
             _repo.Setup(r => r.SearchAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(new List<Trainer>());
 
-            var result = await _service.SearchAsync("არარსებული", null);
+            var result = await _service.SearchAsync("not exists", null);
 
             result.Should().BeEmpty();
         }

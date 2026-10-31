@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitZone.Application.DTOs
+namespace FitZone.Application.DTOs.PaginationDTOs
 {
     public class PagedResponseDTO<T>
     {
