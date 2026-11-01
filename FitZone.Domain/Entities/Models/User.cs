@@ -57,6 +57,11 @@ namespace FitZone.Domain.Entities.Models
              VerificationCodeExpiresAt = null;
         }
 
+        public void ClearVerificationCode()
+        {
+            VerificationCode = null;
+            VerificationCodeExpiresAt = null;
+        }
 
         public void MarkAsDeleted()
         {

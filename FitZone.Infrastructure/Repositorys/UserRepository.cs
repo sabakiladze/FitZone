@@ -1,4 +1,5 @@
 ﻿using FitZone.Domain.Entities.Models;
+using FitZone.Domain.Enums;
 using FitZone.Domain.Interfaces;
 using FitZone.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -52,7 +53,13 @@ namespace FitZone.Infrastructure.Repositories
         public async Task<User?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.Users
+                .Include(x=>x.Role)
                 .FirstOrDefaultAsync(u => u.Id == id, ct);
+        }
+
+        public async Task<bool> HasActiveFutureBookingsAsync(Guid userId, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.Bookings.AnyAsync(x=>x.UserId== userId && x.Status!=BookingStatus.Cancelled && x.Status!=BookingStatus.NoShow && x.WorkoutSession.StartsAt>DateTime.UtcNow, ct);
         }
     }
 }

@@ -53,9 +53,12 @@ namespace FitZone.Application.Implementations
             if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
                 throw new Domain.CustomExceptions.InvalidCredentialException();
 
-            user.MarkAsDeleted();
+            if (user.Role?.RoleName == "Admin") throw new ForbiddenException();
 
-            // TODO: მომავალი ჩაწერების გაუქმება (Booking-ის ლოგიკის შემდეგ)
+            if (await _userRepository.HasActiveFutureBookingsAsync(userId, ct))
+                throw new UserHasActiveBookingsException();
+
+            user.MarkAsDeleted();
 
             await _unitOfWork.SaveChangesAsync(ct);
 
@@ -214,19 +217,19 @@ namespace FitZone.Application.Implementations
             var body = VerificationEmailTemplate.GenerateVerificationBody(user.FirstName, code, codeLifespanMinutes);
 
 
-            //try
-            //{
-            //    await _emailSender.SendAsync(user.Email, "Account Verification", body, ct);
-            //}
-            //catch (Exception ex) when (ex is not OperationCanceledException)
-            //{
-            //    _logger.LogError(ex, "Failed to send verification email to user {UserId}", user.Id);
+            try
+            {
+                await _emailSender.SendAsync(user.Email, "Account Verification", body, ct);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogError(ex, "Failed to send verification email to user {UserId}", user.Id);
 
-            //    user.SetVerificationCode(null!, null!); 
-            //    await _unitOfWork.SaveChangesAsync(ct);
+                user.ClearVerificationCode();
+                await _unitOfWork.SaveChangesAsync(ct);
 
-            //    throw new EmailSendingFailedException(); 
-            //}
+                throw new EmailSendingFailedException();
+            }
         }
 
         public async Task<bool> VerifyEmailAsync(VerificationEmailRequestDTO request, CancellationToken ct = default)

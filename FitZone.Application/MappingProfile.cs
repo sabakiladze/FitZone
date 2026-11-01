@@ -29,16 +29,13 @@ namespace FitZone.Application
            .ForMember(d => d.IsActive, o => o.MapFrom(s => s.EndDate > DateTime.UtcNow));
 
 
-          
+
 
             CreateMap<Visit, VisitDTO>()
             .ForMember(d => d.PlanName, o => o.MapFrom(s => s.UserMembershipPlan.MembershipPlan.Name));
 
             CreateMap<Trainer, TrainerDTO>();
 
-            CreateMap<CreateTrainerRequestDTO, Trainer>()
-                      .ForMember(d => d.Id, o => o.Ignore())
-                      .ForMember(d => d.WorkoutSessions, o => o.Ignore());
 
 
             CreateMap<WorkoutSession, WorkoutSessionDTO>()
@@ -47,9 +44,17 @@ namespace FitZone.Application
                      Math.Max(0, s.Capacity - s.Bookings.Count(b =>
                           b.Status != BookingStatus.Cancelled && b.Status != BookingStatus.NoShow))));
 
+            CreateMap<CreateTrainerRequestDTO, Trainer>()
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.WorkoutSessions, o => o.Ignore())
+                .ForMember(d => d.IsActive, o => o.Ignore())
+                .ForMember(d => d.DeletedAt, o => o.Ignore());
+
             CreateMap<UpdateTrainerRequestDTO, Trainer>()
-                 .ForMember(d => d.Id, o => o.Ignore())              
-                 .ForMember(d => d.WorkoutSessions, o => o.Ignore());
+                .ForMember(d => d.Id, o => o.Ignore())
+                .ForMember(d => d.WorkoutSessions, o => o.Ignore())
+                .ForMember(d => d.IsActive, o => o.Ignore())
+                .ForMember(d => d.DeletedAt, o => o.Ignore());
 
             CreateMap<CreateWorkoutSessionRequestDTO, WorkoutSession>()
                 .ForMember(d => d.Id, o => o.Ignore())

@@ -121,7 +121,7 @@ namespace FitZone.Application.Implementations
 
             try
             {
-                var body = TrainerEmailTemplates.GenerateAddedBody(trainer.FullName, trainer.Specialization, trainer.ExperienceYears);
+                var body = TrainerEmailTemplates.GenerateUpdatedBody(trainer.FullName, trainer.Specialization, trainer.ExperienceYears);
                 await _emailSender.SendAsync(adminEmail, "Trainer Updated", body, ct);
             }
             catch (Exception ex)

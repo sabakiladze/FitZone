@@ -51,6 +51,7 @@ namespace FitZone.Application.Implementations
 
             var trainer = await _trainerRepository.GetByIdAsync(request.TrainerId, ct)?? throw new TrainersDoNotFoundException();
 
+            if (!trainer.IsActive) throw new TrainersDoNotFoundException();
 
             var session = _mapper.Map<WorkoutSession>(request);
 

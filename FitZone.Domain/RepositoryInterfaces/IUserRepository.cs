@@ -16,6 +16,8 @@ namespace FitZone.Domain.Interfaces
 
         Task<User?> GetUserByHashedToken(string token, CancellationToken ct = default);
         Task<User?>GetByIdAsync(Guid id, CancellationToken ct = default);
+
+        Task<bool> HasActiveFutureBookingsAsync(Guid userId, CancellationToken ct = default);
         //CancellationToken ct = default ნიშნავს: ეს პარამეტრი არასავალდებულოა, და თუ არ გადასცემ, გამოიყენება "ცარიელი" ტოკენი, რომლის გაუქმებაც არასდროს მოხდება.
     }
 }

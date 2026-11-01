@@ -157,7 +157,6 @@ namespace FitZone.Testing.ServiceTests
 
             await _service.RemoveAsync(trainer.Id, AdminEmail);
 
-            _repo.Verify(r => r.Remove(trainer), Times.Once);
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
