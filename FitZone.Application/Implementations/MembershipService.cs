@@ -136,5 +136,18 @@ namespace FitZone.Application.Implementations
             await _unitOfWork.SaveChangesAsync(ct);
             _logger.LogInformation("Membership plan {PlanId} deleted.", id);
         }
+
+        public async Task CancelMyMembershipAsync(Guid userId, CancellationToken ct = default)
+        {
+            if (userId == Guid.Empty) throw new EnterProperIdException();
+
+            var membership = await _userMembershipRepository.GetActiveByUserIdAsync(userId, ct)
+                ?? throw new NoActiveMembershipException();
+
+            membership.Cancel();                       
+            await _unitOfWork.SaveChangesAsync(ct);
+
+            _logger.LogInformation("User {UserId} cancelled membership {MembershipId}.", userId, membership.Id);
+        }
     }
 }

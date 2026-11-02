@@ -16,5 +16,6 @@ namespace FitZone.Domain.Entities.Models
 
         public ICollection<UserMembershipPlan> UserMembershipPlans { get; set; } = new List<UserMembershipPlan>();
 
+       
     }
 }
