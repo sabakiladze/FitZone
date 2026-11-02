@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "FitZone.WebApi\\FitZone.WebApi.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "FitZone.Web\\FitZone.Web.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

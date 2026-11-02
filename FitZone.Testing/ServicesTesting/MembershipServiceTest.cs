@@ -81,6 +81,30 @@ namespace FitZone.Testing.ServiceTests
         }
 
         [Fact]
+        public async Task ActivateAsync_Should_Replace_Plan_When_All_Visits_Are_Used()
+        {
+            var plan = CreatePlan(12);
+            var userId = Guid.NewGuid();
+            var exhausted = new UserMembershipPlan(userId, Guid.NewGuid(), DateTime.UtcNow.AddDays(-5), 30, 1);
+            exhausted.MakeVisit();                      // RemainingVisits == 0
+            UserMembershipPlan? saved = null;
+
+            _planRepo.Setup(r => r.GetbyIdMembershipPlan(plan.Id, It.IsAny<CancellationToken>()))
+                     .ReturnsAsync(plan);
+            _userMembershipRepo.Setup(r => r.GetActiveByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+                               .ReturnsAsync(exhausted);
+            _userMembershipRepo.Setup(r => r.AddAsync(It.IsAny<UserMembershipPlan>(), It.IsAny<CancellationToken>()))
+                               .Callback<UserMembershipPlan, CancellationToken>((m, _) => saved = m)
+                               .Returns(Task.CompletedTask);
+
+            await _service.ActivateAsync(userId, new ActivateMembershipRequestDTO { PlanId = plan.Id, Amount = plan.Price });
+
+            saved.Should().NotBeNull();
+            exhausted.EndDate.Should().BeOnOrBefore(DateTime.UtcNow);   // old plan was closed
+            _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
         public async Task ActivateAsync_Should_Create_Membership_With_Correct_Dates_And_Visits()
         {
             var plan = CreatePlan(12);

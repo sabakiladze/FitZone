@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitZone.WebApi", "FitZone.W
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitZone.Testing", "FitZone.Testing\FitZone.Testing.csproj", "{267E9402-8426-4C2B-8FA8-1A1E7AB4E008}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitZone.Web", "FitZone.Web\FitZone.Web.csproj", "{5E1F0A62-7C3B-4D8A-9B21-3A6C4F8D2E10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{267E9402-8426-4C2B-8FA8-1A1E7AB4E008}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{267E9402-8426-4C2B-8FA8-1A1E7AB4E008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{267E9402-8426-4C2B-8FA8-1A1E7AB4E008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E1F0A62-7C3B-4D8A-9B21-3A6C4F8D2E10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E1F0A62-7C3B-4D8A-9B21-3A6C4F8D2E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E1F0A62-7C3B-4D8A-9B21-3A6C4F8D2E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E1F0A62-7C3B-4D8A-9B21-3A6C4F8D2E10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

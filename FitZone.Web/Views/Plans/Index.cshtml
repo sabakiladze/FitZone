@@ -1,0 +1,44 @@
+@model PlansIndexVm
+@{ ViewData["Title"] = "Memberships"; }
+
+<div class="fz-head">
+    <div><h1 class="mb-0">Memberships</h1><p>One active membership at a time. Pick the one that fits your week.</p></div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn btn-fz" asp-action="Create"><i class="bi bi-plus-lg"></i> Add plan</a>
+    }
+</div>
+
+@if (Model.MyMembership is not null)
+{
+    <div class="alert alert-info d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span>
+            <i class="bi bi-info-circle"></i> Your active plan: <strong>@Model.MyMembership.PlanName</strong>
+            (until @Fmt.DateText(Model.MyMembership.EndDate)).
+            To switch, cancel it first.
+        </span>
+        <a class="btn btn-sm btn-outline-fz" asp-controller="Membership" asp-action="Index">My membership</a>
+    </div>
+}
+
+@if (Model.Plans.Count == 0)
+{
+    <p class="text-muted">No membership plans yet.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        @foreach (var p in Model.Plans.OrderBy(p => p.Price))
+        {
+            <div class="col">
+                <div class="fz-card a@((Model.Plans.OrderBy(x => x.Price).ToList().IndexOf(p) % 4) + 1) h-100">
+                    <div class="fz-card-title">@p.Name</div>
+                    <div class="fz-price">@Fmt.Money(p.Price)</div>
+                    <div class="fz-feature"><i class="bi bi-check-circle-fill"></i> @p.DurationInDays days</div>
+                    <div class="fz-feature"><i class="bi bi-check-circle-fill"></i> @(p.VisitLimit is null ? "Unlimited visits" : $"{p.VisitLimit} visits")</div>
+                    <a class="btn btn-light btn-sm" asp-action="Details" asp-route-id="@p.Id">More</a>
+                </div>
+            </div>
+        }
+    </div>
+}

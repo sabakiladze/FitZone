@@ -47,7 +47,13 @@ namespace FitZone.Application.Implementations
 
             var existing = await _userMembershipRepository.GetActiveByUserIdAsync(userId, ct);
             if (existing is not null)
-                throw new YouAlreadyHavePlanException();
+            {
+                // all visits used up: this plan is finished, so it must not block a new one
+                if (existing.RemainingVisits is 0)
+                    existing.Cancel();
+                else
+                    throw new YouAlreadyHavePlanException();
+            }
 
             var startDate = DateTime.UtcNow;
             var membership = new UserMembershipPlan(userId, plan.Id, DateTime.UtcNow, plan.DurationInDays, plan.VisitLimit);

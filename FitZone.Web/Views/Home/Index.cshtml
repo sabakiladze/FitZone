@@ -1,0 +1,61 @@
+@{ ViewData["Title"] = "Home"; }
+
+<section class="fz-panel fz-hero">
+    <div>
+        <h1>Move more.<br />Train smarter.</h1>
+        <p class="lead">
+            Pick a coach, book a group session and keep every gym visit in one place.
+            Three or four sessions a week is enough to reach the 150 minutes of activity that health guidelines recommend.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-light btn-lg px-4" asp-controller="Sessions" asp-action="Index">See sessions</a>
+            <a class="btn btn-outline-light btn-lg px-4" asp-controller="Plans" asp-action="Index">Choose a membership</a>
+        </div>
+    </div>
+    <div class="fz-hero-art" aria-hidden="true">
+        <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+        <i class="bi bi-lightning-charge-fill bolt"></i>
+    </div>
+</section>
+
+<div class="row g-3 mt-3">
+    <div class="col-md-4">
+        <a class="fz-tile t-violet" asp-controller="Trainers" asp-action="Index">
+            <h3>Trainers</h3>
+            <p>Strength, cardio, yoga and more. See who coaches what and when they teach next.</p>
+            <span class="go">Meet the trainers</span>
+            <i class="bi bi-people-fill big"></i>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a class="fz-tile t-yellow" asp-controller="Sessions" asp-action="Index">
+            <h3>Workout sessions</h3>
+            <p>Group sessions with limited places. Book yours before it fills up.</p>
+            <span class="go">Open the schedule</span>
+            <i class="bi bi-calendar-event-fill big"></i>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a class="fz-tile t-mint" asp-controller="Plans" asp-action="Index">
+            <h3>Memberships</h3>
+            <p>Monthly, quarterly or yearly, with a visit limit or unlimited.</p>
+            <span class="go">Compare plans</span>
+            <i class="bi bi-card-checklist big"></i>
+        </a>
+    </div>
+</div>
+
+<h2 class="h4 mt-5 mb-3">How it works</h2>
+<div class="fz-steps">
+    <div><div class="n">1</div><strong>Create an account</strong><div class="text-muted">Register and confirm your email with a 6-digit code.</div></div>
+    <div><div class="n">2</div><strong>Get a membership</strong><div class="text-muted">Activate a plan. Booking sessions needs an active one.</div></div>
+    <div><div class="n">3</div><strong>Book and check in</strong><div class="text-muted">Reserve a place in a session and record your visits.</div></div>
+</div>
+
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <p class="mt-4 mb-0 text-muted">
+        New here? <a asp-controller="Account" asp-action="Register">Create an account</a> or
+        <a asp-controller="Account" asp-action="Login">log in</a>.
+    </p>
+}

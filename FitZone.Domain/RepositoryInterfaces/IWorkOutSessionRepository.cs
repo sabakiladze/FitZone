@@ -12,7 +12,7 @@ namespace FitZone.Domain.RepositoryInterfaces
 
         // იმის მიხედვით რას გადავცემ Guid? trainerId, DateOnly? null აბლე რადგნააა მაშინ შემიძლია რომ სხვადასხვა კომბინაციებით გაოვიტანო. იქნება ეს ყველა, მხოლოდ დრო, მხოლოდ ტრნერი თუ ორივე.
         Task<(ICollection<WorkoutSession> Items, int TotalCount)> GetFilteredAsync(Guid? trainerId, DateOnly? date, int page, int pageSize,
-            CancellationToken ct = default);// აბრუნებს რამდენი ობიექტია ჯამში რადგან ღილაკების რაოდენობა განსაზღვროს და იმ გვერდის დიქსირებული ზომის ობიექტებს.  სერვისში გადავქცევ dto- ოდ select ის საშუალებით.
+            DateTime? startsAfter = null, CancellationToken ct = default);// აბრუნებს რამდენი ობიექტია ჯამში რადგან ღილაკების რაოდენობა განსაზღვროს და იმ გვერდის დიქსირებული ზომის ობიექტებს.  სერვისში გადავქცევ dto- ოდ select ის საშუალებით.
 
         Task<WorkoutSession?> GetByIdAsync(Guid id, CancellationToken ct = default);
 

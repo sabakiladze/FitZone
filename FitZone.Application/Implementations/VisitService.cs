@@ -22,6 +22,8 @@ namespace FitZone.Application.Implementations
         private readonly IMapper _mapper;
         private readonly IUserMembershipRepository _userMembershipRepo;
 
+        private const int CheckInCooldownHours = 12;   // one visit per 12 hours
+
         public VisitService(IVisitRepository visitRepo,
             IUnitOfWork unit,
             ILogger<VisitService> logger,
@@ -40,6 +42,9 @@ namespace FitZone.Application.Implementations
             if (userId == Guid.Empty) throw new EnterProperIdException();
             var membership = await _userMembershipRepo.GetActiveByUserIdAsync(userId, ct) // rom shevamowmo remaining visits
                 ?? throw new NoActiveMembershipException();
+
+            if (await _visitRepo.HasVisitSinceAsync(userId, DateTime.UtcNow.AddHours(-CheckInCooldownHours), ct))
+                throw new CheckInTooSoonException();
 
             membership.MakeVisit();  // დარჩენილი ვიზიტების შემოწმება და დაკლება კლასში 
 

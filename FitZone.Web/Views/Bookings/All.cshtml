@@ -1,0 +1,58 @@
+@model BookingsListVm
+@{ ViewData["Title"] = "All bookings"; }
+
+<h1 class="h3 mb-3">All bookings</h1>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <input name="trainerName" value="@Model.TrainerName" class="form-control" placeholder="Trainer name" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+        <input type="date" name="date" value="@(Model.Date?.ToString("yyyy-MM-dd"))" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-lg-2">
+        <select name="status" class="form-select">
+            <option value="">Any status</option>
+            @foreach (var s in Enum.GetValues<BookingStatus>())
+            {
+                <option value="@s" selected="@(Model.Status == s)">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <input name="sessionId" value="@Model.SessionId" class="form-control" placeholder="Session id (optional)" />
+    </div>
+    <div class="col-auto d-flex gap-2">
+        <button class="btn btn-fz"><i class="bi bi-funnel"></i> Filter</button>
+        <a class="btn btn-outline-secondary" asp-action="All">Clear</a>
+    </div>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No bookings found.</p>
+}
+else
+{
+    <p class="text-muted small">@Model.Pager.TotalCount booking(s) found. Dates are shown in @Fmt.ZoneName; the date filter uses the UTC date.</p>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Session</th><th>Trainer</th><th>Status</th><th>Booked at</th></tr></thead>
+            <tbody>
+            @foreach (var b in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="Sessions" asp-action="Details" asp-route-id="@b.WorkoutSessionId">@Fmt.DateText(b.StartsAt)</a><br />
+                        <span class="text-muted small">@Fmt.TimeRange(b.StartsAt, b.EndsAt)</span>
+                    </td>
+                    <td>@b.TrainerName</td>
+                    <td><partial name="_StatusBadge" model="b.Status" /></td>
+                    <td>@Fmt.DateTimeText(b.BookedAt)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+}

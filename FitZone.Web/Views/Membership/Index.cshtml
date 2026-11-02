@@ -1,0 +1,76 @@
+@model MyMembershipVm
+@{ ViewData["Title"] = "My membership"; }
+
+<h1 class="h3 mb-3">My membership</h1>
+
+@if (Model.Membership is null)
+{
+    <div class="fz-panel p-4 text-center mx-auto mb-4" style="max-width:640px">
+        <p class="mb-3">You do not have an active membership.</p>
+        <a class="btn btn-light" asp-controller="Plans" asp-action="Index">Choose a plan</a>
+    </div>
+}
+else
+{
+    var m = Model.Membership;
+    var remaining = Fmt.AsUtc(m.EndDate) - DateTime.UtcNow;
+    var exhausted = m.RemainingVisits is 0;
+
+    <section class="fz-panel p-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div>
+                <h2 class="h3 mb-0">@m.PlanName</h2>
+                <div class="opacity-75">@(m.IsActive ? "Active" : "Expired")</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <form asp-action="CheckIn" method="post" onsubmit="return confirm('Record a gym visit now? One visit will be used if your plan has a limit.');">
+                    <button class="btn btn-light fw-semibold" disabled="@exhausted"><i class="bi bi-box-arrow-in-right"></i> Check in</button>
+                </form>
+                <form asp-action="Cancel" method="post" onsubmit="return confirm('Cancel your membership? This cannot be undone.');">
+                    <button class="btn btn-outline-light"><i class="bi bi-x-circle"></i> Cancel membership</button>
+                </form>
+            </div>
+        </div>
+
+        @if (exhausted)
+        {
+            <div class="alert alert-warning py-2">
+                You have used all visits of this plan. Cancel it to choose a new one.
+            </div>
+        }
+
+        <div class="row g-3 mb-3">
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@Fmt.RemainingDays(m.EndDate)</div><div class="l">Remaining days</div></div></div>
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@Fmt.Remaining(remaining)</div><div class="l">Remaining time</div></div></div>
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@(m.RemainingVisits is null ? "Unlimited" : m.RemainingVisits.ToString())</div><div class="l">Visits left</div></div></div>
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@(Model.Plan is null ? "n/a" : Fmt.Money(Model.Plan.Price))</div><div class="l">Price</div></div></div>
+        </div>
+
+        <dl class="fz-kv">
+            <dt>Name</dt><dd>@m.PlanName</dd>
+            <dt>Bought at</dt><dd>@Fmt.DateTimeText(m.StartDate)</dd>
+            <dt>Valid until</dt><dd>@Fmt.DateTimeText(m.EndDate)</dd>
+        </dl>
+    </section>
+}
+
+<h2 class="h4 mb-3">Visit history</h2>
+@if (Model.Visits.Count == 0)
+{
+    <p class="text-muted">No visits yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>#</th><th>Checked in</th><th>Plan</th></tr></thead>
+            <tbody>
+            @{ var n = Model.Visits.Count; }
+            @foreach (var v in Model.Visits)
+            {
+                <tr><td>@(n--)</td><td>@Fmt.DateTimeText(v.CheckedInAt)</td><td>@v.PlanName</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

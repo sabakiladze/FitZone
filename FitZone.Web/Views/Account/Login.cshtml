@@ -1,0 +1,21 @@
+@model LoginVm
+@{ ViewData["Title"] = "Login"; }
+<div class="fz-panel fz-auth">
+    <h1 class="text-center mb-3">Login</h1>
+    <partial name="_ValidationSummary" />
+    <form asp-action="Login" method="post">
+        <input type="hidden" asp-for="ReturnUrl" />
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="email" autofocus />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" autocomplete="current-password" />
+        </div>
+        <button class="btn btn-light w-100 fw-semibold">Login</button>
+    </form>
+    <p class="text-center small mt-3 mb-0">
+        Not registered yet? <a asp-action="Register">Create an account</a>
+    </p>
+</div>

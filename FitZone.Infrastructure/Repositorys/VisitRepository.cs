@@ -23,6 +23,11 @@ namespace FitZone.Infrastructure.Repositorys
 
         }
 
+        public async Task<bool> HasVisitSinceAsync(Guid userId, DateTime since, CancellationToken ct = default)
+        {
+            return await _fitZone.Visits.AnyAsync(v => v.UserId == userId && v.CheckedInAt >= since, ct);
+        }
+
         public async Task<ICollection<Visit>> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
         {
             return await _fitZone.Visits

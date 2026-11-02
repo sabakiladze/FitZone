@@ -1,0 +1,13 @@
+@model BookingStatus
+@{
+    var cls = Model switch
+    {
+        BookingStatus.Active => "bg-primary",
+        BookingStatus.Pending => "bg-warning text-dark",
+        BookingStatus.Attended => "bg-success",
+        BookingStatus.Cancelled => "bg-secondary",
+        BookingStatus.NoShow => "bg-danger",
+        _ => "bg-light text-dark"
+    };
+}
+<span class="badge @cls">@Model</span>

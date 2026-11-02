@@ -1,0 +1,23 @@
+@model PagerModel
+@{
+    var totalPages = Math.Max(1, (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize));
+    string Link(int p)
+    {
+        var query = Context.Request.Query
+            .Where(q => !string.Equals(q.Key, "page", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(q => q.Key, q => q.Value.ToString());
+        query["page"] = p.ToString();
+        return Context.Request.Path + "?" + string.Join("&", query.Select(q =>
+            $"{Uri.EscapeDataString(q.Key)}={Uri.EscapeDataString(q.Value)}"));
+    }
+}
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")"><a class="page-link" href="@Link(Model.Page - 1)">Previous</a></li>
+            <li class="page-item disabled"><span class="page-link">Page @Model.Page of @totalPages</span></li>
+            <li class="page-item @(Model.Page >= totalPages ? "disabled" : "")"><a class="page-link" href="@Link(Model.Page + 1)">Next</a></li>
+        </ul>
+    </nav>
+}

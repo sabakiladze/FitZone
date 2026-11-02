@@ -176,7 +176,7 @@ public class WorkoutSessionServiceTests
         var items = new List<WorkoutSession> { CreateSession(), CreateSession() };
         var dtos = new List<WorkoutSessionDTO> { new(), new() };
 
-        _repo.Setup(r => r.GetFilteredAsync(null, null, 1, 50, It.IsAny<CancellationToken>()))
+        _repo.Setup(r => r.GetFilteredAsync(null, null, 1, 50, It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
              .ReturnsAsync(ToTuple(items, 123));
         _mapper.Setup(m => m.Map<List<WorkoutSessionDTO>>(items)).Returns(dtos);
 

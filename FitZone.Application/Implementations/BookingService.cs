@@ -82,6 +82,9 @@ namespace FitZone.Application.Implementations
             var membership = await _userMembershipPlanRepository.GetActiveByUserIdAsync(userId, ct)
                 ?? throw new NoActiveMembershipException();
 
+            if (session.StartsAt > membership.EndDate)
+                throw new BadRequestException("The session starts after your membership expires.");
+
             if (membership.RemainingVisits is <= 0)
                 throw new NoVisitsLeftException();
 

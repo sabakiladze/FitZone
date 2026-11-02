@@ -1,0 +1,76 @@
+@model SessionsIndexVm
+@{ ViewData["Title"] = "Workout sessions"; }
+
+<div class="fz-head">
+    <div><h1 class="mb-0">Workout sessions</h1><p>Upcoming group sessions. Pick one and book your place.</p></div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn btn-fz" asp-action="Create"><i class="bi bi-plus-lg"></i> Add session</a>
+    }
+</div>
+
+@if (Model.NeedsLogin)
+{
+    <div class="fz-panel p-4 text-center mx-auto" style="max-width:560px">
+        <p class="mb-3">Please log in to see the schedule.</p>
+        <a class="btn btn-light" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Login</a>
+    </div>
+    return;
+}
+
+<form method="get" class="row g-2 fz-filter mx-0">
+    <div class="col-sm-5 col-lg-3">
+        <select name="trainerId" class="form-select">
+            <option value="">All trainers</option>
+            @foreach (var t in Model.Trainers)
+            {
+                <option value="@t.Id" selected="@(Model.TrainerId == t.Id)">@t.FullName</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-4 col-lg-2">
+        <input type="date" name="date" class="form-control" value="@(Model.Date?.ToString("yyyy-MM-dd"))" />
+    </div>
+    <div class="col-auto d-flex gap-2">
+        <button class="btn btn-fz"><i class="bi bi-funnel"></i> Filter</button>
+        @if (Model.TrainerId is not null || Model.Date is not null)
+        {
+            <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+        }
+    </div>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No sessions found.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        @foreach (var s in Model.Items)
+        {
+            var past = Fmt.IsPast(s.StartsAt);
+            var local = Fmt.ToLocal(s.StartsAt);
+            var used = s.Capacity <= 0 ? 0 : Math.Min(100, (s.Capacity - s.FreeSpots) * 100 / s.Capacity);
+            <div class="col">
+                <div class="fz-card a@(s.FreeSpots == 0 ? 4 : 1) h-100 @(past ? "is-past" : "")">
+                    @if (past) { <span class="fz-chip is-off">Finished</span> }
+                    else if (s.FreeSpots == 0) { <span class="fz-chip is-warn">Full</span> }
+                    else { <span class="fz-chip is-ok">Open</span> }
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fz-date"><b>@local.Day</b><small>@local.ToString("MMM")</small></div>
+                        <div>
+                            <div class="fz-card-title mt-0">@Fmt.TimeRange(s.StartsAt, s.EndsAt)</div>
+                            <div class="fz-card-meta">@local.ToString("dddd")</div>
+                        </div>
+                    </div>
+                    <div class="fz-card-sub"><i class="bi bi-person"></i> @s.TrainerName</div>
+                    <div class="fz-spots" role="img" aria-label="@(s.Capacity - s.FreeSpots) of @s.Capacity places taken"><span style="width:@(used)%"></span></div>
+                    <div class="fz-card-meta">@s.FreeSpots of @s.Capacity places free</div>
+                    <a class="btn btn-light btn-sm" asp-action="Details" asp-route-id="@s.Id">More</a>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="mt-4"><partial name="_Pager" model="Model.Pager" /></div>
+}

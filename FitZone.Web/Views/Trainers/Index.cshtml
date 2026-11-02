@@ -1,0 +1,46 @@
+@model TrainersIndexVm
+@{ ViewData["Title"] = "Trainers"; }
+
+<div class="fz-head">
+    <div><h1 class="mb-0">Trainers</h1><p>Find a coach by name or specialization.</p></div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn btn-fz" asp-action="Create"><i class="bi bi-plus-lg"></i> Add trainer</a>
+    }
+</div>
+
+<form method="get" class="row g-2 fz-filter mx-0">
+    <div class="col-sm-5 col-lg-4"><input name="name" value="@Model.Name" class="form-control" placeholder="Search by name" /></div>
+    <div class="col-sm-5 col-lg-4"><input name="specialization" value="@Model.Specialization" class="form-control" placeholder="Search by specialization" /></div>
+    <div class="col-auto d-flex gap-2">
+        <button class="btn btn-fz"><i class="bi bi-search"></i> Search</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Name) || !string.IsNullOrWhiteSpace(Model.Specialization))
+        {
+            <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+        }
+    </div>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No trainers found.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        @foreach (var t in Model.Items)
+        {
+            var initials = string.Concat(t.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+            var tone = (Math.Abs(t.FullName.Length + (t.FullName.Length > 0 ? t.FullName[0] : 0)) % 4) + 1;
+            <div class="col">
+                <div class="fz-card a@(tone) h-100">
+                    <div class="fz-avatar">@initials</div>
+                    <div class="fz-card-title">@t.FullName</div>
+                    <div class="fz-card-sub">@t.Specialization</div>
+                    <div class="fz-card-meta">@t.ExperienceYears @(t.ExperienceYears == 1 ? "year" : "years") of experience</div>
+                    <a class="btn btn-light btn-sm" asp-action="Details" asp-route-id="@t.Id">More</a>
+                </div>
+            </div>
+        }
+    </div>
+}

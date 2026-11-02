@@ -38,7 +38,7 @@ namespace FitZone.Infrastructure.Repositorys
             return await _fitZonedb.WorkoutSessions.Include(x=>x.Trainer).Include(x=>x.Bookings).FirstOrDefaultAsync(x=>x.Id==id, ct);
         }
 
-        public async Task<(ICollection<WorkoutSession> Items, int TotalCount)> GetFilteredAsync(Guid? trainerId, DateOnly? date, int page, int pageSize, CancellationToken ct = default)
+        public async Task<(ICollection<WorkoutSession> Items, int TotalCount)> GetFilteredAsync(Guid? trainerId, DateOnly? date, int page, int pageSize, DateTime? startsAfter = null, CancellationToken ct = default)
         {
 
             var query = _fitZonedb.WorkoutSessions.AsNoTracking().AsQueryable();
@@ -53,6 +53,10 @@ namespace FitZone.Infrastructure.Repositorys
                 query = query.Where(s => s.StartsAt >= from && s.StartsAt < to);
 
             }
+
+            if (startsAfter.HasValue)
+                query = query.Where(s => s.StartsAt > startsAfter.Value);
+
             var total = await query.CountAsync(ct);
 
             var  items=await query

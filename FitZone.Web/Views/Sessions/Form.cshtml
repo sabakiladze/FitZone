@@ -1,0 +1,50 @@
+@model SessionForm
+@{
+    var isEdit = Model.Id is not null;
+    ViewData["Title"] = isEdit ? "Edit session" : "Add session";
+}
+<div class="fz-panel fz-auth" style="max-width:560px">
+    <h1 class="text-center mb-3">@ViewData["Title"]</h1>
+    <partial name="_ValidationSummary" />
+    <form method="post" asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id">
+        @if (isEdit)
+        {
+            <div class="mb-3">
+                <label class="form-label">Trainer</label>
+                <input class="form-control" value="@Model.TrainerName" disabled />
+                <div class="form-text">The trainer of an existing session cannot be changed. Delete the session and create a new one.</div>
+            </div>
+        }
+        else
+        {
+            <div class="mb-3">
+                <label asp-for="TrainerId" class="form-label">Trainer</label>
+                <select asp-for="TrainerId" class="form-select">
+                    <option value="@Guid.Empty">Choose a trainer…</option>
+                    @foreach (var t in Model.Trainers)
+                    {
+                        <option value="@t.Id" selected="@(Model.TrainerId == t.Id)">@t.FullName · @t.Specialization</option>
+                    }
+                </select>
+            </div>
+        }
+        <div class="row g-2">
+            <div class="col-sm-6 mb-3">
+                <label asp-for="StartsAt" class="form-label">Starts (@Fmt.ZoneName)</label>
+                <input name="StartsAt" id="StartsAt" type="datetime-local" class="form-control" value="@Fmt.InputValue(Model.StartsAt)" required />
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label asp-for="EndsAt" class="form-label">Ends (@Fmt.ZoneName)</label>
+                <input name="EndsAt" id="EndsAt" type="datetime-local" class="form-control" value="@Fmt.InputValue(Model.EndsAt)" required />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Capacity" class="form-label"></label>
+            <input asp-for="Capacity" type="number" min="1" max="200" class="form-control" />
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-light fw-semibold flex-fill">Save</button>
+            <a class="btn btn-outline-light" asp-action="@(isEdit ? "Details" : "Index")" asp-route-id="@Model.Id">Cancel</a>
+        </div>
+    </form>
+</div>

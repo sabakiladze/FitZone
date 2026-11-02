@@ -89,7 +89,8 @@ namespace FitZone.Application.Implementations
             if (filter.TrainerId.HasValue && filter.TrainerId.Value == Guid.Empty)
                 throw new BadRequestException("TrainerId is not valid.");
 
-            var (items, total) = await _repository.GetFilteredAsync(filter.TrainerId, filter.Date, paging.Page, paging.PageSize, ct);
+            var startsAfter = filter.Date is null ? DateTime.UtcNow : (DateTime?)null;
+            var (items, total) = await _repository.GetFilteredAsync(filter.TrainerId, filter.Date, paging.Page, paging.PageSize, startsAfter, ct);
 
 
 

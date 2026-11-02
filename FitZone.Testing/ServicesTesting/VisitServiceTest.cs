@@ -107,6 +107,23 @@ public class VisitServiceTests
     }
 
     [Fact]
+    public async Task CheckIn_AlreadyCheckedInRecently_ThrowsAndSavesNothing()
+    {
+        var userId = Guid.NewGuid();
+        var membership = CreateMembership(userId, visitLimit: 5);
+        SetupActiveMembership(userId, membership);
+        _visitRepo.Setup(r => r.HasVisitSinceAsync(userId, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+                  .ReturnsAsync(true);
+
+        var act = () => CreateSut().CheckInAsync(userId);
+
+        await act.Should().ThrowAsync<CheckInTooSoonException>();
+        membership.RemainingVisits.Should().Be(5);      // visit was not used
+        _visitRepo.Verify(r => r.AddAsync(It.IsAny<Visit>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unit.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task CheckIn_NoVisitsLeft_ThrowsAndSavesNothing()
     {
         var userId = Guid.NewGuid();

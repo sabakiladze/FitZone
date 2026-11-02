@@ -1,0 +1,23 @@
+@model VerifyVm
+@{ ViewData["Title"] = "Verify email"; }
+<div class="fz-panel fz-auth">
+    <h1 class="text-center mb-2">Verify your email</h1>
+    <p class="text-center small mb-3">Enter the 6-digit code we sent to your email. It is valid for 15 minutes.</p>
+    <partial name="_ValidationSummary" />
+    <form asp-action="Verify" method="post">
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Code" class="form-label"></label>
+            <input asp-for="Code" class="form-control text-center fs-4" maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
+        </div>
+        <button class="btn btn-light w-100 fw-semibold">Verify</button>
+    </form>
+    <form asp-action="ResendCode" method="post" class="text-center mt-3">
+        <input type="hidden" name="email" value="@Model.Email" />
+        <button class="btn btn-link btn-sm text-white">Send a new code</button>
+    </form>
+    <p class="text-center small mt-2 mb-0"><a asp-action="Login">Back to login</a></p>
+</div>

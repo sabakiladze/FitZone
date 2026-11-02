@@ -7,5 +7,7 @@ namespace FitZone.Domain.RepositoryInterfaces
         Task<ICollection<Visit>> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
 
         Task AddAsync(Visit visit, CancellationToken ct = default);
+
+        Task<bool> HasVisitSinceAsync(Guid userId, DateTime since, CancellationToken ct = default);
     }
 }

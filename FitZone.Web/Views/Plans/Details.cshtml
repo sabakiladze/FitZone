@@ -1,0 +1,57 @@
+@model PlanDetailsVm
+@{
+    var p = Model.Plan;
+    ViewData["Title"] = p.Name;
+}
+
+<div class="mb-3"><a asp-action="Index" class="text-decoration-none"><i class="bi bi-arrow-left"></i> All memberships</a></div>
+
+<section class="fz-panel p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <h1 class="h3 mb-1">@p.Name</h1>
+            <div class="fs-3 fw-bold">@Fmt.Money(p.Price)</div>
+        </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="d-flex gap-2">
+                <a class="btn btn-light btn-sm" asp-action="Edit" asp-route-id="@p.Id"><i class="bi bi-pencil"></i> Edit</a>
+                <form asp-action="Delete" asp-route-id="@p.Id" method="post"
+                      onsubmit="return confirm('Delete this plan? Plans that users have bought cannot be deleted.');">
+                    <button class="btn btn-outline-light btn-sm"><i class="bi bi-trash"></i> Delete</button>
+                </form>
+            </div>
+        }
+    </div>
+    <hr class="border-light opacity-25" />
+    <dl class="fz-kv">
+        <dt>Duration</dt><dd>@p.DurationInDays days</dd>
+        <dt>Visits</dt><dd>@(p.VisitLimit is null ? "Unlimited" : p.VisitLimit.ToString())</dd>
+        <dt>Price</dt><dd>@Fmt.Money(p.Price)</dd>
+    </dl>
+
+    <div class="mt-4">
+        @if (User.IsInRole("User"))
+        {
+            @if (Model.MyMembership is not null)
+            {
+                <p class="mb-2"><i class="bi bi-info-circle"></i> You already have an active plan (<strong>@Model.MyMembership.PlanName</strong>).
+                    Cancel it on <a asp-controller="Membership" asp-action="Index">My membership</a> to choose another.</p>
+                <button class="btn btn-light btn-lg fw-semibold" disabled>Activate</button>
+            }
+            else
+            {
+                <form asp-action="Activate" method="post"
+                      onsubmit="return confirm('Activate @p.Name for @Fmt.Money(p.Price)?');">
+                    <input type="hidden" name="planId" value="@p.Id" />
+                    <button class="btn btn-light btn-lg fw-semibold">Activate for @Fmt.Money(p.Price)</button>
+                </form>
+                <div class="small opacity-75 mt-2">Demo: no real payment is taken.</div>
+            }
+        }
+        else if (User.Identity?.IsAuthenticated != true)
+        {
+            <a class="btn btn-light btn-lg fw-semibold" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Log in to activate</a>
+        }
+    </div>
+</section>

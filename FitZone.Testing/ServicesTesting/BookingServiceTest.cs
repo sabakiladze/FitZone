@@ -154,6 +154,20 @@ public class BookingServiceTests
     }
 
     [Fact]
+    public async Task Create_SessionStartsAfterMembershipEnds_Throws()
+    {
+        var userId = Guid.NewGuid();
+        var (request, session) = SetupHappyPath(userId);   // membership lasts 30 days
+        session.StartsAt = DateTime.UtcNow.AddDays(40);
+        session.EndsAt = session.StartsAt.AddHours(1);
+
+        var act = () => CreateSut().CreateAsync(userId, request);
+
+        await act.Should().ThrowAsync<BadRequestException>();
+        VerifyNothingSaved();
+    }
+
+    [Fact]
     public async Task Create_NoVisitsLeft_Throws()
     {
         var userId = Guid.NewGuid();

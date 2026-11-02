@@ -1,0 +1,68 @@
+@model TrainerDetailsVm
+@{ ViewData["Title"] = Model.Trainer.FullName; }
+
+<div class="mb-3"><a asp-action="Index" class="text-decoration-none"><i class="bi bi-arrow-left"></i> All trainers</a></div>
+
+<section class="fz-panel p-4 mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <h1 class="h3 mb-1">@Model.Trainer.FullName</h1>
+            <div class="opacity-75">@Model.Trainer.Specialization</div>
+        </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="d-flex gap-2">
+                <a class="btn btn-light btn-sm" asp-action="Edit" asp-route-id="@Model.Trainer.Id"><i class="bi bi-pencil"></i> Edit</a>
+                <form asp-action="Delete" asp-route-id="@Model.Trainer.Id" method="post"
+                      onsubmit="return confirm('Remove this trainer? This is not possible while the trainer has upcoming sessions.');">
+                    <button class="btn btn-outline-light btn-sm"><i class="bi bi-trash"></i> Remove</button>
+                </form>
+            </div>
+        }
+    </div>
+    <hr class="border-light opacity-25" />
+    <dl class="fz-kv">
+        <dt>Full name</dt><dd>@Model.Trainer.FullName</dd>
+        <dt>Specialization</dt><dd>@Model.Trainer.Specialization</dd>
+        <dt>Experience</dt><dd>@Model.Trainer.ExperienceYears @(Model.Trainer.ExperienceYears == 1 ? "year" : "years")</dd>
+    </dl>
+</section>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="h4 mb-0">Upcoming sessions</h2>
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn btn-fz btn-sm" asp-controller="Sessions" asp-action="Create" asp-route-trainerId="@Model.Trainer.Id">
+            <i class="bi bi-plus-lg"></i> Add session for this trainer
+        </a>
+    }
+</div>
+
+@if (Model.SessionsNeedLogin)
+{
+    <p class="text-muted"><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">Log in</a> to see this trainer's upcoming sessions.</p>
+}
+else if (Model.SessionsError is not null)
+{
+    <p class="text-danger">@Model.SessionsError</p>
+}
+else if (Model.UpcomingSessions.Count == 0)
+{
+    <p class="text-muted">No upcoming sessions yet.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+        @foreach (var s in Model.UpcomingSessions)
+        {
+            <div class="col">
+                <div class="fz-card h-100">
+                    <div class="fz-card-title">@Fmt.DateText(s.StartsAt)</div>
+                    <div class="fz-card-sub">@Fmt.TimeRange(s.StartsAt, s.EndsAt)</div>
+                    <div class="fz-card-meta">Free spots: @s.FreeSpots of @s.Capacity</div>
+                    <a class="btn btn-light btn-sm" asp-controller="Sessions" asp-action="Details" asp-route-id="@s.Id">More</a>
+                </div>
+            </div>
+        }
+    </div>
+}
