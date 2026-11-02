@@ -55,6 +55,10 @@ namespace FitZone.Domain.Entities.Models
             RemainingVisits--;
         }
 
+        public void Cancel()
+        {
+            EndDate = DateTime.UtcNow;
+        }
 
     }
     // with user 1:1 to many relationship, one user can have many membership plans, but one membership plan can only belong to one user.
