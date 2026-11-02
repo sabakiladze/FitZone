@@ -232,7 +232,6 @@ namespace FitZone.Infrastructure.Data
             {
                 builder.ToTable("WorkoutSessions", t =>
                 {
-                    t.HasCheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity]>0");
                     t.HasCheckConstraint("CK_WorkoutSessions_Capacity", "[Capacity] > 0");
                     t.HasCheckConstraint("CK_WorkoutSessions_Dates", "[EndsAt] > [StartsAt]");
                 });

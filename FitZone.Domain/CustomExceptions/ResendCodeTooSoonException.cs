@@ -9,6 +9,6 @@ namespace FitZone.Domain.CustomExceptions
     public class ResendCodeTooSoonException : AppException
     {
         public ResendCodeTooSoonException()
-            : base("Please wait until your current verification code expires before requesting a new one.", 429) { }
+            : base("Please wait a minute before requesting a new verification code.", 429) { }
     }
 }

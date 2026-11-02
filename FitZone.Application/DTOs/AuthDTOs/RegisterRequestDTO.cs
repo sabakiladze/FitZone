@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Octopus.Client.Validation;
 
 
 namespace FitZone.Application.DTOs.Auth

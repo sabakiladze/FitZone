@@ -202,10 +202,10 @@ namespace FitZone.Application.Implementations
 
             if (user.IsEmailVerified == true) throw new AccountByThisEmailIsAlreadyVerified();
 
-            if (user.VerificationCodeExpiresAt is not null && user.VerificationCodeExpiresAt > DateTime.UtcNow)
+            const int codeLifespanMinutes = 15;
+            if (user.VerificationCodeExpiresAt is not null && user.VerificationCodeExpiresAt > DateTime.UtcNow.AddMinutes(codeLifespanMinutes).AddSeconds(-60))
                 throw new ResendCodeTooSoonException();
 
-            const int codeLifespanMinutes = 15;
             var code = VerificationCodeHelper.Generate();
             var hash = VerificationCodeHelper.Hash(code);
 

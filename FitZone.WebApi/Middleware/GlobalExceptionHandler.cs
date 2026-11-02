@@ -36,7 +36,7 @@ namespace FitZone.WebApi.Middleware
             if (exception is AppException appException)
             {
                 status = appException.StatusCode;
-                title = "Rewuest failed";
+                title = "Request failed";
                 details = appException.Message;
 
                 _logger.LogWarning("Handled error ({Status}): {Message}", status, details);

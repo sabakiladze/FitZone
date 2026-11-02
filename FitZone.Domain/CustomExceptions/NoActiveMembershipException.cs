@@ -8,6 +8,6 @@ namespace FitZone.Domain.CustomExceptions
 {
     public class NoActiveMembershipException:AppException
     {
-        public NoActiveMembershipException() : base("You do not have any active membership plan.", 402) { }
+        public NoActiveMembershipException() : base("You do not have any active membership plan.", 403) { }
     }
 }

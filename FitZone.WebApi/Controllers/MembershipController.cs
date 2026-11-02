@@ -130,7 +130,8 @@ namespace FitZone.WebApi.Controllers
         /// <summary>Cancels the current user's active membership.</summary>
         /// <response code="204">Membership cancelled.</response>
         /// <response code="401">Not authenticated.</response>
-        /// <response code="402">The user has no active membership.</response>
+        /// <response code="403">The user has no active membership.</response>
+        [Authorize]
         [HttpDelete("my")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
