@@ -17,5 +17,8 @@ namespace FitZone.Domain.RepositoryInterfaces
         // ხომ უნდა შეიქმნას და ამას გადავცემ რომ დაამატოს ეს ობიექტი.
         Task AddAsync(UserMembershipPlan membership, CancellationToken ct = default);
 
+        // user-ის ყველა აბონემენტი (მოქმედიც და ვადაგასულიც), ახალი პირველი
+        Task<ICollection<UserMembershipPlan>> GetAllByUserIdAsync(Guid userId, CancellationToken ct = default);
+
     }
 }

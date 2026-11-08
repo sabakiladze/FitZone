@@ -57,6 +57,31 @@ namespace FitZone.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id, ct);
         }
 
+        public async Task<(ICollection<User> Items, int TotalCount)> GetPagedAsync(string? search, int page, int pageSize, CancellationToken ct = default)
+        {
+            var query = _fitZoneDbContext.Users
+                .AsNoTracking()
+                .Include(u => u.Role)
+                .Where(u => u.DeletedAt == null);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(u => u.UserName.Contains(search)
+                    || u.Email.Contains(search)
+                    || u.FirstName.Contains(search)
+                    || u.LastName.Contains(search));
+            }
+
+            var total = await query.CountAsync(ct);
+            var items = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+            return (items, total);
+        }
+
         public async Task<bool> HasActiveFutureBookingsAsync(Guid userId, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.Bookings.AnyAsync(x=>x.UserId== userId && x.Status!=BookingStatus.Cancelled && x.Status!=BookingStatus.NoShow && x.WorkoutSession.StartsAt>DateTime.UtcNow, ct);

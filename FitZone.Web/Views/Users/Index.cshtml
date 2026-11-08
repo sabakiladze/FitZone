@@ -1,0 +1,50 @@
+@model UsersIndexVm
+@{ ViewData["Title"] = "Users"; }
+
+<h1 class="h3 mb-3">Users</h1>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-sm-8 col-lg-5">
+        <input name="search" value="@Model.Search" class="form-control" placeholder="Search by name, username or e-mail" />
+    </div>
+    <div class="col-auto d-flex gap-2">
+        <button class="btn btn-fz"><i class="bi bi-search"></i> Search</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+    </div>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No users found.</p>
+}
+else
+{
+    <p class="text-muted small">@Model.Pager.TotalCount user(s) found. Times are shown in @Fmt.ZoneName.</p>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Name</th><th>E-mail</th><th>Role</th><th>Status</th><th>Registered</th><th>Last login</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var u in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@u.Id">@u.FirstName @u.LastName</a><br />
+                        <span class="text-muted small">@@@u.UserName</span>
+                    </td>
+                    <td>@u.Email</td>
+                    <td><span class="badge @(u.Role == "Admin" ? "bg-dark" : "bg-primary")">@u.Role</span></td>
+                    <td>
+                        @if (!u.IsActive) { <span class="badge bg-secondary">Inactive</span> }
+                        else if (!u.IsEmailVerified) { <span class="badge bg-warning text-dark">Not verified</span> }
+                        else { <span class="badge bg-success">Active</span> }
+                    </td>
+                    <td>@Fmt.DateText(u.CreatedAt)</td>
+                    <td>@(u.LastLoginAt is null ? "-" : Fmt.DateTimeText(u.LastLoginAt.Value))</td>
+                    <td class="text-end"><a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@u.Id">Open</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+}

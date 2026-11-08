@@ -101,9 +101,11 @@ dotnet user-secrets set "EmailSettings:AppPassword" "<16-სიმბოლო�
 | სესიის დამატება / რედაქტირება / წაშლა; სესიის ჯავშნები | ადმინს | `POST`, `PUT`, `DELETE training-sessions`, `GET bookings?workoutSessionId=` |
 | **Memberships** `/Plans` (ბარათები) და `/Plans/Details/{id}` (გააქტიურება) | ყველას | `GET memberships/plans`, `POST memberships/activate` (მომხმარებელი) |
 | გეგმის დამატება / რედაქტირება / წაშლა | ადმინს | `POST`, `PUT`, `DELETE memberships/plans` |
-| **My membership** `/Membership` (დარჩენილი დღეები/დრო/ვიზიტები, ფასი, შეძენის დრო, check-in, ვიზიტების ისტორია, გაუქმება) | მომხმარებელს | `GET memberships/my`, `DELETE memberships/my`, `POST visits/check-in`, `GET visits/my` |
+| **My membership** `/Membership` (დარჩენილი დღეები/დრო/ვიზიტები, ფასი, შეძენის დრო, check-in, ვიზიტების ისტორია, გაუქმება) | მომხმარებელს | `GET memberships/my`, `DELETE memberships/my`, `POST visit/check-in`, `GET visit/my` |
 | **My bookings** `/Bookings/My` | მომხმარებელს | `GET bookings/my`, `DELETE bookings/{id}` |
 | **All bookings** `/Bookings/All` (ფილტრები, გვერდები) | ადმინს | `GET bookings` |
+| **My profile** `/Profile` (მონაცემები, მოქმედი აბონემენტი, მომავალი ჯავშნები, აბონემენტების / ჯავშნების / ვიზიტების ისტორია) | შესულს | `GET profile`, `GET memberships/my`, `GET memberships/history`, `GET bookings/upcoming`, `GET bookings/my`, `GET visit/my` |
+| **Users** `/Users`, `/Users/Details/{id}` (ძებნა, აბონემენტი, ჯავშნები, ვიზიტები; მომხმარებლის წაშლა, ვიზიტის შესწორება/წაშლა) | ადმინს | `GET users`, `GET users/{id}`, `GET users/{id}/membership`, `GET users/{id}/bookings`, `GET users/{id}/visits`, `DELETE users/{id}`, `PUT/DELETE visit/{id}` |
 
 \* API ახლა სესიების განრიგს ლოგინის გარეშე არ აჩვენებს. სტუმარი ამ გვერდებზე "გთხოვთ, შეხვიდეთ" პანელს ხედავს.
 
@@ -119,6 +121,7 @@ dotnet user-secrets set "EmailSettings:AppPassword" "<16-სიმბოლო�
 - ჯავშანი უარყოფილია, თუ სესია აბონემენტის ამოწურვის შემდეგ იწყება (400).
 - მომხმარებელს შეიძლება ჰქონდეს ერთი აქტიური აბონემენტი. ვიზიტების ლიმიტიან გეგმაზე ყოველი check-in ერთ ვიზიტს აკლებს, შეუზღუდავზე არა. როცა ყველა ვიზიტი გამოყენებულია, გეგმა დასრულებულად ითვლება და ახალი გეგმის გააქტიურება შესაძლებელია გაუქმების გარეშე.
 - check-in შეიძლება 12 საათში ერთხელ (სხვა შემთხვევაში 409).
+- ვიზიტის შესწორება (`PUT visit/{id}`, მხოლოდ `CheckedInAt`, არა მომავალში და აბონემენტის პერიოდში) და წაშლა (`DELETE visit/{id}`) მხოლოდ ადმინს შეუძლია. ლიმიტიანი აქტიური გეგმის ვიზიტი წაშლისას მომხმარებელს უბრუნდება.
 - თარიღის ფილტრის გარეშე სესიების სია მხოლოდ მომავალ სესიებს აჩვენებს; თარიღის მითითებისას ამ დღის სესიებს.
 - ტრენერს ორი ერთმანეთზე გადაფარული სესია ვერ ექნება.
 - წაშლა: ტრენერები soft-delete-ით იშლება და მხოლოდ მაშინ, როცა მომავალი სესიები არ აქვთ (სხვა შემთხვევაში 409). შეძენილი გეგმები და სესიები, რომლებსაც ჯავშნები აქვთ ან ჰქონდათ, არ იშლება (409). ჯავშნები უქმდება და არასოდეს იშლება.

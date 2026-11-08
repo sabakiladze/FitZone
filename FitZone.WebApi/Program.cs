@@ -58,6 +58,8 @@ namespace FitZone.WebApi
             builder.Services.AddScoped<IUserMembershipRepository, UserMembershipPlanRepository>();
             builder.Services.AddScoped<IVisitRepository, VisitRepository>();
             builder.Services.AddScoped<IVisitService, VisitService>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();
             builder.Services.AddScoped<ITrainerService, TrainerService>();
             builder.Services.AddScoped<IWorkOutSessionRepository, WorkOutSessioRepository>();

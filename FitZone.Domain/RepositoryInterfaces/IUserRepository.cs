@@ -17,6 +17,9 @@ namespace FitZone.Domain.Interfaces
         Task<User?> GetUserByHashedToken(string token, CancellationToken ct = default);
         Task<User?>GetByIdAsync(Guid id, CancellationToken ct = default);
 
+        // ადმინის სიისთვის: წაშლილი user-ები არ ჩანს, search ეძებს სახელში, გვარში, username-სა და email-ში
+        Task<(ICollection<User> Items, int TotalCount)> GetPagedAsync(string? search, int page, int pageSize, CancellationToken ct = default);
+
         Task<bool> HasActiveFutureBookingsAsync(Guid userId, CancellationToken ct = default);
         //CancellationToken ct = default ნიშნავს: ეს პარამეტრი არასავალდებულოა, და თუ არ გადასცემ, გამოიყენება "ცარიელი" ტოკენი, რომლის გაუქმებაც არასდროს მოხდება.
     }

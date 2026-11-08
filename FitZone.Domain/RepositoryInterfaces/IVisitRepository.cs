@@ -9,5 +9,9 @@ namespace FitZone.Domain.RepositoryInterfaces
         Task AddAsync(Visit visit, CancellationToken ct = default);
 
         Task<bool> HasVisitSinceAsync(Guid userId, DateTime since, CancellationToken ct = default);
+
+        Task<Visit?> GetByIdAsync(Guid id, CancellationToken ct = default);
+
+        void Remove(Visit visit);
     }
 }

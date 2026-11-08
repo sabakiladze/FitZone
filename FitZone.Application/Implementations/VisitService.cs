@@ -69,6 +69,43 @@ namespace FitZone.Application.Implementations
 
             };
         }
+        public async Task<VisitDTO> UpdateAsync(Guid id, UpdateVisitRequestDTO request, CancellationToken ct = default)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            if (id == Guid.Empty) throw new EnterProperIdException();
+
+            var visit = await _visitRepo.GetByIdAsync(id, ct) ?? throw new VisitNotFoundException();
+
+            var checkedInAt = request.CheckedInAt.ToUniversalTime();
+            var membership = visit.UserMembershipPlan;
+            if (checkedInAt < membership.StartDate || checkedInAt > membership.EndDate)
+                throw new BadRequestException("CheckedInAt must be within the membership period.");
+
+            visit.CheckedInAt = checkedInAt;
+            await _unit.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Visit {VisitId} time changed to {CheckedInAt}.", id, checkedInAt);
+            return _mapper.Map<VisitDTO>(visit);
+        }
+
+        public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+        {
+            if (id == Guid.Empty) throw new EnterProperIdException();
+
+            var visit = await _visitRepo.GetByIdAsync(id, ct) ?? throw new VisitNotFoundException();
+
+            // limited plan that is still active: the deleted visit is given back to the user
+            var membership = visit.UserMembershipPlan;
+            var limit = membership.MembershipPlan?.VisitLimit;
+            if (limit.HasValue && membership.EndDate > DateTime.UtcNow)
+                membership.RefundVisit(limit.Value);
+
+            _visitRepo.Remove(visit);
+            await _unit.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Visit {VisitId} deleted.", id);
+        }
+
         public async Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default)
         {
             if (userId == Guid.Empty) throw new EnterProperIdException();

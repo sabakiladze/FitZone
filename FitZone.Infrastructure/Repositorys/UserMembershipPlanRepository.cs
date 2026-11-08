@@ -22,6 +22,16 @@ namespace FitZone.Infrastructure.Repositorys
             await _fitZoneDbContext.UserMembershipPlans.AddAsync(membership, ct);
         }
 
+        public async Task<ICollection<UserMembershipPlan>> GetAllByUserIdAsync(Guid userId, CancellationToken ct = default)
+        {
+            return await _fitZoneDbContext.UserMembershipPlans
+                .AsNoTracking()
+                .Include(x => x.MembershipPlan)
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.StartDate)
+                .ToListAsync(ct);
+        }
+
         public async Task<UserMembershipPlan?> GetActiveByUserIdAsync(Guid userId, CancellationToken ct = default)
         {
             return await _fitZoneDbContext.UserMembershipPlans

@@ -37,6 +37,7 @@
 
                 @if (isAdmin)
                 {
+                    <li class="nav-item"><a class="nav-link @Active("Users")" asp-controller="Users" asp-action="Index">Users</a></li>
                     <li class="nav-item"><a class="nav-link @Active("Bookings")" asp-controller="Bookings" asp-action="All">All bookings</a></li>
                 }
                 else if (signedIn)
@@ -53,6 +54,8 @@
                             <span class="badge bg-light text-dark ms-1">@(isAdmin ? "Admin" : "User")</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-badge"></i> My profile</a></li>
+                            <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post">
                                     <button class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Logout</button>

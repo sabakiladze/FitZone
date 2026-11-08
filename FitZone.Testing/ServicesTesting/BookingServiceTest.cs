@@ -407,4 +407,27 @@ public class BookingServiceTests
         await act.Should().ThrowAsync<InvalidIdException>();
         _bookingRepo.VerifyNoOtherCalls();
     }
+
+    [Fact]
+    public async Task GetMyUpcoming_EmptyId_Throws()
+    {
+        var act = () => CreateSut().GetMyUpcomingAsync(Guid.Empty);
+
+        await act.Should().ThrowAsync<InvalidIdException>();
+        _bookingRepo.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task GetMyUpcoming_ReturnsMappedBookings()
+    {
+        var userId = Guid.NewGuid();
+        _bookingRepo.Setup(r => r.GetUpcomingByUserAsync(userId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new List<Booking> { new() });
+        _mapper.Setup(m => m.Map<ICollection<BookingDTO>>(It.IsAny<object>()))
+               .Returns(new List<BookingDTO> { new() { TrainerName = "Nino" } });
+
+        var result = await CreateSut().GetMyUpcomingAsync(userId);
+
+        result.Should().ContainSingle().Which.TrainerName.Should().Be("Nino");
+    }
 }

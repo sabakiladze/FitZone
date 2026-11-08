@@ -14,6 +14,7 @@ namespace FitZone.Application.ServiceInterfaces
         Task<UserMembershipDTO> ActivateAsync(Guid userId, ActivateMembershipRequestDTO request, CancellationToken ct = default);
 
         Task<UserMembershipDTO?> GetMyActiveAsync(Guid userId, CancellationToken ct = default);
+        Task<ICollection<UserMembershipDTO>> GetMyHistoryAsync(Guid userId, CancellationToken ct = default);
 
         Task<MembershipPlanDTO> CreatePlanAsync(CreateMembershipPlanRequestDTO request, CancellationToken ct = default);
         Task UpdatePlanAsync(Guid id, UpdateMembershipPlanRequestDTO request, CancellationToken ct = default);

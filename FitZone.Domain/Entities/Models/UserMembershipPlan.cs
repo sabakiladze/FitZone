@@ -55,6 +55,14 @@ namespace FitZone.Domain.Entities.Models
             RemainingVisits--;
         }
 
+        public void RefundVisit(int planVisitLimit)
+        {
+            if (RemainingVisits is null) return;          // unlimited plan: nothing to give back
+
+            if (RemainingVisits < planVisitLimit)
+                RemainingVisits++;
+        }
+
         public void Cancel()
         {
             EndDate = DateTime.UtcNow;

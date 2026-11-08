@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FitZone.Application.DTOs.VisitDTOs;
 using FitZone.Application.Implementations;
 using FitZone.Domain.CustomExceptions;
 using FitZone.Domain.Entities.Models;
@@ -137,5 +138,91 @@ public class VisitServiceTests
         await act.Should().ThrowAsync<NoVisitsLeftException>();
         _visitRepo.Verify(r => r.AddAsync(It.IsAny<Visit>(), It.IsAny<CancellationToken>()), Times.Never);
         _unit.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Visit CreateVisit(UserMembershipPlan membership)
+        => new() { UserId = membership.UserId, UserMembershipPlan = membership, UserMembershipPlanId = membership.Id };
+
+    [Fact]
+    public async Task Delete_NotFound_Throws()
+    {
+        var id = Guid.NewGuid();
+        _visitRepo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
+
+        var act = () => CreateSut().DeleteAsync(id);
+
+        await act.Should().ThrowAsync<VisitNotFoundException>();
+        _unit.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Delete_LimitedActivePlan_GivesVisitBackAndRemovesIt()
+    {
+        var membership = CreateMembership(Guid.NewGuid(), visitLimit: 5);
+        membership.MembershipPlan = new MembershipPlan { VisitLimit = 5 };
+        membership.MakeVisit();                                   // 4 left
+        var visit = CreateVisit(membership);
+        _visitRepo.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
+
+        await CreateSut().DeleteAsync(visit.Id);
+
+        membership.RemainingVisits.Should().Be(5);
+        _visitRepo.Verify(r => r.Remove(visit), Times.Once);
+        _unit.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Delete_UnlimitedPlan_RemovesVisitAndKeepsCounterNull()
+    {
+        var membership = CreateMembership(Guid.NewGuid(), visitLimit: null);
+        membership.MembershipPlan = new MembershipPlan { VisitLimit = null };
+        var visit = CreateVisit(membership);
+        _visitRepo.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
+
+        await CreateSut().DeleteAsync(visit.Id);
+
+        membership.RemainingVisits.Should().BeNull();
+        _visitRepo.Verify(r => r.Remove(visit), Times.Once);
+    }
+
+    [Fact]
+    public async Task Update_NotFound_Throws()
+    {
+        var id = Guid.NewGuid();
+        _visitRepo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
+
+        var act = () => CreateSut().UpdateAsync(id, new UpdateVisitRequestDTO { CheckedInAt = DateTime.UtcNow });
+
+        await act.Should().ThrowAsync<VisitNotFoundException>();
+    }
+
+    [Fact]
+    public async Task Update_TimeOutsideMembership_ThrowsAndSavesNothing()
+    {
+        var membership = CreateMembership(Guid.NewGuid(), visitLimit: 5);
+        var visit = CreateVisit(membership);
+        _visitRepo.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
+
+        var act = () => CreateSut().UpdateAsync(visit.Id,
+            new UpdateVisitRequestDTO { CheckedInAt = membership.StartDate.AddDays(-2) });
+
+        await act.Should().ThrowAsync<BadRequestException>();
+        _unit.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Update_ValidTime_ChangesVisitAndSaves()
+    {
+        var membership = CreateMembership(Guid.NewGuid(), visitLimit: 5);
+        var visit = CreateVisit(membership);
+        var newTime = membership.StartDate.AddMinutes(30);
+        _visitRepo.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
+        _mapper.Setup(m => m.Map<VisitDTO>(visit)).Returns(new VisitDTO { Id = visit.Id, CheckedInAt = newTime });
+
+        var result = await CreateSut().UpdateAsync(visit.Id, new UpdateVisitRequestDTO { CheckedInAt = newTime });
+
+        visit.CheckedInAt.Should().Be(newTime);
+        result.CheckedInAt.Should().Be(newTime);
+        _unit.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

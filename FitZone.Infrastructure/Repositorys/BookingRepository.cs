@@ -47,6 +47,21 @@ namespace FitZone.Infrastructure.Repositorys
             return (items, total);
         }
 
+        public async Task<ICollection<Booking>> GetUpcomingByUserAsync(Guid userId, CancellationToken ct = default)
+        {
+            var now = DateTime.UtcNow;
+
+            return await _fitZone.Bookings
+                .AsNoTracking()
+                .Include(x => x.WorkoutSession).ThenInclude(s => s.Trainer)
+                .Where(x => x.UserId == userId
+                    && x.Status != BookingStatus.Cancelled
+                    && x.Status != BookingStatus.NoShow
+                    && x.WorkoutSession.EndsAt > now)
+                .OrderBy(x => x.WorkoutSession.StartsAt)
+                .ToListAsync(ct);
+        }
+
         public async Task<(ICollection<Booking> Items, int TotalCount)> GetFilteredAsync(Guid? sessionId,
             BookingStatus? status, string? trainerName, DateOnly?
             date, int page, int pageSize, CancellationToken ct = default)

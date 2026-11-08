@@ -62,6 +62,18 @@ namespace FitZone.WebApi.Controllers
             return result is null ? NotFound() : Ok(result);
         }
 
+        /// <summary>Returns all memberships of the current user (active and expired), newest first.</summary>
+        /// <response code="200">The membership history; empty if the user never had one.</response>
+        /// <response code="401">Not authenticated.</response>
+        [Authorize]
+        [HttpGet("history")]
+        [ProducesResponseType(typeof(ICollection<UserMembershipDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<ICollection<UserMembershipDTO>>> GetMyHistory(CancellationToken ct)
+        {
+            return Ok(await _membershipService.GetMyHistoryAsync(GetUserId(), ct));
+        }
+
         /// <summary>Creates a membership plan. Admin only.</summary>
         /// <param name="request">Name, price, duration and optional visit limit.</param>
         /// <response code="201">Plan created.</response>

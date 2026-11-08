@@ -77,6 +77,14 @@ namespace FitZone.Application.Implementations
             return membership is null ? null : _mapper.Map<UserMembershipDTO>(membership);
         }
 
+        public async Task<ICollection<UserMembershipDTO>> GetMyHistoryAsync(Guid userId, CancellationToken ct = default)
+        {
+            if (userId == Guid.Empty) throw new EnterProperIdException();
+
+            var memberships = await _userMembershipRepository.GetAllByUserIdAsync(userId, ct);
+            return _mapper.Map<ICollection<UserMembershipDTO>>(memberships);
+        }
+
         public async Task<ICollection<MembershipPlanDTO>> GetPlansAsync(CancellationToken ct = default)
         {
             var plans = await _membershipPlanRepository.GetAllMembersipPlanAsync(ct);

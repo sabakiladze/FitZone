@@ -187,3 +187,39 @@ public class ErrorVm
 {
     public string? Message { get; set; }
 }
+
+public class UsersIndexVm
+{
+    public List<UserListItemDto> Items { get; set; } = new();
+    public PagerModel Pager { get; set; } = new();
+    public string? Search { get; set; }
+}
+
+public class UserDetailsVm
+{
+    public ProfileDto Profile { get; set; } = new();
+    public UserMembershipDto? Membership { get; set; }
+    public List<BookingDto> Bookings { get; set; } = new();
+    public PagerModel Pager { get; set; } = new();
+    public List<VisitDto> Visits { get; set; } = new();
+    public bool IsUser => Profile.Role == "User";
+}
+
+public class ProfileVm
+{
+    public ProfileDto? Profile { get; set; }
+    public bool IsUser { get; set; }
+
+    /// <summary>მოქმედი აბონემენტი (null = არ აქვს).</summary>
+    public UserMembershipDto? Membership { get; set; }
+    public List<UserMembershipDto> MembershipHistory { get; set; } = new();
+
+    /// <summary>მომავალი და მიმდინარე ჯავშნები.</summary>
+    public List<BookingDto> Upcoming { get; set; } = new();
+
+    /// <summary>ჯავშნების ისტორია გვერდებად.</summary>
+    public List<BookingDto> Bookings { get; set; } = new();
+    public PagerModel Pager { get; set; } = new();
+
+    public List<VisitDto> Visits { get; set; } = new();
+}

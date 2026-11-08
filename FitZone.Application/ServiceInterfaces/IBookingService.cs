@@ -17,6 +17,7 @@ namespace FitZone.Application.ServiceInterfaces
 
             Task<PagedResponseDTO<BookingDTO>> GetMyAsync(Guid userId, PaginationQueryDTO paging, CancellationToken ct = default);
 
+            Task<ICollection<BookingDTO>> GetMyUpcomingAsync(Guid userId, CancellationToken ct = default);
             Task<PagedResponseDTO<BookingDTO>> GetAllAsync(BookingFilterDTO filter, PaginationQueryDTO paging, CancellationToken ct = default);
         
     }

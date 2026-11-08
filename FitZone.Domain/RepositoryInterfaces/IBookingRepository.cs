@@ -17,6 +17,8 @@ namespace FitZone.Domain.RepositoryInterfaces
         Task<(ICollection<Booking> Items, int TotalCount)> GetByUserAsync(
     Guid userId, int page, int pageSize, CancellationToken ct = default);
 
+        // მომავალი და მიმდინარე ჯავშნები (გაუქმებული/NoShow არა, სესია ჯერ არ დასრულებულა), უახლოესი პირველი
+        Task<ICollection<Booking>> GetUpcomingByUserAsync(Guid userId, CancellationToken ct = default);
         Task<(ICollection<Booking> Items, int TotalCount)> GetFilteredAsync(Guid? sessionId, BookingStatus? status, string? trainerName, DateOnly? date,int page, int pageSize, CancellationToken ct = default);
 
         Task<bool> UserHasActiveBookingAsync(Guid userId, Guid sessionId, CancellationToken ct = default);

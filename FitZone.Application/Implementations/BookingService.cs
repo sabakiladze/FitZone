@@ -149,6 +149,15 @@ namespace FitZone.Application.Implementations
 
         }
 
+        public async Task<ICollection<BookingDTO>> GetMyUpcomingAsync(Guid userId, CancellationToken ct = default)
+        {
+            if (userId == Guid.Empty)
+                throw new InvalidIdException();
+
+            var bookings = await _bookingRepository.GetUpcomingByUserAsync(userId, ct);
+            return _mapper.Map<ICollection<BookingDTO>>(bookings);
+        }
+
         public async Task<PagedResponseDTO<BookingDTO>> GetMyAsync(Guid userId, PaginationQueryDTO paging, CancellationToken ct = default)
         {
             if (userId == Guid.Empty)

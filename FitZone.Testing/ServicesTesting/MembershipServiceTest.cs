@@ -170,5 +170,29 @@ namespace FitZone.Testing.ServiceTests
 
         private void _unitOfWork_SaveWasNeverCalled() =>
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+        [Fact]
+        public async Task GetMyHistoryAsync_EmptyId_Throws()
+        {
+            var act = () => _service.GetMyHistoryAsync(Guid.Empty);
+
+            await act.Should().ThrowAsync<EnterProperIdException>();
+            _userMembershipRepo.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task GetMyHistoryAsync_ReturnsMappedMemberships()
+        {
+            var userId = Guid.NewGuid();
+            var items = new List<UserMembershipPlan> { new(userId, Guid.NewGuid(), DateTime.UtcNow.AddDays(-60), 30, 5) };
+            _userMembershipRepo.Setup(r => r.GetAllByUserIdAsync(userId, It.IsAny<CancellationToken>()))
+                               .ReturnsAsync(items);
+            _mapper.Setup(m => m.Map<ICollection<UserMembershipDTO>>(It.IsAny<object>()))
+                   .Returns(new List<UserMembershipDTO> { new() { PlanName = "Monthly" } });
+
+            var result = await _service.GetMyHistoryAsync(userId);
+
+            result.Should().ContainSingle().Which.PlanName.Should().Be("Monthly");
+        }
     }
 }

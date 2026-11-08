@@ -30,7 +30,7 @@ public class MembershipController : BaseController
                 string.Equals(p.Name, vm.Membership.PlanName, StringComparison.OrdinalIgnoreCase));
         }
 
-        var visits = await _api.GetAsync<List<VisitDto>>("api/visits/my", ct);
+        var visits = await _api.GetAsync<List<VisitDto>>("api/visit/my", ct);
         if (visits.Success) vm.Visits = visits.Data ?? new();
         else Failure(visits.ErrorText);
 
@@ -40,7 +40,7 @@ public class MembershipController : BaseController
     [HttpPost]
     public async Task<IActionResult> CheckIn(CancellationToken ct)
     {
-        var result = await _api.PostAsync<CheckInResponse>("api/visits/check-in", null, ct);
+        var result = await _api.PostAsync<CheckInResponse>("api/visit/check-in", null, ct);
 
         if (result.Success)
         {

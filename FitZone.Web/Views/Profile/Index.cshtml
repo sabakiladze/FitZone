@@ -1,0 +1,174 @@
+@model ProfileVm
+@{ ViewData["Title"] = "My profile"; }
+
+@if (Model.Profile is null)
+{
+    <div class="fz-panel p-4 text-center mx-auto" style="max-width:560px">
+        <p class="mb-3">Your profile could not be loaded.</p>
+        <a class="btn btn-light" asp-controller="Home" asp-action="Index">Back to home</a>
+    </div>
+    return;
+}
+
+@{
+    var p = Model.Profile;
+    var initials = string.Concat(new[] { p.FirstName, p.LastName }.Where(x => !string.IsNullOrEmpty(x)).Select(x => char.ToUpperInvariant(x[0])));
+}
+
+<section class="fz-panel fz-profile p-4 p-lg-5 mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-4">
+        <div class="fz-avatar-lg">@initials</div>
+        <div class="flex-grow-1">
+            <h1 class="mb-1">@p.FirstName @p.LastName</h1>
+            <div class="opacity-75">@@@p.UserName</div>
+            <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
+                <span class="fz-chip"><i class="bi bi-envelope"></i> @p.Email</span>
+                <span class="fz-chip"><i class="bi bi-shield-check"></i> @p.Role</span>
+                <span class="fz-chip"><i class="bi bi-calendar-check"></i> Member since @Fmt.DateText(p.CreatedAt)</span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.IsUser)
+    {
+        <div class="row g-3 mt-3">
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@(Model.Membership?.PlanName ?? "None")</div><div class="l">Current membership</div></div></div>
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@(Model.Membership is null ? "-" : Model.Membership.RemainingVisits is null ? "Unlimited" : Model.Membership.RemainingVisits.ToString())</div><div class="l">Visits left</div></div></div>
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@Model.Upcoming.Count</div><div class="l">Upcoming bookings</div></div></div>
+            <div class="col-6 col-lg-3"><div class="fz-stat"><div class="v">@Model.Visits.Count</div><div class="l">Gym visits</div></div></div>
+        </div>
+        @if (Model.Membership is not null)
+        {
+            <p class="mt-3 mb-0 small opacity-75">Valid until @Fmt.DateTimeText(Model.Membership.EndDate). <a asp-controller="Membership" asp-action="Index">Open my membership</a></p>
+        }
+        else
+        {
+            <p class="mt-3 mb-0 small opacity-75">You have no active membership. <a asp-controller="Plans" asp-action="Index">Choose a plan</a></p>
+        }
+    }
+</section>
+
+@if (!Model.IsUser)
+{
+    <p class="text-muted">As an admin you manage users and bookings under <a asp-controller="Users" asp-action="Index">Users</a> and <a asp-controller="Bookings" asp-action="All">All bookings</a>.</p>
+    return;
+}
+
+<div class="fz-head">
+    <div><h2 class="mb-0">Upcoming bookings</h2><p>Sessions you are booked on that have not finished yet.</p></div>
+    <a class="btn btn-outline-secondary btn-sm" asp-controller="Bookings" asp-action="My">Manage bookings</a>
+</div>
+
+@if (Model.Upcoming.Count == 0)
+{
+    <p class="text-muted">No upcoming bookings. <a asp-controller="Sessions" asp-action="Index">Find a session</a></p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-2">
+        @foreach (var b in Model.Upcoming)
+        {
+            var ongoing = Fmt.IsPast(b.StartsAt);
+            <div class="col">
+                <div class="fz-card h-100">
+                    <div class="fz-card-title">@Fmt.DateText(b.StartsAt)</div>
+                    <div class="fz-card-sub">@Fmt.TimeRange(b.StartsAt, b.EndsAt)</div>
+                    <div class="fz-card-meta">Trainer: @b.TrainerName @(ongoing ? "· in progress" : "")</div>
+                    <a class="btn btn-light btn-sm" asp-controller="Sessions" asp-action="Details" asp-route-id="@b.WorkoutSessionId">More</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="fz-head mt-5">
+    <div><h2 class="mb-0">Membership history</h2></div>
+    <a class="btn btn-outline-secondary btn-sm" asp-controller="Plans" asp-action="Index">All plans</a>
+</div>
+
+@if (Model.MembershipHistory.Count == 0)
+{
+    <p class="text-muted">You have not had a membership yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Plan</th><th>Started</th><th>Ends</th><th>Visits left</th><th>Status</th></tr></thead>
+            <tbody>
+            @foreach (var m in Model.MembershipHistory)
+            {
+                <tr>
+                    <td>@m.PlanName</td>
+                    <td>@Fmt.DateText(m.StartDate)</td>
+                    <td>@Fmt.DateTimeText(m.EndDate)</td>
+                    <td>@(m.RemainingVisits is null ? "Unlimited" : m.RemainingVisits.ToString())</td>
+                    <td>@if (m.IsActive) { <span class="badge bg-success">Active</span> } else { <span class="badge bg-secondary">Ended</span> }</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="fz-head mt-5">
+    <div><h2 class="mb-0">Booking history</h2></div>
+</div>
+
+@if (Model.Bookings.Count == 0)
+{
+    <p class="text-muted">You have no bookings yet. <a asp-controller="Sessions" asp-action="Index">Find a session</a></p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Session</th><th>Trainer</th><th>Status</th><th>Booked at</th></tr></thead>
+            <tbody>
+            @foreach (var b in Model.Bookings)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="Sessions" asp-action="Details" asp-route-id="@b.WorkoutSessionId">@Fmt.DateText(b.StartsAt)</a><br />
+                        <span class="text-muted small">@Fmt.TimeRange(b.StartsAt, b.EndsAt)</span>
+                    </td>
+                    <td>@b.TrainerName</td>
+                    <td><partial name="_StatusBadge" model="b.Status" /></td>
+                    <td>@Fmt.DateTimeText(b.BookedAt)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pager" model="Model.Pager" />
+}
+
+<div class="fz-head mt-5">
+    <div><h2 class="mb-0">Visit history</h2></div>
+    <a class="btn btn-outline-secondary btn-sm" asp-controller="Membership" asp-action="Index">My membership</a>
+</div>
+
+@if (Model.Visits.Count == 0)
+{
+    <p class="text-muted">No visits yet.</p>
+}
+else
+{
+    var shown = Model.Visits.Take(20).ToList();
+    var n = Model.Visits.Count;
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>#</th><th>Checked in</th><th>Plan</th></tr></thead>
+            <tbody>
+            @foreach (var v in shown)
+            {
+                <tr><td>@(n--)</td><td>@Fmt.DateTimeText(v.CheckedInAt)</td><td>@v.PlanName</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Visits.Count > shown.Count)
+    {
+        <p class="text-muted small">Showing the latest @shown.Count of @Model.Visits.Count visits.</p>
+    }
+}

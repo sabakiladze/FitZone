@@ -77,6 +77,17 @@ namespace FitZone.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>Returns the current user's upcoming and ongoing bookings (not cancelled), soonest first.</summary>
+        /// <response code="200">The bookings; empty if there are none.</response>
+        /// <response code="401">Not authenticated.</response>
+        [HttpGet("upcoming")]
+        [ProducesResponseType(typeof(ICollection<BookingDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<ICollection<BookingDTO>>> GetMyUpcoming(CancellationToken ct)
+        {
+            return Ok(await _service.GetMyUpcomingAsync(GetUserId(), ct));
+        }
+
         /// <summary>Returns all bookings with optional filters. Admin only.</summary>
         /// <param name="filter">Optional filters: session, status, trainer name, date.</param>
         /// <param name="paging">Page number and page size.</param>

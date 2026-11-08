@@ -9,7 +9,7 @@ namespace FitZone.WebApi.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("api/visits")]
+    [Route("api/visit")]
     public class VisitsController : ControllerBase
     {
         private readonly IVisitService _visitService;
@@ -42,6 +42,41 @@ namespace FitZone.WebApi.Controllers
         public async Task<ActionResult<ICollection<VisitDTO>>> GetMy(CancellationToken ct)
         {
             return Ok(await _visitService.GetMyVisitsAsync(GetUserId(), ct));
+        }
+
+        /// <summary>Admin only: corrects the check-in time of a visit.</summary>
+        /// <response code="200">The updated visit.</response>
+        /// <response code="400">The time is in the future or outside the membership period.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">The user is not an Admin.</response>
+        /// <response code="404">The visit does not exist.</response>
+        [HttpPut("{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(VisitDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<VisitDTO>> Update(Guid id, UpdateVisitRequestDTO request, CancellationToken ct)
+        {
+            return Ok(await _visitService.UpdateAsync(id, request, ct));
+        }
+
+        /// <summary>Admin only: deletes a visit. On a limited, still active plan the visit is given back.</summary>
+        /// <response code="204">Visit deleted.</response>
+        /// <response code="401">Not authenticated.</response>
+        /// <response code="403">The user is not an Admin.</response>
+        /// <response code="404">The visit does not exist.</response>
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+        {
+            await _visitService.DeleteAsync(id, ct);
+            return NoContent();
         }
 
         private Guid GetUserId()

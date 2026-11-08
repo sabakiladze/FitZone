@@ -13,6 +13,8 @@ namespace FitZone.Application.ServiceInterfaces
     {
         Task<CheckInResponseDTO> CheckInAsync(Guid userId, CancellationToken ct = default);
         Task<ICollection<VisitDTO>> GetMyVisitsAsync(Guid userId, CancellationToken ct = default);
+        Task<VisitDTO> UpdateAsync(Guid id, UpdateVisitRequestDTO request, CancellationToken ct = default);
+        Task DeleteAsync(Guid id, CancellationToken ct = default);
     }
 
 }
