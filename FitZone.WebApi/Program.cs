@@ -158,14 +158,6 @@ namespace FitZone.WebApi
                 app.UseSwaggerUI();
             }
 
-            // Docker/demo only: applies pending EF migrations (and seed data) at startup.
-            // Off by default; enabled with Database__MigrateOnStartup=true.
-            if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
-            {
-                using var scope = app.Services.CreateScope();
-                scope.ServiceProvider.GetRequiredService<FitZoneDbContext>().Database.Migrate();
-            }
-
             app.UseExceptionHandler();
 
             app.UseHttpsRedirection();

@@ -22,7 +22,7 @@ Members browse trainers and workout sessions, buy a membership, book sessions an
 
 ## Tech stack
 
-ASP.NET Core 8 (Web API + MVC/Razor), Entity Framework Core, SQL Server, JWT bearer auth, AutoMapper, FluentValidation, Swagger/OpenAPI, Bootstrap, xUnit, Moq, FluentAssertions, Docker.
+ASP.NET Core 8 (Web API + MVC/Razor), Entity Framework Core, SQL Server, JWT bearer auth, AutoMapper, FluentValidation, Swagger/OpenAPI, Bootstrap, xUnit, Moq, FluentAssertions.
 
 ## Architecture
 
@@ -39,7 +39,7 @@ Dependencies point inward: `WebApi -> Application -> Domain` and `Infrastructure
 
 ## Run locally
 
-Requirements: .NET 8 SDK, SQL Server (LocalDB, Express or Docker), `dotnet-ef` (`dotnet tool install --global dotnet-ef`), trusted dev certificate (`dotnet dev-certs https --trust`).
+Requirements: .NET 8 SDK, SQL Server (LocalDB or Express), `dotnet-ef` (`dotnet tool install --global dotnet-ef`), trusted dev certificate (`dotnet dev-certs https --trust`).
 
 ```bash
 # 1. (optional) override connection string / JWT key with user secrets, never commit real secrets
@@ -80,22 +80,6 @@ cd FitZone.WebApi
 dotnet user-secrets set "EmailSettings:SenderEmail" "you@gmail.com"
 dotnet user-secrets set "EmailSettings:AppPassword" "<Gmail app password>"
 ```
-
-## Run with Docker
-
-> The Docker setup was written without being run on the author's machine yet. If something fails, please open an issue.
-
-```bash
-cp .env.example .env        # then edit the password and JWT key
-docker compose up --build
-```
-
-| Service | URL |
-|---|---|
-| Web UI | http://localhost:8081 |
-| API + Swagger | http://localhost:8080/swagger |
-
-The stack starts SQL Server 2022, the API and the UI. The API applies migrations and seed data at startup when `Database__MigrateOnStartup=true` (set in `docker-compose.yml`; off by default everywhere else). Emails are printed to the API logs (`docker compose logs api`). Stop with `docker compose down`; add `-v` to delete the database volume.
 
 ## Tests
 
