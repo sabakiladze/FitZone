@@ -1,146 +1,137 @@
 # FitZone
 
-სპორტდარბაზის მართვის სისტემა: REST API (ASP.NET Core 8, EF Core, SQL Server, JWT) და ვებ-ინტერფეისი (ASP.NET Core MVC + Razor, HTML/CSS/Bootstrap), რომელიც API-სთან მუშაობს.
+A gym management system: a layered **ASP.NET Core 8 REST API** (EF Core, SQL Server, JWT) and an **MVC/Razor web UI** that talks to it over HTTP.
 
-მომხმარებელს შეუძლია ტრენერებისა და ვარჯიშის სესიების ნახვა, აბონემენტის შეძენა, სესიების დაჯავშნა და დარბაზში check-in. ადმინისტრატორი მართავს ტრენერებს, სესიებს, აბონემენტის გეგმებს და ხედავს ყველა ჯავშანს.
+Members browse trainers and workout sessions, buy a membership, book sessions and check in at the gym. Admins manage trainers, sessions, plans and users, and see every booking.
 
-## სოლუშენის სტრუქტურა
+> Georgian version: [README.ka.md](README.ka.md)
 
-| პროექტი | დანიშნულება |
+<!-- Add screenshots here, e.g. ![Trainers](docs/trainers.png) -->
+
+## Features
+
+- Registration with 6-digit email verification, login, JWT access tokens (15 min) and refresh tokens (7 days), logout
+- Roles: **Guest**, **User**, **Admin**
+- Trainers: list, search, details, admin CRUD (soft delete)
+- Workout sessions: schedule, filter by trainer and date, admin CRUD, overlap check per trainer
+- Memberships: plans, activation, remaining days/visits, cancellation, history
+- Bookings: book / cancel, capacity and overlap checks, upcoming and history views
+- Visits: check-in (once per 12 hours), history, admin edit/delete with refund of a visit on limited plans
+- Profile page for members; admin Users section (search, details, delete user)
+- Global error handling with RFC 7807 problem details (400 / 401 / 403 / 404 / 409)
+
+## Tech stack
+
+ASP.NET Core 8 (Web API + MVC/Razor), Entity Framework Core, SQL Server, JWT bearer auth, AutoMapper, FluentValidation, Swagger/OpenAPI, Bootstrap, xUnit, Moq, FluentAssertions, Docker.
+
+## Architecture
+
+| Project | Responsibility |
 |---|---|
-| `FitZone.Domain` | ენტიტები, enum-ები, რეპოზიტორიების ინტერფეისები, საკუთარი გამონაკლისები (დამოკიდებულებების გარეშე) |
-| `FitZone.Application` | სერვისები (ბიზნეს-წესები), DTO-ები, FluentValidation ვალიდატორები, AutoMapper პროფილი |
-| `FitZone.Infrastructure` | EF Core `DbContext`, მიგრაციები, რეპოზიტორიები, JWT სერვისი, ელფოსტის გამგზავნები |
-| `FitZone.WebApi` | კონტროლერები, Swagger, ავტორიზაცია, გლობალური შეცდომების დამმუშავებელი |
-| `FitZone.Web` | **UI**: Razor views, cookie ავტორიზაცია, ტიპიზებული `HttpClient` API-სთვის |
-| `FitZone.Testing` | xUnit ტესტები (სერვისები Moq-ით, რეპოზიტორიები EF InMemory-ით, AutoMapper-ის კონფიგურაცია) |
+| `FitZone.Domain` | Entities, enums, repository interfaces, custom exceptions (no dependencies) |
+| `FitZone.Application` | Services (business rules), DTOs, FluentValidation validators, AutoMapper profile |
+| `FitZone.Infrastructure` | EF Core `DbContext`, migrations, repositories, JWT service, email senders |
+| `FitZone.WebApi` | Controllers, Swagger, authorization, global exception handler |
+| `FitZone.Web` | UI: Razor views, cookie auth, typed `HttpClient` for the API |
+| `FitZone.Testing` | xUnit tests (services with Moq, repositories with EF InMemory) |
 
-დამოკიდებულებები შიგნით არის მიმართული: `WebApi → Application → Domain` და `Infrastructure → Application/Domain`. `FitZone.Web` API-ს მხოლოდ HTTP-ით იცნობს და ბაზას პირდაპირ არასოდეს ეხება.
+Dependencies point inward: `WebApi -> Application -> Domain` and `Infrastructure -> Application/Domain`. The UI knows the API only through HTTP and never touches the database.
 
-## მოთხოვნები
+## Run locally
 
-- .NET 8 SDK
-- SQL Server (LocalDB, Express ან Docker)
-- `dotnet-ef` ხელსაწყო: `dotnet tool install --global dotnet-ef`
-- სანდო HTTPS dev სერტიფიკატი: `dotnet dev-certs https --trust`
-
-## გაშვება
-
-### 1. API-ს კონფიგურაცია
-
-Development გარემოში API დამატებითი მოქმედებების გარეშე ეშვება: `FitZone.WebApi/appsettings.Development.json` შეიცავს LocalDB კავშირს (`FitZoneDb`), მხოლოდ dev-ისთვის განკუთვნილ JWT გასაღებს და `UseRealEmail: false`. ეს მნიშვნელობები საიდუმლო არ არის. საკუთარი SQL Server-ის ან გასაღების გამოსაყენებლად გადააწერე user secrets-ით (რეალური საიდუმლო მნიშვნელობები git-ში არასოდეს ჩასვა). repo-ს ძირიდან:
+Requirements: .NET 8 SDK, SQL Server (LocalDB, Express or Docker), `dotnet-ef` (`dotnet tool install --global dotnet-ef`), trusted dev certificate (`dotnet dev-certs https --trust`).
 
 ```bash
+# 1. (optional) override connection string / JWT key with user secrets, never commit real secrets
 cd FitZone.WebApi
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\\MSSQLLocalDB;Database=FitZoneDb;Trusted_Connection=True;TrustServerCertificate=True"
-dotnet user-secrets set "JwtTokenSettings:SecretKey" "ჩაწერე-მინიმუმ-32-სიმბოლოიანი-შემთხვევითი-ტექსტი"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<your connection string>"
+dotnet user-secrets set "JwtTokenSettings:SecretKey" "<random string, 32+ chars>"
 cd ..
-```
 
-### 2. ბაზის შექმნა
-
-```bash
+# 2. create the database (applies migrations and seed data)
 dotnet ef database update --project FitZone.Infrastructure --startup-project FitZone.WebApi
-```
 
-ეს გაუშვებს ყველა მიგრაციას და ჩაწერს საწყის მონაცემებს: როლები, ერთი ადმინი, 5 ტრენერი და 5 აბონემენტის გეგმა.
-
-### 3. API-ს გაშვება
-
-```bash
+# 3. API  -> https://localhost:7284/swagger
 dotnet run --project FitZone.WebApi --launch-profile https
-```
 
-Swagger: <https://localhost:7284/swagger>
-
-### 4. UI-ს გაშვება (მეორე ტერმინალში)
-
-```bash
+# 4. UI (second terminal) -> https://localhost:7300
 dotnet run --project FitZone.Web --launch-profile https
 ```
 
-UI: <https://localhost:7300>
+In Visual Studio use *Configure Startup Projects -> Multiple startup projects* and start both `FitZone.WebApi` and `FitZone.Web`.
 
-Visual Studio-ში: *Solution → Configure Startup Projects → Multiple startup projects* და `FitZone.WebApi` და `FitZone.Web` ორივე დააყენე *Start*-ზე.
+### Accounts
 
-თუ API სხვა მისამართზე ეშვება, შეცვალე `Api:BaseUrl` ფაილში `FitZone.Web/appsettings.json`.
-
-### ანგარიშები
-
-| როლი | ლოგინი | პაროლი |
+| Role | Login | Password |
 |---|---|---|
-| ადმინი (საწყისი მონაცემებიდან) | `admin@fitzone.local` | `Admin123!` |
-| მომხმარებელი | დარეგისტრირდი საიტზე | შენი არჩევანი (მინ. 8 სიმბოლო, მხოლოდ ლათინური ასოები, ერთი დიდი ასო, ერთი სიმბოლო) |
+| Admin (seed data) | `admin@fitzone.local` | `Admin123!` |
+| User | register in the UI | your choice (8+ chars, Latin letters, one upper-case letter, one symbol) |
 
-### ელფოსტის დადასტურება
+The admin account is demo seed data. Change it before any real deployment.
 
-ახალმა მომხმარებელმა ლოგინამდე ელფოსტა უნდა დაადასტუროს. Development-ში წერილები **არ იგზავნება**: `"UseRealEmail": false` (ნაგულისხმევი) დროს API შეტყობინებას კონსოლში ბეჭდავს. მოძებნე `FAKE EMAIL to ...` და ტექსტიდან ააკრიფე 6-ციფრიანი კოდი. კოდი 15 წუთი მოქმედებს. ახალი კოდის მოთხოვნა შესაძლებელია 60 წამის შემდეგ.
+### Email verification
 
-ნამდვილი წერილების გასაგზავნად `UseRealEmail` გახადე `true` და Gmail-ის მონაცემები ჩაწერე user secrets-ში (git-ში არასოდეს):
+New users must verify their email before logging in. By default (`UseRealEmail: false`) no email is sent: the API prints the message to the console. Look for `FAKE EMAIL to ...` and use the 6-digit code (valid 15 minutes, resend after 60 seconds).
+
+To send real email set `UseRealEmail` to `true` and store the Gmail credentials in user secrets (never in git):
 
 ```bash
 cd FitZone.WebApi
 dotnet user-secrets set "EmailSettings:SenderEmail" "you@gmail.com"
-dotnet user-secrets set "EmailSettings:AppPassword" "<16-სიმბოლოიანი Gmail App Password>"
+dotnet user-secrets set "EmailSettings:AppPassword" "<Gmail app password>"
 ```
 
-## UI რუკა
+## Run with Docker
 
-ყოველ API endpoint-ს UI-ში ერთი ლოგიკური ადგილი აქვს.
+> The Docker setup was written without being run on the author's machine yet. If something fails, please open an issue.
 
-| გვერდი (URL) | ვის | გამოყენებული API endpoint-ები |
-|---|---|---|
-| მთავარი `/` | ყველას | – |
-| Register `/Account/Register`, Verify `/Account/Verify`, Login `/Account/Login` | სტუმრებს | `POST auth/register`, `auth/send-verification-code`, `auth/verify-email`, `auth/login` |
-| Logout (მომხმარებლის მენიუ) | შესულს | `POST auth/logout`; `auth/refresh` ავტომატურად გამოიძახება, როცა 15-წუთიანი access token ამოიწურება |
-| **Trainers** `/Trainers` (ბარათები, ძებნა) | ყველას | `GET trainers`, `GET trainers/search` |
-| ტრენერის გვერდი `/Trainers/Details/{id}` (ინფორმაცია + მომავალი სესიები) | ყველას | `GET trainers/{id}`, `GET training-sessions?trainerId=` |
-| ტრენერის დამატება / რედაქტირება / წაშლა | ადმინს | `POST`, `PUT`, `DELETE trainers` |
-| **Workout sessions** `/Sessions` (ბარათები, ფილტრი ტრენერისა და თარიღით) | შესულს* | `GET training-sessions` |
-| სესიის გვერდი `/Sessions/Details/{id}` (დაჯავშნა / ჯავშნის გაუქმება) | შესულს* | `GET training-sessions/{id}`, `POST bookings`, `DELETE bookings/{id}`, `GET bookings/my` |
-| სესიის დამატება / რედაქტირება / წაშლა; სესიის ჯავშნები | ადმინს | `POST`, `PUT`, `DELETE training-sessions`, `GET bookings?workoutSessionId=` |
-| **Memberships** `/Plans` (ბარათები) და `/Plans/Details/{id}` (გააქტიურება) | ყველას | `GET memberships/plans`, `POST memberships/activate` (მომხმარებელი) |
-| გეგმის დამატება / რედაქტირება / წაშლა | ადმინს | `POST`, `PUT`, `DELETE memberships/plans` |
-| **My membership** `/Membership` (დარჩენილი დღეები/დრო/ვიზიტები, ფასი, შეძენის დრო, check-in, ვიზიტების ისტორია, გაუქმება) | მომხმარებელს | `GET memberships/my`, `DELETE memberships/my`, `POST visit/check-in`, `GET visit/my` |
-| **My bookings** `/Bookings/My` | მომხმარებელს | `GET bookings/my`, `DELETE bookings/{id}` |
-| **All bookings** `/Bookings/All` (ფილტრები, გვერდები) | ადმინს | `GET bookings` |
-| **My profile** `/Profile` (მონაცემები, მოქმედი აბონემენტი, მომავალი ჯავშნები, აბონემენტების / ჯავშნების / ვიზიტების ისტორია) | შესულს | `GET profile`, `GET memberships/my`, `GET memberships/history`, `GET bookings/upcoming`, `GET bookings/my`, `GET visit/my` |
-| **Users** `/Users`, `/Users/Details/{id}` (ძებნა, აბონემენტი, ჯავშნები, ვიზიტები; მომხმარებლის წაშლა, ვიზიტის შესწორება/წაშლა) | ადმინს | `GET users`, `GET users/{id}`, `GET users/{id}/membership`, `GET users/{id}/bookings`, `GET users/{id}/visits`, `DELETE users/{id}`, `PUT/DELETE visit/{id}` |
+```bash
+cp .env.example .env        # then edit the password and JWT key
+docker compose up --build
+```
 
-\* API ახლა სესიების განრიგს ლოგინის გარეშე არ აჩვენებს. სტუმარი ამ გვერდებზე "გთხოვთ, შეხვიდეთ" პანელს ხედავს.
+| Service | URL |
+|---|---|
+| Web UI | http://localhost:8081 |
+| API + Swagger | http://localhost:8080/swagger |
 
-## როლები და წესები
+The stack starts SQL Server 2022, the API and the UI. The API applies migrations and seed data at startup when `Database__MigrateOnStartup=true` (set in `docker-compose.yml`; off by default everywhere else). Emails are printed to the API logs (`docker compose logs api`). Stop with `docker compose down`; add `-v` to delete the database volume.
 
-- **სტუმარი**: ტრენერები, აბონემენტის გეგმები, რეგისტრაცია, ლოგინი.
-- **მომხმარებელი**: ყველაფერი ზემოთ ჩამოთვლილი, დამატებით სესიები, ჯავშნები, აბონემენტი, check-in.
-- **ადმინი**: მართავს ტრენერებს, გეგმებსა და სესიებს, ხედავს ყველა ჯავშანს. აბონემენტი, check-in და დაჯავშნა UI-ში მხოლოდ *მომხმარებლის* როლს აქვს.
-
-ბიზნეს-წესები, რომლებსაც API ამოწმებს (UI წარუმატებლობისას API-ს შეტყობინებას აჩვენებს):
-
-- დაჯავშნისთვის საჭიროა აქტიური აბონემენტი დარჩენილი ვიზიტებით, სესია, რომელიც ჯერ არ დაწყებულა, თავისუფალი ადგილი, ამ სესიაზე არსებული ჯავშნის არქონა და იმავე მომხმარებლის სხვა ჯავშანთან დროში გადაფარვის არქონა.
-- ჯავშანი უარყოფილია, თუ სესია აბონემენტის ამოწურვის შემდეგ იწყება (400).
-- მომხმარებელს შეიძლება ჰქონდეს ერთი აქტიური აბონემენტი. ვიზიტების ლიმიტიან გეგმაზე ყოველი check-in ერთ ვიზიტს აკლებს, შეუზღუდავზე არა. როცა ყველა ვიზიტი გამოყენებულია, გეგმა დასრულებულად ითვლება და ახალი გეგმის გააქტიურება შესაძლებელია გაუქმების გარეშე.
-- check-in შეიძლება 12 საათში ერთხელ (სხვა შემთხვევაში 409).
-- ვიზიტის შესწორება (`PUT visit/{id}`, მხოლოდ `CheckedInAt`, არა მომავალში და აბონემენტის პერიოდში) და წაშლა (`DELETE visit/{id}`) მხოლოდ ადმინს შეუძლია. ლიმიტიანი აქტიური გეგმის ვიზიტი წაშლისას მომხმარებელს უბრუნდება.
-- თარიღის ფილტრის გარეშე სესიების სია მხოლოდ მომავალ სესიებს აჩვენებს; თარიღის მითითებისას ამ დღის სესიებს.
-- ტრენერს ორი ერთმანეთზე გადაფარული სესია ვერ ექნება.
-- წაშლა: ტრენერები soft-delete-ით იშლება და მხოლოდ მაშინ, როცა მომავალი სესიები არ აქვთ (სხვა შემთხვევაში 409). შეძენილი გეგმები და სესიები, რომლებსაც ჯავშნები აქვთ ან ჰქონდათ, არ იშლება (409). ჯავშნები უქმდება და არასოდეს იშლება.
-- შეცდომები ბრუნდება RFC 7807 problem details ფორმატით შესაბამისი სტატუსით (400 ვალიდაცია, 401/403 ავტორიზაცია, 404 ვერ მოიძებნა, 409 კონფლიქტი).
-
-## დროის სარტყელი და ვალუტა
-
-API ინახავს და აბრუნებს **UTC** დროს. UI ამას გარდაქმნის `FitZone.Web/appsettings.json`-ში მითითებულ სარტყელზე (`Display:TimeZone`, ნაგულისხმევი `Asia/Tbilisi`) და ფორმიდან შეყვანილ დროს უკან UTC-ში აბრუნებს. ვალუტის სიმბოლო არის `Display:Currency`. სესიებისა და ჯავშნების გვერდზე თარიღის ფილტრები UTC კალენდარულ დღეს იყენებს.
-
-## ტესტები
+## Tests
 
 ```bash
 dotnet test
 ```
 
-## ცნობილი შეზღუდვები
+## Business rules (enforced by the API)
 
-- ადგილებისა და ვიზიტების მრიცხველებს პარალელური მოთხოვნებისგან დაცვა არ აქვს: ორმა ერთდროულმა მოთხოვნამ შეიძლება ბოლო ადგილი ან ბოლო ვიზიტი ორივემ აიღოს.
-- მომხმარებელზე მხოლოდ ერთი refresh token ინახება: მეორე მოწყობილობიდან შესვლისას პირველი მოწყობილობა გამოდის, როცა მისი access token ამოიწურება.
-- აბონემენტის ჩანაწერი არ ინახავს გადახდილ ფასს; *My membership* გვერდი იმავე სახელის გეგმის მიმდინარე ფასს აჩვენებს.
-- ტრენერს აქვს სრული სახელი, სპეციალიზაცია და გამოცდილების წლები; API-ში ცალკე გვარი და აღწერა არ არის.
-- UI-დან მომხმარებლის ანგარიშის წაშლის endpoint არ არსებობს.
+- Booking needs an active membership with visits left, a session that has not started, a free seat, no existing booking for that session and no time overlap with the user's other bookings. Sessions starting after the membership expires are rejected.
+- One active membership per user. On limited plans each check-in uses one visit; when none are left the plan counts as finished.
+- Check-in is allowed once per 12 hours (otherwise 409).
+- Only admins can edit (`PUT api/visit/{id}`) or delete (`DELETE api/visit/{id}`) a visit; deleting a visit on an active limited plan refunds it.
+- A trainer cannot have two overlapping sessions. Trainers are soft-deleted, and only if they have no future sessions. Plans and sessions with bookings cannot be deleted. Bookings are cancelled, never deleted.
+- Admins cannot be deleted; a user with active future bookings cannot be deleted.
+
+## UI map
+
+| Page | Who | Main API endpoints |
+|---|---|---|
+| `/Trainers`, `/Trainers/Details/{id}` | everyone | `GET trainers`, `trainers/search`, `trainers/{id}` |
+| `/Sessions`, `/Sessions/Details/{id}` | logged-in | `GET training-sessions`, `POST/DELETE bookings` |
+| `/Plans`, `/Plans/Details/{id}` | everyone / users | `GET memberships/plans`, `POST memberships/activate` |
+| `/Membership` | user | `GET/DELETE memberships/my`, `POST visit/check-in`, `GET visit/my` |
+| `/Bookings/My`, `/Bookings/All` | user / admin | `GET bookings/my`, `GET bookings` |
+| `/Profile` | logged-in | `GET profile`, `memberships/history`, `bookings/upcoming` |
+| `/Users`, `/Users/Details/{id}` | admin | `GET users`, `users/{id}/...`, `DELETE users/{id}`, `PUT/DELETE visit/{id}` |
+| `/Account/Register`, `Verify`, `Login` | guests | `POST auth/register`, `verify-email`, `login` |
+
+## Time zone and currency
+
+The API stores and returns **UTC**. The UI converts to the zone in `FitZone.Web/appsettings.json` (`Display:TimeZone`, default `Asia/Tbilisi`); `Display:Currency` sets the currency symbol.
+
+## Known limitations
+
+- Seat and visit counters are not protected against concurrent requests (two simultaneous requests can take the last seat or visit).
+- Only one refresh token is stored per user, so logging in on a second device signs the first one out once its access token expires.
+- A membership record does not store the price paid; the UI shows the current price of the plan with the same name.
+- No CI pipeline yet.
