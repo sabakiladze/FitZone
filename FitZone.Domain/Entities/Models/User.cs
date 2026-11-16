@@ -31,8 +31,8 @@ namespace FitZone.Domain.Entities.Models
 
         public DateTime? DeletedAt { get; private set; }
 
-        public Guid? RoleId { get; set; } = null!;
-        public Role? Role { get; set; }= null!;
+        public Guid RoleId { get; set; }
+        public Role Role { get; set; } = null!;
 
 
 

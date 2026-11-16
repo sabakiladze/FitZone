@@ -43,7 +43,7 @@ namespace FitZone.Domain.Entities.Models
 
 
         // ცარიელი კონსტრუქტორი მჭირდება ენტიტი ფრამეწორკისთვის
-        public UserMembershipPlan() { }
+        private UserMembershipPlan() { }
 
         public void MakeVisit()
         {

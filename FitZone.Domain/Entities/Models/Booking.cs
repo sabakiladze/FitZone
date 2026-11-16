@@ -18,11 +18,9 @@ namespace FitZone.Domain.Entities.Models
         public WorkoutSession WorkoutSession { get; set; } = null!;
 
         public DateTime BookedAt { get; set; }= DateTime.UtcNow;
-        public BookingStatus Status { get; set; }= BookingStatus.Pending;
+        public BookingStatus Status { get; set; }
 
 
-
-        // users and books. 1 მომხარებელს აქვს ბევრი ბუქინგი, 1 ბუქინგს აქვს 1 მომხარებელი. 
-        // ანუ კავშირი არი  ერთ უსერს ყავს ბევრი ჯავშანი. 1:N, 1 არის User. 
+        
     }
 }

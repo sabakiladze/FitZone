@@ -68,8 +68,7 @@ namespace FitZone.Infrastructure.Repositorys
 
         public async Task<bool> HasUpcomingSessionsAsync(Guid trainerId, CancellationToken ct = default)
         {
-            return await _context.WorkoutSessions
-        .AnyAsync(s => s.TrainerId == trainerId && s.StartsAt > DateTime.UtcNow, ct);
+            return await _context.WorkoutSessions.AnyAsync(s => s.TrainerId == trainerId && s.StartsAt > DateTime.UtcNow, ct);
 
             // Tu true daabruna anu aqvs momavalshi
         }

@@ -94,7 +94,6 @@ namespace FitZone.Application.Implementations
 
             var visit = await _visitRepo.GetByIdAsync(id, ct) ?? throw new VisitNotFoundException();
 
-            // limited plan that is still active: the deleted visit is given back to the user
             var membership = visit.UserMembershipPlan;
             var limit = membership.MembershipPlan?.VisitLimit;
             if (limit.HasValue && membership.EndDate > DateTime.UtcNow)

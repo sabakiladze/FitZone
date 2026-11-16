@@ -129,7 +129,7 @@ namespace FitZone.Infrastructure.Data
                     IsEmailVerified = true,
                     IsActive = true,
                     CreatedAt = new DateTime(2026, 10, 25, 0, 0, 0, DateTimeKind.Utc),
-                    RoleId = (Guid?)new Guid("33b55207-ab7c-474e-82e5-fd89bf9bab59")
+                    RoleId = new Guid("33b55207-ab7c-474e-82e5-fd89bf9bab59")
                 });
 
             });
