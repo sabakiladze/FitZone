@@ -84,7 +84,7 @@ namespace FitZone.Infrastructure.Repositories
 
         public async Task<bool> HasActiveFutureBookingsAsync(Guid userId, CancellationToken ct = default)
         {
-            return await _fitZoneDbContext.Bookings.AnyAsync(x=>x.UserId== userId && x.Status!=BookingStatus.Cancelled && x.Status!=BookingStatus.NoShow && x.WorkoutSession.StartsAt>DateTime.UtcNow, ct);
+            return await _fitZoneDbContext.Bookings.AnyAsync(x=>x.UserId== userId && x.Status!=BookingStatus.Cancelled && x.WorkoutSession.StartsAt>DateTime.UtcNow, ct);
         }
     }
 }

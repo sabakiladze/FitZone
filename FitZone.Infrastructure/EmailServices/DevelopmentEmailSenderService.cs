@@ -15,7 +15,6 @@ namespace FitZone.Infrastructure.Email
 
         public Task SendAsync(string toEmail, string subject, string body, CancellationToken ct = default)
         {
-            var text = System.Text.RegularExpressions.Regex.Replace(body, "<.*?>", " ");
             _logger.LogInformation("FAKE EMAIL to {To}: {Subject}\n{Body}", toEmail, subject, body, ct);
             return Task.CompletedTask;
         }

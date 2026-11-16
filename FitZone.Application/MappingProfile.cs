@@ -42,7 +42,7 @@ namespace FitZone.Application
                     .ForMember(d => d.TrainerName, o => o.MapFrom(s => s.Trainer!.FullName))
                      .ForMember(d => d.FreeSpots, o => o.MapFrom(s =>
                      Math.Max(0, s.Capacity - s.Bookings.Count(b =>
-                          b.Status != BookingStatus.Cancelled && b.Status != BookingStatus.NoShow))));
+                          b.Status != BookingStatus.Cancelled))));
 
             CreateMap<CreateTrainerRequestDTO, Trainer>()
                 .ForMember(d => d.Id, o => o.Ignore())

@@ -2,7 +2,7 @@ namespace FitZone.Web.Models;
 
 // API-ს DTO-ების სარკე (მხოლოდ ის ველები, რაც UI-ს სჭირდება).
 
-public enum BookingStatus { Active, Pending, Cancelled, Attended, NoShow }
+public enum BookingStatus { Active, Pending, Cancelled }
 
 public class PagedResult<T>
 {

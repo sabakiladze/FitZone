@@ -56,7 +56,6 @@ namespace FitZone.Infrastructure.Repositorys
                 .Include(x => x.WorkoutSession).ThenInclude(s => s.Trainer)
                 .Where(x => x.UserId == userId
                     && x.Status != BookingStatus.Cancelled
-                    && x.Status != BookingStatus.NoShow
                     && x.WorkoutSession.EndsAt > now)
                 .OrderBy(x => x.WorkoutSession.StartsAt)
                 .ToListAsync(ct);
@@ -104,7 +103,7 @@ namespace FitZone.Infrastructure.Repositorys
             //bookings ში უ არსებობს ისეთი ობიექტი სადას user and workoutsession id-ები ემთხვევა ამას და სტატუსი არაა გაუქმებული.
             // ანუ თუ არსებობს ასეთი ჯავშანი უსერის და სესიის ადით სადაც სტატუსი არაა გაუქმებული
 
-            var registere = _fitZone.Bookings.Where(x => x.UserId == userId && x.WorkoutSessionId == sessionId && x.Status != BookingStatus.Cancelled && x.Status != BookingStatus.NoShow);
+            var registere = _fitZone.Bookings.Where(x => x.UserId == userId && x.WorkoutSessionId == sessionId && x.Status != BookingStatus.Cancelled);
             if (registere.Any()) { return true; } // aqvs ukve
             return false; // ar aqvs
         }
@@ -117,7 +116,6 @@ namespace FitZone.Infrastructure.Repositorys
 
             return user.Bookings.Any(x =>
                 x.Status != BookingStatus.Cancelled &&
-                x.Status != BookingStatus.NoShow &&
                 x.WorkoutSession.StartsAt < endsAt &&
                 x.WorkoutSession.EndsAt > startsAt);
             // თუ არსეობოს ერთი ობიექტიც ასეთი მაშინ დააბრუნებს true, ანუ ეჯახებიან და არ მაქვს უფლება შევქმნა ახალი დაჯავშნა

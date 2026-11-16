@@ -12,8 +12,6 @@ namespace FitZone.Domain.Enums
             Active,
             Pending,
             Cancelled,
-            Attended,
-            NoShow
         
     }
 

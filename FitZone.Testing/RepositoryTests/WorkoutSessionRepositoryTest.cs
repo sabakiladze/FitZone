@@ -103,7 +103,7 @@ namespace FitZone.Testing.RepositoryTests
 
 
         [Fact]
-        public async Task CountActiveBookingsAsync_Should_Skip_Cancelled_And_NoShow()
+        public async Task CountActiveBookingsAsync_Should_Skip_Cancelled()
         {
             using var context = CreateContext();
             var trainer = NewTrainer();
@@ -113,8 +113,7 @@ namespace FitZone.Testing.RepositoryTests
 
             foreach (var status in new[]
             {
-                BookingStatus.Active, BookingStatus.Pending, BookingStatus.Attended,
-                BookingStatus.Cancelled, BookingStatus.NoShow
+                BookingStatus.Active, BookingStatus.Pending, BookingStatus.Cancelled
             })
             {
                 context.Bookings.Add(new Booking
@@ -131,7 +130,7 @@ namespace FitZone.Testing.RepositoryTests
 
             var count = await repo.CountActiveBookingsAsync(session.Id);
 
-            count.Should().Be(3);  
+            count.Should().Be(2);  
         }
 
 

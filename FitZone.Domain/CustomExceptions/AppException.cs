@@ -10,6 +10,7 @@ namespace FitZone.Domain.CustomExceptions
     {
         public int StatusCode { get; }
 
+        // base ნიშნავს რომ გადასცემს მშობელ კლასს ამ შეტყობინებას.
         protected AppException(string message, int statusCode) : base(message)
         {
             StatusCode = statusCode;

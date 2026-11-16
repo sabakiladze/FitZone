@@ -26,8 +26,7 @@ namespace FitZone.Infrastructure.Repositorys
         {
             return await _fitZonedb.Bookings.CountAsync(x =>
             (x.WorkoutSessionId == sessionId &&
-            x.Status != Domain.Enums.BookingStatus.Cancelled &&
-            x.Status != Domain.Enums.BookingStatus.NoShow), ct);
+            x.Status != Domain.Enums.BookingStatus.Cancelled), ct);
 
            // ეს ეძებს და ითვლის ისეთ book ობიექტებს რომლებიც ეკუთვნის მოცემული სესსის აიდის და ასევე მისი სტატუსი არაა გაუქმებული ანუ არის აქტიური
            // გამიყენება იმსთის რომ გავიგოთ რამდენი ადგილი დაგვრჩა.

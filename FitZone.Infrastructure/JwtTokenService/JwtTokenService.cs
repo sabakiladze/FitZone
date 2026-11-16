@@ -33,6 +33,7 @@ namespace FitZone.Infrastructure.JwtTokenService
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+
             /*იღებს საიდუმლო ტექსტურ გასაღებს (Secret Key) კონფიგურაციიდან,
              * გადაიყვანს მას ბაიტების მასივში (Encoding.UTF8.GetBytes) 
              * და ქმნის სიმეტრიულ უსაფრთხოების გასაღებს (SymmetricSecurityKey).
