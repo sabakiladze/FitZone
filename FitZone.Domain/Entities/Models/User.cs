@@ -27,7 +27,7 @@ namespace FitZone.Domain.Entities.Models
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? LastLoginAt { get; set; }
+        public DateTime? LastLoginAt { get; private set; }
 
         public DateTime? DeletedAt { get; private set; }
 
@@ -90,6 +90,11 @@ namespace FitZone.Domain.Entities.Models
         public void Activate()
         {
             IsActive = true;
+        }
+
+        public void RecordLogin()
+        {
+            LastLoginAt = DateTime.UtcNow;
         }
 
         public void SetRefreshToken(string hash, DateTime expiresAt)

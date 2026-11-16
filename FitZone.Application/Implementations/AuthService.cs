@@ -88,6 +88,7 @@ namespace FitZone.Application.Implementations
             var (refreshToken, tokenHash, refreshexpiresAt) = _jwtTokenService.GenerateRefreshToken();
 
             user.SetRefreshToken(tokenHash, refreshexpiresAt);
+            user.RecordLogin();
 
             await _unitOfWork.SaveChangesAsync(ct);
 
