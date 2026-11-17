@@ -295,6 +295,7 @@ public class BookingServiceTests
     [Fact]
     public async Task Cancel_UserNotFound_Throws()
     {
+        
         var userId = Guid.NewGuid();
         _userRepo.Setup(r => r.GetByIdAsync(userId, It.IsAny<CancellationToken>())).ReturnsAsync((User?)null);
 

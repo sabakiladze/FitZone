@@ -70,9 +70,6 @@ namespace FitZone.Application.Implementations
             var saved = await _repository.GetByIdAsync(session.Id, ct)?? throw new WorkoutSessionNotFoundException();
             return _mapper.Map<WorkoutSessionDTO>(saved);
 
-
-
-
         }
 
         public async Task<PagedResponseDTO<WorkoutSessionDTO>> GetAsync(WorkoutSessionFilterDTO filter, PaginationQueryDTO paging, CancellationToken ct = default)

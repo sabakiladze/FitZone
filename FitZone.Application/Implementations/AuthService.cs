@@ -46,7 +46,9 @@ namespace FitZone.Application.Implementations
         public async Task DeleteUserAsync(Guid userId, DeleteAccountRequestDTO request, CancellationToken ct = default)
         {
             ArgumentNullException.ThrowIfNull(request);
+
             var user = await _userRepository.GetByIdAsync(userId, ct);
+
             if (user is null || user.DeletedAt is not null)
                 throw new UserNotFoundException();
 

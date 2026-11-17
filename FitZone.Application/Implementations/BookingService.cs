@@ -92,6 +92,7 @@ namespace FitZone.Application.Implementations
                 throw new AlreadyBookedException();
 
             var activeCount = await _workOutSessionRepository.CountActiveBookingsAsync(session.Id, ct);
+
             if (activeCount >= session.Capacity)
                 throw new SessionFullException();
 

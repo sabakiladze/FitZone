@@ -17,7 +17,7 @@ namespace FitZone.Testing.RepositoryTests
 
 
         // დამხმარე მეთოდი, რომელიც ქმნის იზოლირებულ In-Memory ბაზას ყოველი ტესტისთვის
-        // და აბრუნებს ამ ბაზას
+        // და აბრუნებს ამ ბაზას.. თითოეულ ტესტზე ახალ ბაზავს ქმნით
         private FitZoneDbContext GetInMemoryDbContext()
         {
             var options = new DbContextOptionsBuilder<FitZoneDbContext>()

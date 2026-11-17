@@ -40,8 +40,10 @@ namespace FitZone.Application.Implementations
         {
 
             if (userId == Guid.Empty) throw new EnterProperIdException();
+            
             var membership = await _userMembershipRepo.GetActiveByUserIdAsync(userId, ct) // rom shevamowmo remaining visits
                 ?? throw new NoActiveMembershipException();
+            if (userId != membership.UserId) throw new ForbiddenException();
 
             if (await _visitRepo.HasVisitSinceAsync(userId, DateTime.UtcNow.AddHours(-CheckInCooldownHours), ct))
                 throw new CheckInTooSoonException();

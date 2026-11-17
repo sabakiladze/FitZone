@@ -39,6 +39,7 @@ namespace FitZone.Infrastructure.Repositorys
 
         public async Task<bool> HasUserMembershipsAsync(Guid planId, CancellationToken ct = default)
         {
+            // vinmes tu uyidia an vadagasulia an amowuruli araa jer mashin ver wavSli
             return await _fitZoneDbContext.MembershipPlans
                 .AnyAsync(p => p.Id == planId && p.UserMembershipPlans.Any(), ct);
         }

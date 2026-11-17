@@ -209,9 +209,11 @@ namespace FitZone.Infrastructure.Data
             {
                 builder.ToTable("Bookings");
                 builder.HasKey(b => b.Id);
+
                 builder.HasIndex(b => new { b.UserId, b.WorkoutSessionId })
                 .IsUnique()
                 .HasFilter("[Status] <> 2 AND [Status] <> 4");
+
                 builder.Property(b => b.Id);
                 builder.Property(b => b.BookedAt);
                 builder.Property(b => b.Status);

@@ -190,6 +190,7 @@ namespace FitZone.Testing.ServiceTests
         [InlineData(null)]
         [InlineData("")]
         [InlineData("   ")]
+        // InlineData-ში ჩაწერილი მნიშვნელობა გადაეცემა მეთოდის პარამეტრად (token). ამიტომ ეს ერთი მეთოდი სამჯერ გაეშვება:
         public async Task SearchAsync_Should_Pass_Null_When_Value_Is_Empty(string? value)
         {
             _repo.Setup(r => r.SearchAsync(null, null, It.IsAny<CancellationToken>()))
